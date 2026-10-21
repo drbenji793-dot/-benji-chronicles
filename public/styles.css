@@ -2,3 +2,5 @@
 @media(max-width:760px){.shelf{padding-top:28px}.shelf h1{font-size:34px}.intro{margin-bottom:24px}.cover{min-height:190px;padding:18px}.cover svg{width:60px;height:60px;margin-bottom:10px}.cover strong{font-size:27px}.card-body{padding:22px}.card-body h2{margin:10px 0}.card-body p{margin-bottom:7px}.book-foot{margin:12px 0}.card-actions{margin-top:8px}}
 
 .identity select{max-width:140px}.shelf[dir=rtl] .eyebrow{letter-spacing:0}.text-diff{white-space:pre-wrap;overflow-wrap:anywhere;font-size:19px;line-height:1.9}ins{background:#dcf0df;color:#215933;text-decoration:underline}del{background:#f8dfdb;color:#8f3029}.history-help{font-size:12px;line-height:1.8;color:var(--muted)}.diff-key{font-size:12px}.diff-key ins,.diff-key del{padding:4px 8px}.version small{overflow-wrap:anywhere}
+
+#writer-name{display:block;width:100%;margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
