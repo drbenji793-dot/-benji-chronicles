@@ -8,3 +8,5 @@
 /* Bilingual partnership and motto, preserving the existing writing room. */
 .brand{min-width:0}.brand>span{min-width:0}.brand img{flex-shrink:0}.brand .collaboration{font-size:11px;line-height:1.5;letter-spacing:0;max-width:390px;margin-top:5px;overflow-wrap:anywhere}.brand .collaboration[lang=ar]{text-align:left;color:var(--gold)}.identity{flex-shrink:0}.motto-en{text-align:right;letter-spacing:.2px}
 @media(max-width:520px){.topbar{align-items:flex-start;gap:10px}.brand{align-items:flex-start;gap:8px}.brand strong{font-size:21px;line-height:1.15}.brand .collaboration{font-size:10px;line-height:1.5}.brand img{width:34px;height:34px}.identity select{max-width:78px}.shelf h1{font-size:30px;line-height:1.5;letter-spacing:0}.motto-en{font-size:13px}}
+
+.story-card{text-decoration:none;cursor:pointer}.story-card:hover{border-color:var(--gold)}.story-card:focus-visible{outline:3px solid var(--gold);outline-offset:4px}.story-open{display:inline-block;min-height:42px;border:1px solid var(--green);border-radius:8px;padding:9px 14px}.story-card:hover .story-open{background:#223c30}
