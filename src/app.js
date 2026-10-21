@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify';
+import './launch.js';
 const BASE='https://jrpchxdaylhdkkxbtump.supabase.co/rest/v1/';
 const KEY='sb_publishable_Vrsk6OMwltLHU-EE0Te6rQ_7IDES5zL';
 const $=s=>document.querySelector(s);
