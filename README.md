@@ -31,3 +31,10 @@ Single story card, Arabic and English switching, chapter navigation, protected r
 
 Source repository: https://github.com/drbenji793-dot/-benji-chronicles
 The repository is public. The existing Vercel project serves the public directory. Chapter edits are stored in Supabase; GitHub tracks the website code.
+
+
+## Arabic collaboration update
+Chronicles displays only Arabic chapters. Existing English records remain untouched.
+Writer labels are self selected, with an Add friend option. Saved names also appear from existing history and notes. These labels are attribution, not verified identities.
+The contribution history compares adjacent saved versions, highlighting added and removed text. Initial imported versions have no prior comparison. Formatting only changes can be read in the version preview.
+Apply only the incremental migration in `supabase/migrations/20261021223017_chronicles_collaborator_names.sql` when upgrading an existing deployment. Never rerun `db/schema.sql` on an existing database.
