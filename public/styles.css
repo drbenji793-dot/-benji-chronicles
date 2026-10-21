@@ -4,3 +4,7 @@
 .identity select{max-width:140px}.shelf[dir=rtl] .eyebrow{letter-spacing:0}.text-diff{white-space:pre-wrap;overflow-wrap:anywhere;font-size:19px;line-height:1.9}ins{background:#dcf0df;color:#215933;text-decoration:underline}del{background:#f8dfdb;color:#8f3029}.history-help{font-size:12px;line-height:1.8;color:var(--muted)}.diff-key{font-size:12px}.diff-key ins,.diff-key del{padding:4px 8px}.version small{overflow-wrap:anywhere}
 
 #writer-name{display:block;width:100%;margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+
+/* Bilingual partnership and motto, preserving the existing writing room. */
+.brand{min-width:0}.brand>span{min-width:0}.brand img{flex-shrink:0}.brand .collaboration{font-size:11px;line-height:1.5;letter-spacing:0;max-width:390px;margin-top:5px;overflow-wrap:anywhere}.brand .collaboration[lang=ar]{text-align:left;color:var(--gold)}.identity{flex-shrink:0}.motto-en{text-align:right;letter-spacing:.2px}
+@media(max-width:520px){.topbar{align-items:flex-start;gap:10px}.brand{align-items:flex-start;gap:8px}.brand strong{font-size:21px;line-height:1.15}.brand .collaboration{font-size:10px;line-height:1.5}.brand img{width:34px;height:34px}.identity select{max-width:78px}.shelf h1{font-size:30px;line-height:1.5;letter-spacing:0}.motto-en{font-size:13px}}
