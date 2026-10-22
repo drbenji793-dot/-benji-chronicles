@@ -54,7 +54,7 @@ export function createNavigation({ render, allowLeave, leave, onError }) {
   const url=new URL(a.href,location.href);
   if(url.origin!==location.origin||url.pathname!==location.pathname||url.search!==location.search)return;
   if(url.hash==='#main')return;
-  if(url.hash&&!/^#(?:references|storyline|characters|lang=ar&chapter=\d+)$/.test(url.hash))return;
+  if(url.hash&&!/^#(?:references|storyline|characters|writing-rules|lang=ar&chapter=\d+|book=[0-9a-f-]{36}(?:&(chapter=\d+|rules=1))?)$/i.test(url.hash))return;
   e.preventDefault();navigate(url.hash);
  });
  // Leave edge gestures to iOS/Safari so a native swipe never causes two traversals.
