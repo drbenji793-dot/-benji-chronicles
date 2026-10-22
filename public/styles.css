@@ -21,3 +21,51 @@
 
 /* Chapter one editorial map and additive writing rules */
 .editorial-update{margin:2rem 0;padding:1.5rem;border:1px solid #a78b55;border-radius:12px}.editorial-update details{padding:.75rem 0;border-bottom:1px solid #a78b5544}.editorial-update summary{cursor:pointer;font-weight:700}.evidence-origin{padding:1rem;text-align:center;border:1px solid #a78b55;border-radius:10px}.evidence-branches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin:1rem 0}.evidence-branches article{padding:1rem;border:1px solid #a78b5588;border-radius:10px;text-align:center}.evidence-branches h3{margin-top:0}@media(max-width:650px){.evidence-branches{grid-template-columns:1fr}.editorial-update{padding:1rem}}
+
+
+/* Additional Arabic books in the Benji Chronicles shared library */
+.chronicles-library-add{display:flex;justify-content:flex-start;margin:12px 0 20px}
+.chronicles-library-add .primary{min-height:35px;padding:8px 14px;font-size:12px;border:1px solid #9b793c;border-radius:9px;font-weight:700;background:var(--green);color:#f5e9c9;box-shadow:0 2px 7px #182a2118}
+.chronicles-extra-books{margin:30px 0 12px}
+.chronicles-extra-books h2{font:25px/1.5 Georgia,'Geeza Pro',serif;margin:0 0 13px}
+.chronicles-books-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.chronicles-new-card{display:grid;grid-template-columns:160px minmax(0,1fr);text-decoration:none;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 5px 18px #1b352113;min-height:176px;background:var(--panel);transition:transform .15s}
+.chronicles-new-card:hover{transform:translateY(-2px);background:var(--panel)}
+.chronicles-new-cover{display:flex;flex-direction:column;justify-content:space-between;gap:8px;padding:19px 14px;background:linear-gradient(140deg,#173b31,#3d5b45);color:#e4cc93;position:relative;min-width:0}
+.chronicles-new-cover:before{content:'';position:absolute;inset:8px;border:1px solid #bd955d9a;box-shadow:inset 0 0 0 3px #1a3f31,inset 0 0 0 4px #bd955d70;pointer-events:none}
+.chronicles-new-cover strong{font:700 23px/1.5 Georgia,'Geeza Pro',serif;overflow-wrap:anywhere;z-index:1}
+.chronicles-new-cover small,.chronicles-book-label{font-size:9px;z-index:1}
+.chronicles-book-label{letter-spacing:1.2px;font-weight:700}
+.chronicles-new-info{padding:18px 17px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.chronicles-new-info>strong{font-size:17px;overflow-wrap:anywhere;line-height:1.65}
+.chronicles-new-info p{font-size:12px;line-height:1.7;color:var(--muted);margin:0}
+.chronicles-new-info small{font-size:10px}
+.chronicles-new-open{font-size:11px;color:var(--green);font-weight:700;margin-top:auto}
+.chronicles-writer-ahmed{color:#a62d37;font-weight:750}
+.chronicles-writer-benji{color:#236344;font-weight:750}
+.chronicles-book-form{display:grid;gap:13px;max-width:620px}
+.chronicles-book-form label{display:grid;gap:6px;font-size:12px;font-weight:650;color:var(--ink)}
+.chronicles-book-form input,.chronicles-book-form select,.chronicles-book-form textarea{width:100%;min-width:0;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;font:14px/1.5 system-ui,sans-serif}
+.chronicles-book-form button[type=submit]{justify-self:start;min-height:36px;font-size:12px;padding:8px 16px}
+.chronicles-book-home{max-width:1000px}
+.chronicles-book-home h1{overflow-wrap:anywhere}
+.chronicles-book-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:12px 0 22px}
+.chronicles-book-actions>a,.chronicles-book-actions>button{font-size:11px;min-height:32px;padding:7px 11px}
+.chronicles-chapter-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.chronicles-chapter-card{display:grid;gap:7px;text-decoration:none;background:var(--panel);border:1px solid var(--line);padding:15px;border-radius:9px}
+.chronicles-chapter-card:hover{border-color:var(--green)}
+.chronicles-chapter-card strong{font-size:14px;line-height:1.6}
+.chronicles-chapter-card small{font-size:10px;color:var(--muted);line-height:1.5}
+.chronicles-workspace .chapter-link{display:block;text-decoration:none}
+.chronicles-workspace .editor-area{min-width:0}
+.chronicles-workspace #chronicles-entry-body:empty:before{content:'ابدأ الكتابة هنا...';color:var(--muted)}
+.chronicles-workspace #chronicles-entry-body[contenteditable=true]{padding:18px;min-height:55vh;outline:1px solid var(--gold);background:var(--panel);border-radius:8px}
+.chronicles-workspace .reference-note{line-height:1.75}
+@media(max-width:850px){.chronicles-books-grid{grid-template-columns:1fr}.chronicles-new-card{grid-template-columns:145px minmax(0,1fr)}}
+@media(max-width:560px){.chronicles-library-add{margin:7px 0 14px}.chronicles-library-add .primary{min-height:34px;padding:7px 10px;font-size:11px}
+.chronicles-books-grid,.chronicles-chapter-cards{grid-template-columns:1fr}
+.chronicles-new-card{grid-template-columns:115px minmax(0,1fr);min-height:160px}
+.chronicles-new-cover{padding:17px 12px}.chronicles-new-cover strong{font-size:20px}
+.chronicles-new-info{padding:14px 12px;gap:5px}.chronicles-new-info>strong{font-size:15px}
+.chronicles-book-actions{gap:5px}.chronicles-book-actions>a,.chronicles-book-actions>button{font-size:10px;padding:7px 9px}}
+@media print{.chronicles-library-add,.chronicles-extra-books,.chronicles-workspace .toolbar,.chronicles-book-actions,.chronicles-workspace .sidebar,.chronicles-workspace .notes{display:none!important}}
