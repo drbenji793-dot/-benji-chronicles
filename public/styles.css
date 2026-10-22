@@ -69,3 +69,6 @@
 .chronicles-new-info{padding:14px 12px;gap:5px}.chronicles-new-info>strong{font-size:15px}
 .chronicles-book-actions{gap:5px}.chronicles-book-actions>a,.chronicles-book-actions>button{font-size:10px;padding:7px 9px}}
 @media print{.chronicles-library-add,.chronicles-extra-books,.chronicles-workspace .toolbar,.chronicles-book-actions,.chronicles-workspace .sidebar,.chronicles-workspace .notes{display:none!important}}
+
+/* Global Rules footer remains visible across library and chapter routes */
+#main>footer{display:none!important}.rules-global-footer{width:min(1200px,calc(100% - 34px));margin:23px auto 0;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:18px 6px 24px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;text-align:left}.rules-global-footer .rules-footer-link{display:inline-flex;align-items:center;justify-content:center;padding:6px 11px;min-height:31px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--green);text-decoration:none;font-size:11px;font-weight:750}.rules-global-footer .rules-footer-link:hover{background:var(--soft)}@media print{.rules-global-footer{display:none!important}}
