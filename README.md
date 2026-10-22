@@ -38,3 +38,14 @@ Chronicles displays only Arabic chapters. Existing English records remain untouc
 Writer labels are self selected, with an Add friend option. Saved names also appear from existing history and notes. These labels are attribution, not verified identities.
 The contribution history compares adjacent saved versions, highlighting added and removed text. Initial imported versions have no prior comparison. Formatting only changes can be read in the version preview.
 Apply only the incremental migration in `supabase/migrations/20261021223017_chronicles_collaborator_names.sql` when upgrading an existing deployment. Never rerun `db/schema.sql` on an existing database.
+
+
+## New books in Chronicles (October 22, 2026)
+
+The Chronicles bookshelf has a compact `＋ كتاب جديد · New Book` button above the original *شرخ زمني* card. New books are Arabic writing spaces with a primary writer (Benji or Ahmed), individual or shared mode, and editable book specific rules inherited from the Global `_zkalam4` principles. Each new book has its own chapter list, notes, and immutable revision history. Writers can open Book Rules, add chapters, edit, save, review history, and recover unsaved local drafts. All book editing uses revision conditioned updates to prevent silent overwrites. The new routes `#book=<uuid>`, `#book=<uuid>&rules=1`, and `#book=<uuid>&chapter=N` participate in browser history and swipe navigation.
+
+New work is stored separately in `chronicles_books`, `chronicles_book_entries`, `chronicles_book_versions`, and `chronicles_book_notes`. The migration named `chronicles_multi_book_library` was applied to the connected Supabase project, with row level security and public access matching the existing no sign in policy. `chronicles_create_book` creates a book and a rules entry atomically. The original 110 chapter records, their history, and Benji Ink books are unchanged. Original references, character guides, and PDF/HTML export continue to belong to *شرخ زمني*. A new book is not automatically exported through the original story export menu.
+
+Access warning: anyone with the public site link can create or edit a book, because the user explicitly chose a no sign in collaboration space. Writer labels are self selected, not authenticated identities.
+
+Verification: an anonymous role transaction successfully created a book and initial book rules, inserted a chapter, saved its revision, and recorded the revision history. The test transaction was rolled back. The original chapter checksum was compared before and after and was unchanged. The Vercel production deployment built successfully.
