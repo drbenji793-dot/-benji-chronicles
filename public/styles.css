@@ -72,3 +72,47 @@
 
 /* Global Rules footer remains visible across library and chapter routes */
 #main>footer{display:none!important}.rules-global-footer{width:min(1200px,calc(100% - 34px));margin:23px auto 0;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:18px 6px 24px;border-top:1px solid var(--line);color:var(--muted);font-size:11px;text-align:left}.rules-global-footer .rules-footer-link{display:inline-flex;align-items:center;justify-content:center;padding:6px 11px;min-height:31px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--green);text-decoration:none;font-size:11px;font-weight:750}.rules-global-footer .rules-footer-link:hover{background:var(--soft)}@media print{.rules-global-footer{display:none!important}}
+
+/* Chronicles homepage alignment: share the same left content axis as site navigation. */
+#main > .shelf {
+  width:100%;
+  max-width:none;
+  margin:0;
+  padding:40px max(5vw,18px) 60px;
+}
+#main > .shelf > .eyebrow,
+#main > .shelf > h1,
+#main > .shelf > .intro,
+#main > .shelf > p,
+#main > .shelf > .chronicles-extra-books > h2 {
+  text-align:left;
+}
+#main > .shelf > h1 {
+  max-width:1120px;
+  font-size:clamp(36px,4vw,52px);
+}
+#main > .shelf > .intro {margin-bottom:22px;}
+#main > .shelf > .chronicles-library-add {justify-content:flex-end;}
+#main > .shelf > .story-card {
+  width:100%;
+  max-width:1120px;
+  grid-template-columns:minmax(220px,280px) minmax(0,1fr);
+  margin-left:0;
+  margin-right:auto;
+}
+#main > .shelf > .story-card .card-body {text-align:left;}
+#main > .shelf > .story-card .card-actions {justify-content:flex-end;}
+#main > .shelf > .chronicles-extra-books {
+  width:100%;
+  max-width:1120px;
+  margin-left:0;
+  margin-right:auto;
+}
+@media(max-width:760px) {
+  #main > .shelf {padding:28px 20px 45px;}
+  #main > .shelf > .story-card {grid-template-columns:1fr;}
+  #main > .shelf > h1 {font-size:34px;line-height:1.5;}
+}
+@media(max-width:520px) {
+  #main > .shelf > h1 {font-size:30px;}
+}
