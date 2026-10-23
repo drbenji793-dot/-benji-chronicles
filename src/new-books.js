@@ -1,4 +1,4 @@
-// Independent Arabic book library. The original "شرخ زمني" records remain in chronicles_chapters.
+// Independent language libraries. The original "شرخ زمني" records remain in chronicles_chapters.
 export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,navigate,date,workflow,trackAuthors}) {
   const $=selector=>document.querySelector(selector);
   const uuid=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
@@ -12,10 +12,10 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
 
   async function load(){books=await api('chronicles_books?select=*&order=created_at.asc');}
   function isBookRoute(params){return params.has('book');}
-  function cards(){
-    if(!books.length)return '';
-    return '<section class="chronicles-extra-books" aria-label="Additional books"><h2>Our new books</h2><div class="chronicles-books-grid">'
-      +books.map(b=>`<a class="chronicles-new-card" href="#book=${esc(b.id)}">
+  function cards(language='ar'){
+    if(!books.some(b=>b.language===language))return '';
+    return '<section class="chronicles-extra-books" aria-label="Additional books"><h2>Books & Stories</h2><div class="chronicles-books-grid">'
+      +books.filter(b=>b.language===language).map(b=>`<a class="chronicles-new-card" href="#book=${esc(b.id)}">
         <div class="chronicles-new-cover">
           <span class="chronicles-book-label">BENJI CHRONICLES · NEW BOOK</span>
           <strong dir="auto">${esc(b.title)}</strong>
@@ -23,7 +23,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         </div>
         <div class="chronicles-new-info"><strong dir="auto">${esc(b.title)}</strong>
           <p dir="auto">${esc(b.description||'A new space for writing and adventures.')}</p>
-          <small><span class="${b.primary_writer==='Ahmed'?'chronicles-writer-ahmed':'chronicles-writer-benji'}">${esc(b.primary_writer)}</span> · Arabic book</small>
+          <small><span class="${b.primary_writer==='Ahmed'?'chronicles-writer-ahmed':'chronicles-writer-benji'}">${esc(b.primary_writer)}</span> · ${b.language==='en'?'English':'Arabic'} book</small>
           <span class="chronicles-new-open">Open book ↗</span>
         </div>
       </a>`).join('')+'</div></section>';
@@ -36,14 +36,14 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     $('#modal-content').innerHTML=html;
     if(!dialog.open)dialog.showModal();
   }
-  function showCreateModal(){
+  function showCreateModal(language='ar'){
     const selected=getWriter()==='Ahmed'?'Ahmed':'Benji';
     modal('+ New Book',`<form id="chronicles-create-book" class="chronicles-book-form">
       <label>Book title<input name="title" maxlength="160" required dir="auto" placeholder="New story title"></label>
       <label>Primary writer<select name="writer" required><option value="Benji" ${selected==='Benji'?'selected':''}>Benji</option><option value="Ahmed" ${selected==='Ahmed'?'selected':''}>Ahmed</option></select></label>
       <label>Book type<select name="collaboration"><option value="shared">Shared writing · Benji & Ahmed</option><option value="solo">Independent book</option></select></label>
       <label>Book idea (optional)<textarea name="description" rows="3" maxlength="2000" dir="auto"></textarea></label>
-      <p class="reference-note">New books here are in Arabic. Each has its own book rules, chapters and revision history alongside the global rules.</p>
+      <p class="reference-note">This book belongs to the ${language==='en'?'English':'Arabic'} library. It can stand alone, with its own rules and chapters.</p>
       <button class="primary" type="submit">+ Create book</button>
     </form>`);
     const form=$('#chronicles-create-book');
@@ -52,10 +52,10 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       const f=new FormData(form),button=form.querySelector('button[type=submit]');
       button.disabled=true;
       try{
-        const created=await api('rpc/chronicles_create_book',{
+        const created=await api('rpc/chronicles_create_library_book',{
           method:'POST',headers:{Prefer:'return=representation'},
           body:JSON.stringify({
-            p_title:String(f.get('title')||'').trim(),
+            p_language:language,p_title:String(f.get('title')||'').trim(),
             p_description:String(f.get('description')||'').trim(),
             p_writer:String(f.get('writer')||selected),
             p_collaboration:String(f.get('collaboration')||'shared')
@@ -100,7 +100,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(!uuid.test(id))throw Error('Invalid book link.');
     book=books.find(b=>b.id===id);
     if(!book){await load();book=books.find(b=>b.id===id);}
-    if(!book)throw Error('Book not found.');
+    if(!book)throw Error('Book not found.');const footerRules=document.querySelector('.footer-rules [data-book-rules]');if(footerRules){footerRules.textContent='Book Rules';footerRules.href=link(book.id)+'&rules=1';}
     const loaded=await api('chronicles_book_entries?book_id=eq.'+id+'&select=*&order=chapter_number.asc.nullslast');
     entries=loaded;
     const rules=params.get('rules')==='1';
@@ -114,34 +114,37 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   }
 
   function header(){
-    return `<nav class="crumb" dir="rtl"><a href="#">Library</a><span>/</span><a href="${link(book.id)}" dir="auto">${esc(book.title)}</a></nav>`;
+    return `<nav class="crumb" dir="${book.language==='en'?'ltr':'rtl'}"><a href="#library&lang=${book.language}">Library</a><span>/</span><a href="${link(book.id)}" dir="auto">${esc(book.title)}</a></nav>`;
   }
   function renderOverview(){
     const list=chapterList();
-    $('#main').innerHTML=header()+`<section class="reference-page chronicles-book-home" dir="rtl">
+    $('#main').innerHTML=header()+`<section class="reference-page chronicles-book-home" dir="${book.language==='en'?'ltr':'rtl'}">
       <div class="eyebrow">BENJI CHRONICLES · Independent book</div>
       <h1 dir="auto">${esc(book.title)}</h1>
       <p class="reference-intro" dir="auto">${esc(book.description||'A space to write a new story.')}</p>
       <p class="reference-note">Primary writer: <strong class="${book.primary_writer==='Ahmed'?'chronicles-writer-ahmed':'chronicles-writer-benji'}">${esc(book.primary_writer)}</strong>
-         · ${book.collaboration==='shared'?'Shared writing workspace':'Independent book'} · Arabic</p>
+         · ${book.collaboration==='shared'?'Shared writing workspace':'Independent book'} · ${book.language==='en'?'English':'Arabic'}</p>
       <div class="chronicles-book-actions">
         <button id="chronicles-add-chapter" class="primary">+ New chapter</button>
         <a href="${link(book.id)}&rules=1" class="reference-link">Book Rules</a>
-        <a href="#writing-rules" class="reference-link">Global Rules · _zkalam4</a>
+        <a href="${book.language==='en'?'https://benji-ink.vercel.app/#styles=zenglish&lang=en&view=laws':'#writing-rules'}" class="reference-link">Global Rules</a>
       </div>
-      <h2>Chapters <small>(${list.length})</small></h2>
+      <button id="related-book">Related Story</button>${relatedLinks(book.id)}<h2>Chapters <small>(${list.length})</small></h2>
       ${list.length?'<div class="chronicles-chapter-cards">'+list.map(c=>`<a class="chronicles-chapter-card" href="${entryLink(c)}">
          <strong>Chapter ${c.chapter_number} · <span dir="auto">${esc(c.title)}</span></strong>
          <small>Revision ${c.revision} · ${esc(c.updated_by)} · ${date(c.updated_at)}</small>
        </a>`).join('')+'</div>':'<div class="guide-card"><p>No chapters yet. Use New chapter to begin.</p></div>'}
     </section><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
-    $('#chronicles-add-chapter').onclick=showCreateChapter;
+    $('#chronicles-add-chapter').onclick=showCreateChapter;$('#related-book').onclick=editRelation;
   }
+  const relatedRoute=key=>key.startsWith('story:')?('#story='+key.split(':')[1]+'&lang='+key.split(':')[2]):'#book='+key;
+  function relatedLinks(key){const direct=books.find(b=>b.id===key)?.related_work;const links=[...(direct?[{key:direct,title:books.find(b=>b.id===direct)?.title||'Related story'}]:[]),...books.filter(b=>b.related_work===key).map(b=>({key:b.id,title:b.title}))];return links.map(x=>`<a class="reference-link" href="${relatedRoute(x.key)}">Related Story · ${esc(x.title)}</a>`).join('');}
+  function editRelation(){modal('Related Story',`<form id="related-form"><p>A connection is optional. Each work keeps its own chapters and approval.</p><label>Connect to<select name="related"><option value="">None · Independent work</option>${books.filter(b=>b.id!==book.id&&b.language!==book.language).map(b=>`<option value="${b.id}">${esc(b.title)}</option>`).join('')}${book.language==='en'?['قطار الليل','الدور الرابع','ثلاث شقق في وسط البلد','ترجمة ناقصة','الساعة اللي وقفت','شقة بالإيجار القديم','البصمة الغلط','نهر بلا شهود','الراجل اللي بلّغ عن نفسه','فندق الجيزة ١٩٧٣','رسالة من بكرة','شرخ زمني'].map((t,i)=>`<option value="story:${i+1}:ar">${esc(t)}</option>`).join(''):'<option value="story:12:en">A Fracture in Time</option>'}</select></label><button>Save Connection</button></form>`);$('#related-form select').value=book.related_work||'';$('#related-form').onsubmit=async e=>{e.preventDefault();try{const related=new FormData(e.target).get('related')||null;await api('chronicles_books?id=eq.'+book.id,{method:'PATCH',body:JSON.stringify({related_work:related})});book.related_work=related;await load();$('#modal').close();renderOverview();say('Story connection saved.')}catch(e){say(e.message,true)}};}
   function showCreateChapter(){
     const next=Math.max(0,...chapterList().map(c=>c.chapter_number))+1;
     modal('+ New chapter',`<form id="chronicles-create-chapter" class="chronicles-book-form">
       <label>Chapter number<input name="number" type="number" min="1" max="999" value="${next}" required></label>
-      <label>Chapter title<input name="title" required maxlength="200" dir="auto" value="الفصل ${next}"></label>
+      <label>Chapter title<input name="title" required maxlength="200" dir="auto" value="${book.language==='en'?'Chapter ':'الفصل '}${next}"></label>
       <p class="reference-note">This chapter will be added only to this book. You can start writing immediately.</p>
       <button class="primary" type="submit">Create chapter</button>
     </form>`);
@@ -169,7 +172,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     const c=active,list=chapterList(),rules=c.kind==='rules';
     const selected=rules?'Book Rules':'Chapter '+c.chapter_number;
     $('#main').innerHTML=header()+`<div class="workspace chronicles-workspace">
-      <aside class="sidebar" dir="rtl">
+      <aside class="sidebar" dir="${book.language==='en'?'ltr':'rtl'}">
         <h2>${esc(book.title)}</h2>
         <div class="chapter-list">
           <a class="chapter-link ${rules?'active':''}" href="${link(book.id)}&rules=1">Book Rules</a>
@@ -177,11 +180,11 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         </div>
         <a class="reference-link" href="${link(book.id)}">All chapters</a>
       </aside>
-      <section class="editor-area" dir="rtl">
+      <section class="editor-area" dir="${book.language==='en'?'ltr':'rtl'}">
         <div class="eyebrow">${esc(selected)} · ${rules?'Book Rules':'Chapter'}</div>
         <div class="chronicles-book-actions">
           <a class="reference-link" href="${link(book.id)}">Book contents</a>
-          <a class="reference-link" href="#writing-rules">Global Rules</a>
+          <a class="reference-link" href="${book.language==='en'?'https://benji-ink.vercel.app/#styles=zenglish&lang=en&view=laws':'#writing-rules'}">Global Rules</a>
           <a class="reference-link" href="${link(book.id)}&rules=1">Book Rules</a>
         </div>
         ${rules?'<p class="reference-note">Global rules are shared. Book rules apply only to this book and never rewrite saved chapters automatically.</p>':''}
@@ -200,7 +203,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
         <div class="save-meta" dir="ltr">Revision ${c.revision} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}</div>
         ${!c.body.trim()&&!rules?'<p class="notice">This chapter is empty. Press Edit to begin.</p>':''}
-        <article id="chronicles-entry-body" class="prose" lang="ar" dir="rtl" contenteditable="false">${clean(c.body)}</article>
+        <article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
         <details class="notes"><summary>Writing notes <span id="chronicles-note-count"></span></summary>
           <div id="chronicles-notes"></div>
           <textarea id="chronicles-note-body" rows="3" dir="auto" placeholder="A note or idea to revisit…"></textarea>
@@ -221,7 +224,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       $('#chronicles-recover').onclick=()=>{beginEdit(d);if(d.revision!==c.revision)say('The saved version changed after this draft. Review it before saving.',true)};
       $('#chronicles-discard').onclick=()=>{if(confirm('Discard this local draft?')){storage.remove(draftKey(c.id));$('#chronicles-save-warning').innerHTML=''}};
     }
-    loadNotes(c.id).catch(e=>say(e.message,true));workflow.mount({...c,language:'ar'},'extra',book.title,()=>editing);
+    loadNotes(c.id).catch(e=>say(e.message,true));workflow.mount({...c,language:book.language},'extra',book.title,()=>editing);
   }
   function beginEdit(d){
     if(!active||editing)return;
@@ -280,7 +283,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       </div>`).join('')+'<div id="chronicles-version-preview"></div>';
     document.querySelectorAll('[data-new-version]').forEach(b=>b.onclick=()=>{
       const v=versions[Number(b.dataset.newVersion)];
-      $('#chronicles-version-preview').innerHTML=`<div class="preview" dir="rtl"><h2 dir="auto">${esc(v.title)}</h2><article class="prose">${clean(v.body)}</article></div>`;
+      $('#chronicles-version-preview').innerHTML=`<div class="preview" dir="${book.language==='en'?'ltr':'rtl'}"><h2 dir="auto">${esc(v.title)}</h2><article class="prose">${clean(v.body)}</article></div>`;
     });
     document.querySelectorAll('[data-new-restore]').forEach(b=>b.onclick=()=>{
       if(editing&&hasChanges()&&!confirm('Replace the current draft?'))return;
@@ -310,6 +313,6 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       say('Note added.');
     }catch(e){say(e.message,true)}finally{if($('#chronicles-add-note'))$('#chronicles-add-note').disabled=false}
   }
-  return {load,isBookRoute,cards,showCreateModal,render,hasChanges,allowLeave,leave,backup};
+  return {load,isBookRoute,cards,relatedLinks,showCreateModal,render,hasChanges,allowLeave,leave,backup};
 }
 

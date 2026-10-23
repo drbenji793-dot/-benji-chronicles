@@ -243,3 +243,15 @@ body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padd
 .edition-gates{display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin:18px auto 24px;max-width:680px}.edition-gates a,.edition-gates button{flex:1;text-align:center;min-width:180px;font-size:13px;padding:12px 16px;border:1px solid var(--line);border-radius:9px;text-decoration:none;color:var(--ink);background:var(--panel)}.edition-gates .primary{background:var(--green);color:var(--paper)}
 .american-cover{background-image:url('/artwork/american-cover.webp');background-size:cover;background-position:center}.american-cover .cover-lettering h2{font-family:Georgia,serif;line-height:1.25}.collection-grid .american-cover .cover-lettering{padding-top:25px}.edition-collection-cover{max-width:330px;margin:0 auto 24px}
 @media(max-width:480px){.edition-gates{flex-direction:column}.edition-gates a{min-width:0}.story-reading button{font-size:12px}}
+
+/* Independent libraries: illustrated entrances, never a language toggle. */
+.world-gates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;width:100%;max-width:1000px;margin:12px auto 35px}
+.world-gate{position:relative;display:flex;align-items:flex-end;min-width:0;aspect-ratio:2/3;border:4px double #ae8b4e;border-radius:12px;overflow:hidden;background-size:cover;background-position:center;text-decoration:none;color:#f6e1ad;box-shadow:0 8px 22px #17352b22;text-align:center;padding:0;cursor:pointer}
+.world-ar{background-image:linear-gradient(0deg,#09251ff5,transparent 75%),url('/artwork/lost-files-cover.webp')}
+.world-en{background-image:linear-gradient(0deg,#09251ff5,transparent 75%),url('/artwork/american-cover.webp')}
+.world-gate-label{display:flex;flex-direction:column;align-items:center;width:100%;padding:30px 12px;gap:12px;background:linear-gradient(transparent,#09251f)}
+.world-gate-label strong{font:clamp(24px,4vw,44px)/1.15 Georgia,serif;color:#f6e1ad}.world-gate-label small{font-size:10px;letter-spacing:2px}.world-gate-label span{font-size:13px;color:#e4dac4}.world-gate-label b{font-size:13px;color:#f6e1ad;border-top:1px solid #ae8b4e;padding-top:14px;margin-top:6px}
+.collection-heading{text-align:center!important}.library-return{display:block;text-align:center;margin:18px}.world-gate:focus-visible{outline:3px solid var(--accent,#315c48);outline-offset:4px}
+@media(max-width:520px){.world-gates{gap:16px;grid-template-columns:1fr;max-width:350px}.world-gate{aspect-ratio:3/4}.world-gate-label{padding:24px 14px}.world-gate-label strong{font-size:34px}}
+
+.shelf>.collection-cover{max-width:440px;margin:24px auto}.story-aux-nav{flex-wrap:wrap}
