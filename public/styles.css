@@ -185,3 +185,12 @@ body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padd
 .footer-rules{display:flex;flex-wrap:wrap;gap:6px}
 .rules-global-footer .rules-footer-link{font-size:10px;font-weight:500;min-height:34px;padding:5px 8px}
 @media(max-width:600px){.book-navigation .ink-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.footer-rules{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.shelf .workshop-title{font-size:23px}}
+
+/* Index cover presentation. */
+#main > .shelf > .workshop-title{font-size:clamp(26px,4vw,38px);line-height:1.25;text-align:center;margin:12px auto 8px;max-width:100%}
+#main > .shelf > .workshop-subtitle{text-align:center;font-size:12px;line-height:1.5;margin:0 auto 22px;color:var(--muted)}
+#main > .shelf > .workshop-subtitle::after{content:"";display:block;width:72px;height:1px;background:var(--gold);margin:16px auto 0}
+#main > .shelf > .chronicles-library-add{justify-content:center;margin:16px 0}
+#main > .shelf > .chronicles-library-add button{font-size:11px;min-height:34px;padding:6px 12px}
+#main > .shelf > .library-workflow{margin:18px 0 0;padding-top:12px;border-top:1px solid var(--line);gap:6px}
+#main > .shelf > .library-workflow button{font-size:10px;line-height:1.5;min-height:34px;padding:6px 9px}
