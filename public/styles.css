@@ -173,3 +173,15 @@ body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padd
 
 /* Reader hierarchy: prominent story titles, compact English metadata. */
 .chapter-title{font-size:clamp(30px,5vw,44px);font-weight:700;line-height:1.45;margin:8px 0 16px}.chapter-part{font-size:15px;color:#80502e;margin:14px 0 5px}.chapter-word-count{font-size:11px;color:var(--muted);text-align:end;margin:12px 0}.save-meta{font:11px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,sans-serif;padding:10px 0;margin:0;border-block:1px solid var(--line);text-align:left}.workflow-panel{font-size:11px;padding:8px 0 12px;margin:0 0 14px}.workflow-status{font-size:11px;margin:0 0 8px}.workflow-actions button{font-size:11px;min-height:35px}.chapter-links{font-size:11px;line-height:1.7;margin:8px 0 20px;color:var(--muted)}.toolbar,.chronicles-book-actions,.notes>summary,.bottom-nav{direction:ltr}.notes>summary{text-align:left}.version small,.note small,.chronicles-chapter-card small{font-size:11px;direction:ltr}.chapter-title-input{direction:inherit}
+
+/* Compact, visible navigation: global layout rule N06. */
+.book-navigation .ink-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;overflow:visible;border:0;padding:8px 0 12px}
+.book-navigation .ink-tabs a{display:flex;align-items:center;justify-content:center;min-width:0;min-height:36px;padding:6px 8px;border:1px solid var(--line);border-radius:7px;font-size:11px;line-height:1.3;text-align:center;white-space:normal;background:transparent;color:var(--muted)}
+.book-navigation .ink-tabs a.selected{border-color:var(--green);background:var(--soft);color:var(--green)}
+.book-navigation .ink-tabs a:focus-visible,.footer-rules a:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.shelf .workshop-title{font-size:26px;line-height:1.3;margin:12px 0 6px;text-align:left}
+.workshop-subtitle{font-size:12px;color:var(--muted);margin:0 0 18px;text-align:left}
+.rules-global-footer{gap:8px;padding-top:12px;font-size:10px}
+.footer-rules{display:flex;flex-wrap:wrap;gap:6px}
+.rules-global-footer .rules-footer-link{font-size:10px;font-weight:500;min-height:34px;padding:5px 8px}
+@media(max-width:600px){.book-navigation .ink-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.footer-rules{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.shelf .workshop-title{font-size:23px}}
