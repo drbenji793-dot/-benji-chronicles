@@ -1,4 +1,4 @@
-import {trackAuthors} from './author-tracking.js';
+import {trackAuthors as trackAuthorEdits} from './author-tracking.js';
 import {createWorkflow} from './workflow.js';
 import {overlayHtml, originalRulesHtml, releaseStamp} from './editorial-update.js';
 import DOMPurify from 'dompurify';
@@ -18,10 +18,12 @@ let chapters=[],current=null,editing=false,busy=false,lang='ar',seq=0,toastTimer
 const validWriter=s=>typeof s==='string'&&s.trim().length>0&&[...s.trim()].length<=40&&!/[<>\x00-\x1f]/.test(s);
 let writer=storage.get('chronicles-writer')==='Ahmed'?'Ahmed':'Benji';
 function renderWriters(){document.querySelectorAll('[data-writer]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.writer===writer));b.disabled=busy})}
-function chooseWriter(name){if(busy)return;writer=name;storage.set('chronicles-writer',writer);renderWriters()}
+function chooseWriter(name){if(busy)return;writer=name;storage.set('chronicles-writer',writer);renderWriters();enableAuthorColors()}
 document.querySelectorAll('[data-writer]').forEach(b=>b.onclick=()=>chooseWriter(b.dataset.writer));
 renderWriters();
 let showAuthors=storage.get('chronicles-author-colors')!=='false';
+function enableAuthorColors(){showAuthors=true;storage.set('chronicles-author-colors','true');renderAuthorColors()}
+function trackAuthors(...args){enableAuthorColors();return trackAuthorEdits(...args)}
 function renderAuthorColors(){document.documentElement.classList.toggle('show-author-colors',showAuthors);$('#author-colors').setAttribute('aria-pressed',String(showAuthors));$('#author-colors').textContent='Author colors '+(showAuthors?'ON':'OFF')}
 $('#author-colors').onclick=()=>{showAuthors=!showAuthors;storage.set('chronicles-author-colors',String(showAuthors));renderAuthorColors()};renderAuthorColors();
 document.documentElement.style.setProperty('--read',size+'px');
