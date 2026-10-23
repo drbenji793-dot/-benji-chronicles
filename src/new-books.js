@@ -100,7 +100,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(!uuid.test(id))throw Error('Invalid book link.');
     book=books.find(b=>b.id===id);
     if(!book){await load();book=books.find(b=>b.id===id);}
-    if(!book)throw Error('Book not found.');const footerRules=document.querySelector('.footer-rules [data-book-rules]');if(footerRules){footerRules.textContent='Book Rules';footerRules.href=link(book.id)+'&rules=1';}
+    if(!book)throw Error('Book not found.');const footerRules=document.querySelector('.footer-rules [data-book-rules]');if(footerRules){footerRules.hidden=false;footerRules.textContent='Book Rules';footerRules.href=link(book.id)+'&rules=1';}
     const loaded=await api('chronicles_book_entries?book_id=eq.'+id+'&select=*&order=chapter_number.asc.nullslast');
     entries=loaded;
     const rules=params.get('rules')==='1';
