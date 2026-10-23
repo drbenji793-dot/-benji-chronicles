@@ -137,3 +137,28 @@
 @media (max-width:520px) {
   #main > .shelf > h1 {font-size:30px;}
 }
+
+
+/* Ink reading layout: one shared boundary for tabs, editions, controls and text. */
+.book-navigation{display:block;padding-top:20px;padding-bottom:0;background:var(--paper)}
+.workspace-heading h2{font:32px/1.5 Georgia,'Geeza Pro',serif;margin:0 0 4px}
+.workspace-heading p{margin:0 0 22px;color:var(--muted);font-size:13px;line-height:1.6}
+.ink-tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:thin;border-bottom:1px solid var(--line)}
+.book-navigation .ink-tabs a{flex-shrink:0;border:0;border-radius:0;padding:14px 16px;min-height:46px;color:var(--muted);font-size:13px;border-bottom:3px solid transparent}
+.book-navigation .ink-tabs a.selected{background:var(--soft);color:var(--green);border-bottom-color:var(--green)}
+.writing-laws{display:flex;gap:9px 24px;flex-wrap:wrap;padding:12px 0 18px;background:var(--soft);align-items:center}
+.book-navigation .writing-laws a{color:var(--green);border:0;background:none;padding:8px 0;font-size:12px}
+.book-navigation .writing-laws a:first-child{flex-basis:100%;font-size:14px}
+#main>.crumb{font-size:15px;background:var(--panel);padding-block:14px;justify-content:space-between}
+#main>.crumb strong{font:700 27px/1.5 Georgia,'Geeza Pro',serif;text-align:right}
+.crumb>span{display:none}
+.edition-strip{width:min(var(--content-max,1200px),calc(100% - 2 * var(--page-gutter,20px)));margin:auto;display:flex;gap:12px;padding:14px 0;background:var(--panel)}
+.edition-strip button{flex:1;min-width:0;font-size:13px;color:var(--green);padding:11px 12px;line-height:1.5}
+.edition-strip button[aria-pressed=true]{border-color:var(--green);box-shadow:inset 0 -2px var(--green)}
+#main>.workspace{display:block}.workspace>.sidebar{display:none}
+.workspace>.editor-area{padding:16px 0 45px}
+.chapter-picker{margin:0 0 18px}.chapter-picker select{font-size:16px;min-height:49px;width:100%}
+.toolbar{gap:6px;margin-bottom:22px;padding:12px 0}.toolbar button{font-size:12px;min-height:40px;padding:8px 11px}.toolbar .protected{font-size:11px;margin-inline:5px}
+.prose{max-width:none}.chapter-title{font-size:36px}.save-meta{margin-bottom:24px}
+@media(max-width:520px){.workspace-heading h2{font-size:28px}.ink-tabs{gap:0}.book-navigation .ink-tabs a{font-size:12px;padding:13px 12px}.edition-strip{gap:9px}.edition-strip button{font-size:12px;padding:10px 8px}.chapter-title{font-size:32px}.author-help{font-size:10px}.toolbar button{padding:8px 10px}}
+@media print{.edition-strip,.book-navigation{display:none!important}.workspace>.editor-area{padding:0}}
