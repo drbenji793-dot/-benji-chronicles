@@ -238,3 +238,8 @@ body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padd
 #resource-body{box-sizing:border-box;width:100%;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:16px;line-height:1.8;font-size:18px}
 .resource-title{font-size:26px;text-align:center}
 @media(min-width:1000px){.collection-grid{gap:28px;max-width:760px}}
+
+/* Two visible collection gates, matching existing reading themes. */
+.edition-gates{display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin:18px auto 24px;max-width:680px}.edition-gates a,.edition-gates button{flex:1;text-align:center;min-width:180px;font-size:13px;padding:12px 16px;border:1px solid var(--line);border-radius:9px;text-decoration:none;color:var(--ink);background:var(--panel)}.edition-gates .primary{background:var(--green);color:var(--paper)}
+.american-cover{background-image:url('/artwork/american-cover.webp');background-size:cover;background-position:center}.american-cover .cover-lettering h2{font-family:Georgia,serif;line-height:1.25}.collection-grid .american-cover .cover-lettering{padding-top:25px}.edition-collection-cover{max-width:330px;margin:0 auto 24px}
+@media(max-width:480px){.edition-gates{flex-direction:column}.edition-gates a{min-width:0}.story-reading button{font-size:12px}}

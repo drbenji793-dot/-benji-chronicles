@@ -1,7 +1,7 @@
 export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getIndex,refresh,diffHTML,supplements}) {
  const $=s=>document.querySelector(s);let controls=[];
  const rpc=(name,data)=>api('rpc/'+name,{method:'POST',body:JSON.stringify(data)});
- const keyOf=(c,kind)=>kind==='main'?((c.story_number||12)===12?'main':'story:'+c.story_number):c.book_id;
+ const keyOf=(c,kind)=>kind==='main'?(c.language==='en'?'adaptation:'+(c.story_number||12):(c.story_number||12)===12?'main':'story:'+c.story_number):c.book_id;
  const routeOf=(c,kind)=>kind==='main'?`#story=${c.story_number||12}&lang=${c.language}&chapter=${c.chapter_number}`:`#book=${c.book_id}${c.kind==='rules'?'&rules=1':'&chapter='+c.chapter_number}`;
  const text=html=>{const d=document.createElement('div');d.innerHTML=clean(html);return d.textContent};
  const show=(title,body)=>{const d=$('#modal');$('#modal-title').textContent=title;$('#modal-content').innerHTML=body;d.dir='ltr';if(!d.open)d.showModal();return d};
@@ -18,7 +18,7 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
  const shelf=$('#main .shelf');if(!shelf)return;
  try{await settings();if(!shelf.isConnected)return;
  const cards=[...shelf.querySelectorAll('a.story-card,a.chronicles-new-card')];
- for(const card of cards){const params=new URLSearchParams(card.hash.slice(1));const key=params.get('book')||(params.has('story')&&Number(params.get('story'))!==12?'story:'+Number(params.get('story')):'main');const s=controls.find(x=>x.book_key===key);if(s?.deleted_at){card.remove();continue;}const heading=card.querySelector('.card-body h2,.chronicles-new-info>strong');const original=heading?.textContent||'Book';const title=s?.title||original;if(heading)heading.textContent=title;card.setAttribute('aria-label','Open '+title);
+ for(const card of cards){const params=new URLSearchParams(card.hash.slice(1));const key=params.get('book')||(params.get('lang')==='en'?'adaptation:'+(Number(params.get('story'))||12):(params.has('story')&&Number(params.get('story'))!==12?'story:'+Number(params.get('story')):'main'));const s=controls.find(x=>x.book_key===key);if(s?.deleted_at){card.remove();continue;}const heading=card.querySelector('.card-body h2,.chronicles-new-info>strong');const original=heading?.textContent||'Book';const title=s?.title||original;if(heading)heading.textContent=title;card.setAttribute('aria-label','Open '+title);
  const wrap=document.createElement('div');wrap.className='managed-book';card.before(wrap);wrap.append(card);const actions=document.createElement('div');actions.className='book-manage';actions.innerHTML=`<details><summary aria-label="Book menu">⋯</summary><button class="rename-book">Rename</button></details><button class="danger delete-book">Delete Book</button>`;wrap.append(actions);actions.querySelector('.rename-book').onclick=()=>rename(key,title);actions.querySelector('.delete-book').onclick=()=>remove(key,title);}
  const bar=document.createElement('div');bar.className='workflow-actions library-workflow';bar.innerHTML='<button id="resume-work">Continue last edited chapter</button><button id="open-trash">Trash</button>';bar.dir='ltr';shelf.append(bar);$('#open-trash').onclick=trash;
  const main=getIndex().map(c=>({...c,source_kind:'main'}));const extra=await api('chronicles_book_entries?select=id,book_id,kind,chapter_number,title,revision,updated_at,updated_by&order=updated_at.desc&limit=50');if(!bar.isConnected)return;
@@ -26,7 +26,7 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
  if(recent){$('#resume-work').textContent=`Continue: ${recent.language==='en'?'English':'Arabic'} · ${recent.kind==='rules'?'Book Rules':'Chapter '+recent.chapter_number} · ${recent.updated_by} · ${date(recent.updated_at)}`;$('#resume-work').onclick=()=>{location.hash=routeOf(recent,recent.source_kind)}}else $('#resume-work').disabled=true;
  }catch(e){say('Book controls could not load: '+e.message,true)}
  }
- async function trash(){await settings();const books=await api('chronicles_books?select=id,title');const removed=controls.filter(x=>x.deleted_at);show('Trash',removed.length?removed.map(x=>`<div class="version"><strong>${esc(x.title||books.find(b=>b.id===x.book_key)?.title||(x.book_key.startsWith('story:')?'Story '+x.book_key.slice(6):'شرخ زمني'))}</strong><small>${date(x.deleted_at)}</small><button data-restore-book="${esc(x.book_key)}">Restore book</button></div>`).join(''):'<p>Trash is empty.</p>');document.querySelectorAll('[data-restore-book]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await setBook(b.dataset.restoreBook,{deleted_at:null});$('#modal').close();await refresh();say('Book restored with its chapters and history.')}catch(e){say(e.message,true);b.disabled=false}});}
+ async function trash(){await settings();const books=await api('chronicles_books?select=id,title');const removed=controls.filter(x=>x.deleted_at);show('Trash',removed.length?removed.map(x=>`<div class="version"><strong>${esc(x.title||books.find(b=>b.id===x.book_key)?.title||(x.book_key.startsWith('adaptation:')?'American Adaptation '+x.book_key.slice(11):x.book_key.startsWith('story:')?'Story '+x.book_key.slice(6):'شرخ زمني'))}</strong><small>${date(x.deleted_at)}</small><button data-restore-book="${esc(x.book_key)}">Restore book</button></div>`).join(''):'<p>Trash is empty.</p>');document.querySelectorAll('[data-restore-book]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await setBook(b.dataset.restoreBook,{deleted_at:null});$('#modal').close();await refresh();say('Book restored with its chapters and history.')}catch(e){say(e.message,true);b.disabled=false}});}
  async function mount(c,kind,title,isEditing){
  const area=$('#main .editor-area');if(!area)return;const customTitle=controls.find(x=>x.book_key===keyOf(c,kind))?.title;if(customTitle){title=customTitle;document.querySelectorAll('#main>.crumb strong,.workspace-heading h2').forEach(el=>el.textContent=customTitle);}area.querySelector('.workflow-panel')?.remove();const panel=document.createElement('section');panel.className='workflow-panel';panel.dir='ltr';(area.querySelector('.save-meta')||area.querySelector('.toolbar')).after(panel);
  panel.innerHTML=`<p class="workflow-status" aria-live="polite">Loading approval status…</p><div class="workflow-actions"><button data-wf="review">Review Chapter</button><button data-wf="approve" disabled>Approve Chapter</button><button data-wf="transfer" disabled>Update Ink</button></div>`;
@@ -34,10 +34,11 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
  async function status(){
  const rows=await api('chronicles_workflow?source_id=eq.'+c.id+'&select=*');if(!panel.isConnected)return;w=rows[0];
  let approved=w?.approved_revision===c.revision;
- if(approved&&kind==='main'&&c.language==='en'){const ar=(await api('chronicles_chapters?story_number=eq.'+(c.story_number||12)+'&chapter_number=eq.'+c.chapter_number+'&language=eq.ar&select=revision'))[0];approved=w.arabic_revision===ar?.revision;}
+ let originalChanged=false;if(kind==='main'&&c.language==='en'&&w){const fingerprint=await rpc('chronicles_original_snapshot',{p_story:c.story_number||12});originalChanged=w.original_snapshot!==fingerprint;approved=approved&&!originalChanged;}
  const synced=w?.transferred_revision===c.revision;
  let label=approved?`Approved revision ${c.revision} · ${w.approved_by} · ${date(w.approved_at)}`:'Approve this chapter first.';
- if(synced)label+=` · Ink is up to date · Revision ${w.transferred_revision} · ${date(w.transferred_at)}`;
+ if(originalChanged)label+=' · Original updated · Review adaptation.';
+ if(synced)label+=` · This revision is in Ink · Revision ${w.transferred_revision} · ${date(w.transferred_at)}`;
  else if(approved)label+=' · Ready to update this chapter in Ink.';
  if(!approved&&w?.transferred_at&&!synced)label+=` · Last sent to Ink: revision ${w.transferred_revision} · ${date(w.transferred_at)}`;
  if(!panel.isConnected)return;
