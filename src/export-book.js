@@ -1,3 +1,4 @@
+import {cover} from './collection.js';
 import { companionHTML } from './companion.js';
 const files=['time-fracture-cover.webp','compass-artwork.webp','drawing-compass-reference.webp','gold-border-reference.webp','original-pen-reference.webp'];
 const titles=['الغلاف المعتمد','هوية Benji Chronicles','مرجع البرجل الهندسي','مرجع الإطار الذهبي','أيقونة القلم الأولى'];
@@ -5,12 +6,13 @@ const objectDetails=[['الساعة المتصدعة','27% 36%'],['ساعة ال
 export const exportCSS=`
 @font-face{font-family:BookArabic;src:url('/fonts/book-arabic.woff2') format('woff2');font-weight:400;font-style:normal;font-display:block}
 .export-paper{font-family:BookArabic,Georgia,serif;color:#171717;line-height:1.85;font-size:21px;direction:rtl;text-align:right;background:white}
-.export-paper[lang=en]{direction:ltr;text-align:left;font-family:Georgia,serif}.export-paper p{margin:0 0 13px}.export-paper h1{font-size:34px;line-height:1.5;margin:12px 0 24px}.export-paper h2{font-size:27px}.export-paper .meta{font:12px/1.8 Arial,sans-serif;color:#555;margin-bottom:25px}.export-paper a{color:inherit}.export-paper blockquote{border-right:2px solid #aaa;margin-right:10px;padding-right:18px}.export-paper:not(.colored) span{color:inherit!important}.export-paper.colored .author-ahmed{color:#ad2936}.export-paper.colored .author-benji{color:#246b43}
+.export-paper[lang=en]{direction:ltr;text-align:left;font-family:Georgia,serif}.export-paper p{margin:0 0 13px}.export-paper h1{font-size:34px;line-height:1.5;margin:12px 0 24px}.export-paper h2{font-size:27px}.export-paper .meta{font:12px/1.8 Arial,sans-serif;color:#555;margin-bottom:25px}.export-paper a{color:inherit}.export-paper blockquote{border-right:2px solid #aaa;margin-right:10px;padding-right:18px}.export-paper:not(.colored) span{color:inherit!important}.export-paper.colored .author-ahmed{color:#ad2936}.export-paper.colored .author-benji{color:#246b43}.export-paper.colored .author-guest{color:#805433}
 .pdf-stage{position:fixed;left:-10000px;top:0;width:794px;z-index:-1}.pdf-page{width:794px;height:1123px;padding:62px 68px 64px;position:relative;box-sizing:border-box;background:#fff;color:#171717}.pdf-content{height:945px;overflow:hidden}.pdf-footer{position:absolute;bottom:25px;left:68px;right:68px;border-top:1px solid #bbb;padding-top:7px;font:11px/1.5 Arial,sans-serif;display:flex;justify-content:space-between;direction:ltr}.pdf-cover{width:650px;height:975px;object-fit:contain;display:block;margin:auto}.pdf-page.cover-page{padding:48px 50px}.pdf-content ul,.pdf-content ol{padding-right:28px}
 `;
 async function dataURL(url){const r=await fetch(url);if(!r.ok)throw Error('تعذر تحميل أحد ملفات الكتاب. حاول مرة أخرى.');const blob=await r.blob();return await new Promise((resolve,reject)=>{const f=new FileReader();f.onload=()=>resolve(f.result);f.onerror=reject;f.readAsDataURL(blob)});}
 export function downloadBlob(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();return url;}
 export async function buildHTML(rows,notes,options,{esc,clean,onProgress}){
+ if(options.story&&options.story!==12)return buildCollectionHTML(rows,notes,options,{esc,clean,onProgress});
  onProgress('تضمين الصور والخط العربي…');
  const assets=await Promise.all(files.map(f=>dataURL('/artwork/'+f)));
  const font=await dataURL('/fonts/book-arabic.woff2');
@@ -28,16 +30,16 @@ export async function buildPDF(rows,options,{esc,clean,onProgress,signal}){
  const [{jsPDF},{default:html2canvas}]=await Promise.all([import('jspdf'),import('html2canvas')]);
  const style=document.createElement('style');style.textContent=exportCSS;document.head.append(style);
  const stage=document.createElement('div');stage.className='pdf-stage';document.body.append(stage);
- const pdf=new jsPDF({unit:'mm',format:'a4',compress:true});pdf.setProperties({title:'شرخ زمني',author:'Benji & Almostasherq',subject:options.language==='en'?'Saved English edition':'Saved Arabic edition'});
+ const pdf=new jsPDF({unit:'mm',format:'a4',compress:true});pdf.setProperties({title:options.title||'شرخ زمني',author:'Benji & Almostasherq',subject:options.language==='en'?'Saved English edition':'Saved Arabic edition'});
  let pageCount=0,page,content;
  const check=()=>{if(signal?.aborted)throw new DOMException('تم إلغاء التصدير','AbortError')};
- const newPage=()=>{stage.innerHTML=`<div lang="${options.language||'ar'}" class="pdf-page export-paper${options.colors?' colored':''}"><div class="pdf-content"></div><div class="pdf-footer"><span>Benji Chronicles</span><span></span><span>شرخ زمني</span></div></div>`;page=stage.firstElementChild;content=page.firstElementChild;};
+ const newPage=()=>{stage.innerHTML=`<div lang="${options.language||'ar'}" class="pdf-page export-paper${options.colors?' colored':''}"><div class="pdf-content"></div><div class="pdf-footer"><span>Benji Chronicles</span><span></span><span>${esc(options.title||'شرخ زمني')}</span></div></div>`;page=stage.firstElementChild;content=page.firstElementChild;};
  const flush=async()=>{check();const canvas=await html2canvas(page,{scale:1.5,backgroundColor:'#ffffff',logging:false,windowWidth:1000,windowHeight:1200,scrollX:0,scrollY:0});if(pageCount)pdf.addPage();pdf.addImage(canvas.toDataURL('image/jpeg',.91),'JPEG',0,0,210,297,undefined,'FAST');canvas.width=canvas.height=1;pageCount++;onProgress(`تجهيز PDF · ${pageCount} صفحة`);await new Promise(r=>setTimeout(r,0));};
  try{
  await document.fonts.load('21px BookArabic');await document.fonts.ready;check();
- if(options.cover){newPage();page.classList.add('cover-page');page.innerHTML='<img class="pdf-cover" alt="" src="/artwork/time-fracture-cover.webp">';await page.firstElementChild.decode();await flush();}
+ if(options.cover){newPage();page.classList.add('cover-page');if(options.story&&options.story!==12){page.innerHTML=cover(options.story,esc);const art=page.firstElementChild;art.style.cssText+=`;height:975px;position:relative;background-image:url('/artwork/story-covers.webp');background-size:300% 400%;background-position:var(--cover-x) var(--cover-y);color:#efcf83;text-align:center`;art.querySelector('.cover-lettering').style.cssText='background:#0b2119dd;padding:25px';art.querySelector('.cover-credit').style.cssText='position:absolute;bottom:20px;left:0;right:0';const img=new Image();img.src='/artwork/story-covers.webp';await img.decode();}else{page.innerHTML='<img class="pdf-cover" alt="" src="/artwork/time-fracture-cover.webp">';await page.firstElementChild.decode();}await flush();}
  for(const c of rows){
- check();newPage();content.innerHTML=`<div class="meta">شرخ زمني · الفصل ${c.chapter_number}<br>نسخة ${c.revision} · ${esc(c.updated_by)} · ${esc(c.updated_at)}</div><h1>${esc(c.title)}</h1>`;
+ check();newPage();content.innerHTML=`<div class="meta">${esc(options.title||'شرخ زمني')} · Chapter ${c.chapter_number}<br>نسخة ${c.revision} · ${esc(c.updated_by)} · ${esc(c.updated_at)}</div><h1>${esc(c.title)}</h1>`;
  const source=document.createElement('div');source.innerHTML=clean(c.body);
  const queue=[...source.childNodes].filter(n=>n.nodeType===1||n.textContent.trim());
  for(let node of queue){
@@ -65,3 +67,11 @@ export async function buildPDF(rows,options,{esc,clean,onProgress,signal}){
  }finally{stage.remove();style.remove();}
 }
 
+
+async function buildCollectionHTML(rows,notes,options,{esc,clean,onProgress}){
+ onProgress('Preparing this story and its saved notes…');
+ const art=options.cover?await dataURL('/artwork/story-covers.webp'):'';
+ const font=await dataURL('/fonts/book-arabic.woff2');
+ const css=exportCSS.replace('/fonts/book-arabic.woff2',font)+`body{margin:0;background:#eadbc7}main{max-width:850px;margin:auto;padding:24px}article,section{padding:22px;margin:20px 0;background:#fffdf8}.story-cover-art{max-width:560px;margin:auto;aspect-ratio:2/3;position:relative;background-image:url('${art}');background-size:300% 400%;background-position:var(--cover-x) var(--cover-y);color:#efcf83;text-align:center}.cover-lettering{background:#0b2119dd;padding:24px}.cover-credit{position:absolute;bottom:20px;left:0;right:0}pre{white-space:pre-wrap;line-height:1.8}a{color:inherit}@media print{article{break-before:page}}`;
+ return `<!doctype html><html lang="${options.language}" dir="${options.language==='en'?'ltr':'rtl'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(options.title)}</title><style>${css}</style><main><h1>${esc(options.title)}</h1><p>Benji Chronicles · Benji &amp; Almostasherq</p>${options.cover?cover(options.story,esc):''}<section><h2>Chapters</h2>${rows.map(c=>`<p><a href="#c${c.chapter_number}">${c.chapter_number} · ${esc(c.title)}</a></p>`).join('')}</section>${rows.map(c=>`<article id="c${c.chapter_number}" lang="${c.language}" dir="${c.language==='en'?'ltr':'rtl'}" class="export-paper ${options.colors?'colored':''}"><h1>${c.chapter_number} · ${esc(c.title)}</h1><p class="meta">Revision ${c.revision} · ${esc(c.updated_by)} · ${esc(c.updated_at)}</p>${clean(c.body)}</article>`).join('')}${(options.resources||[]).map(r=>`<section><h2>${esc(r.kind)}</h2><pre dir="auto">${esc(r.body)}</pre></section>`).join('')}<section><h2>Chapter notes</h2>${notes.map(n=>`<p>${esc(n.author)} · ${esc(n.created_at)}</p><pre dir="auto">${esc(n.body)}</pre>`).join('')||'<p>No saved chapter notes.</p>'}</section></main></html>`;
+}
