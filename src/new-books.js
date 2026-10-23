@@ -1,5 +1,5 @@
 // Independent Arabic book library. The original "شرخ زمني" records remain in chronicles_chapters.
-export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,navigate,date}) {
+export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,navigate,date,workflow,trackAuthors}) {
   const $=selector=>document.querySelector(selector);
   const uuid=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
   const draftKey=id=>'chronicles-book-draft:'+id;
@@ -221,7 +221,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       $('#chronicles-recover').onclick=()=>{beginEdit(d);if(d.revision!==c.revision)say('نسخة الكتاب اتغيرت بعد المسودة دي. راجع التغييرات الأول.',true)};
       $('#chronicles-discard').onclick=()=>{if(confirm('تمسح المسودة من الجهاز؟')){storage.remove(draftKey(c.id));$('#chronicles-save-warning').innerHTML=''}};
     }
-    loadNotes(c.id).catch(e=>say(e.message,true));
+    loadNotes(c.id).catch(e=>say(e.message,true));workflow.mount({...c,language:'ar'},'extra',book.title,()=>editing);
   }
   function beginEdit(d){
     if(!active||editing)return;
@@ -236,7 +236,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     $('#chronicles-entry-body').contentEditable='true';
     if(d)$('#chronicles-entry-body').innerHTML=clean(d.body);
     $('#chronicles-entry-title').oninput=backup;
-    $('#chronicles-entry-body').oninput=backup;
+    trackAuthors($('#chronicles-entry-body'),getWriter,backup);
     $('#chronicles-save-warning').innerHTML='';
     $('#chronicles-entry-body').focus();
   }
@@ -312,3 +312,4 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   }
   return {load,isBookRoute,cards,showCreateModal,render,hasChanges,allowLeave,leave,backup};
 }
+
