@@ -162,3 +162,6 @@
 .prose{max-width:none}.chapter-title{font-size:36px}.save-meta{margin-bottom:24px}
 @media(max-width:520px){.workspace-heading h2{font-size:28px}.ink-tabs{gap:0}.book-navigation .ink-tabs a{font-size:12px;padding:13px 12px}.edition-strip{gap:9px}.edition-strip button{font-size:12px;padding:10px 8px}.chapter-title{font-size:32px}.author-help{font-size:10px}.toolbar button{padding:8px 10px}}
 @media print{.edition-strip,.book-navigation{display:none!important}.workspace>.editor-area{padding:0}}
+/* Inline theme styles use the same page edges as the reader. */
+:root{--chronicles-edge:max(20px,calc((100% - 1200px)/2))}
+body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padding-left:var(--chronicles-edge);padding-right:var(--chronicles-edge)}
