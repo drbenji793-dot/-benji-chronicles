@@ -8,7 +8,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   const chapterList=()=>entries.filter(e=>e.kind==='chapter').sort((a,b)=>a.chapter_number-b.chapter_number);
   const link=id=>'#book='+id;
   const entryLink=entry=>link(entry.book_id)+(entry.kind==='rules'?'&rules=1':'&chapter='+entry.chapter_number);
-  const writerLabel=e=>e.updated_by==='Ahmed'?'author-ahmed':'author-benji';
+  const writerLabel=e=>e.updated_by==='Ahmed'?'author-ahmed':e.updated_by==='Guest'?'author-guest':'author-benji';
 
   async function load(){books=await api('chronicles_books?select=*&order=created_at.asc');}
   function isBookRoute(params){return params.has('book');}

@@ -1,0 +1,8 @@
+const {JSDOM}=require('jsdom'),fs=require('fs'),assert=require('assert/strict');const dom=new JSDOM('<article></article>',{runScripts:'outside-only'}),w=dom.window,d=w.document;
+w.eval(fs.readFileSync('src/author-tracking.js','utf8').replaceAll('export function','function'));
+const el=d.querySelector('article');el.innerHTML='<p>الساعة </p>';let writer='Benji';w.trackAuthors(el,()=>writer,()=>{});
+for(const char of 'الثانية'){const walker=d.createTreeWalker(el,w.NodeFilter.SHOW_TEXT);let last,n;while(n=walker.nextNode())last=n;last.appendData(char);w.getSelection().setBaseAndExtent(last,last.length,last,last.length);el.dispatchEvent(new w.InputEvent('input',{inputType:'insertText',data:char}));assert.equal(w.getSelection().anchorOffset,w.getSelection().anchorNode.length);}
+assert.equal(el.textContent,'الساعة الثانية');assert.equal(el.querySelectorAll('.author-benji').length,1);assert.equal(el.querySelector('.author-benji').textContent,'الثانية');
+writer='Guest';el.querySelector('p').append(' ضيف');el.dispatchEvent(new w.InputEvent('input',{inputType:'insertText'}));assert.equal(el.querySelector('.author-guest').textContent,' ضيف');assert.equal(el.querySelector('.author-benji').textContent,'الثانية');
+const old='<p><span class="author-ahmed">ق<span class="author-ahmed">ا<span class="author-ahmed">هرة</span></span></span></p>';const fixed=w.normalizeAuthorHTML(old);assert.equal(fixed,'<p><span class="author-ahmed">قاهرة</span></p>');assert.equal(w.normalizeAuthorHTML(fixed),fixed);
+console.log('PASS: sequential Arabic typing produces one joined author span; caret retained; Guest brown class; legacy nested spans normalized without text changes.');dom.window.close();
