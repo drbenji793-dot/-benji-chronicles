@@ -17,7 +17,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const clean=s=>normalizeAuthorHTML(DOMPurify.sanitize(s,{ALLOWED_TAGS:['p','div','br','strong','em','b','i','blockquote','h3','h4','ul','ol','li','span'],ALLOWED_ATTR:['class']}));
 const storage={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}},remove(k){try{localStorage.removeItem(k)}catch{}}};
 let story=12;
-let chapters=[],current=null,editing=false,busy=false,lang='ar',seq=0,toastTimer,route='',size=Number(storage.get('chronicles-size'))||23;
+let chapters=[],current=null,editing=false,busy=false,lang='ar',seq=0,toastTimer,route='',size=Math.min(34,Math.max(16,Number(storage.get('chronicles-size'))||17));
 const validWriter=s=>typeof s==='string'&&s.trim().length>0&&[...s.trim()].length<=40&&!/[<>\x00-\x1f]/.test(s);
 let writer=['Ahmed','Benji','Guest'].includes(storage.get('chronicles-writer'))?storage.get('chronicles-writer'):'Benji';
 function renderWriters(){document.querySelectorAll('[data-writer]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.writer===writer));b.disabled=busy})}
