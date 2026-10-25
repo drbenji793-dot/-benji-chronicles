@@ -268,3 +268,5 @@ body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padd
 @media print{.reading-details{display:none}}
 
 .outside-time-cover{background-image:url('/images/outside-time-cover.webp');background-size:cover;background-position:center}.outside-time-reference:focus-visible{outline:3px solid var(--green);outline-offset:5px}
+
+.outside-time-workspace{max-width:1050px;margin:auto}.outside-time-workspace>h1{text-align:center}.outside-time-guide{display:block;width:100%;min-height:500px;border:0;background:transparent}.outside-time-art{max-width:360px;margin:24px auto;text-align:center}.outside-time-art img{width:100%;height:auto}
