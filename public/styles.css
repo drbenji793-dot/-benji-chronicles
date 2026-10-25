@@ -266,3 +266,5 @@ body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padd
 .reading-details .workflow-panel{border:0;margin:0;padding:8px 0 12px;font-size:12px}
 .reading-details .workflow-status{margin:0 0 8px;line-height:1.5}
 @media print{.reading-details{display:none}}
+
+.outside-time-cover{background-image:url('/images/outside-time-cover.webp');background-size:cover;background-position:center}.outside-time-reference:focus-visible{outline:3px solid var(--green);outline-offset:5px}
