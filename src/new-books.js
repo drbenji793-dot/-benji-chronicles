@@ -1,3 +1,5 @@
+import {OUTSIDE_TIME_BOOK} from './outside-time.js';
+import {buildPDF,downloadBlob} from './export-book.js';
 // Independent language libraries. The original "شرخ زمني" records remain in chronicles_chapters.
 export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,navigate,date,workflow,trackAuthors}) {
   const $=selector=>document.querySelector(selector);
@@ -13,9 +15,9 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   async function load(){books=await api('chronicles_books?select=*&order=created_at.asc');}
   function isBookRoute(params){return params.has('book');}
   function cards(language='ar'){
-    if(!books.some(b=>b.language===language))return '';
+    if(!books.some(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK))return '';
     return '<section class="chronicles-extra-books" aria-label="Additional books"><h2>Books & Stories</h2><div class="chronicles-books-grid">'
-      +books.filter(b=>b.language===language).map(b=>`<a class="chronicles-new-card" href="#book=${esc(b.id)}">
+      +books.filter(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK).map(b=>`<a class="chronicles-new-card" href="#book=${esc(b.id)}">
         <div class="chronicles-new-cover">
           <span class="chronicles-book-label">BENJI CHRONICLES · NEW BOOK</span>
           <strong dir="auto">${esc(b.title)}</strong>
@@ -171,7 +173,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(!active)return;
     const c=active,list=chapterList(),rules=c.kind==='rules';
     const selected=rules?'Book Rules':'Chapter '+c.chapter_number;
-    $('#main').innerHTML=header()+`<div class="workspace chronicles-workspace">
+    $('#main').innerHTML=`<nav class="crumb"><strong dir="auto">${esc(book.title)}</strong></nav><p class="collection-caption">${book.language==='ar'?'Arabic Original':'English Original'}</p><div class="workspace chronicles-workspace">
       <aside class="sidebar" dir="${book.language==='en'?'ltr':'rtl'}">
         <h2>${esc(book.title)}</h2>
         <div class="chapter-list">
@@ -181,14 +183,8 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <a class="reference-link" href="${link(book.id)}">All chapters</a>
       </aside>
       <section class="editor-area" dir="${book.language==='en'?'ltr':'rtl'}">
-        <div class="eyebrow">${esc(selected)} · ${rules?'Book Rules':'Chapter'}</div>
-        <div class="chronicles-book-actions">
-          <a class="reference-link" href="${link(book.id)}">Book contents</a>
-          <a class="reference-link" href="${book.language==='en'?'https://benji-ink.vercel.app/#styles=zenglish&lang=en&view=laws':'#writing-rules'}">Global Rules</a>
-          <a class="reference-link" href="${link(book.id)}&rules=1">Book Rules</a>
-        </div>
-        ${rules?'<p class="reference-note">Global rules are shared. Book rules apply only to this book and never rewrite saved chapters automatically.</p>':''}
-        <div class="toolbar">
+        ${rules?'<p class="reference-note">Book Rules</p>':`<div class="chapter-picker" dir="ltr"><button id="extra-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button><select id="extra-chapter-select" aria-label="Choose chapter" dir="${book.language==='ar'?'rtl':'ltr'}">${list.map(x=>`<option value="${x.chapter_number}" ${x.id===c.id?'selected':''}>${String(x.chapter_number).padStart(2,'0')} · ${esc(x.title)}</option>`).join('')}</select><button id="extra-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button></div>`}
+        <div class="toolbar" dir="ltr">
           <button id="chronicles-edit">Edit</button>
           <button id="chronicles-save" class="primary" disabled>Save</button>
           <button id="chronicles-cancel" hidden>Cancel</button>
@@ -196,12 +192,14 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
           <button id="chronicles-copy">Copy</button>
           <button id="chronicles-history">History</button>
           <button id="chronicles-print">Print</button>
+          ${rules?'':'<button id="extra-export">PDF / HTML</button><button id="extra-print-all">Print all</button><button id="extra-add-chapter">+ New Chapter</button>'}
+          <button id="extra-smaller" aria-label="Smaller text">A−</button><button id="extra-larger" aria-label="Larger text">A+</button>
         </div>
         <div id="chronicles-save-warning"></div>
-        <div class="eyebrow">${esc(book.title)} · ${esc(selected)}</div>
+        
         <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
-        <div class="save-meta" dir="ltr">Revision ${c.revision} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}</div>
+        <div class="chapter-word-count" dir="ltr">${clean(c.body).replace(/<[^>]*>/g,' ').trim().split(/\s+/).filter(Boolean).length} words</div><div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'مسودة GPT · _zkalam4 · غير معتمدة<br>':''}Revision ${c.revision} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}</div>
         ${!c.body.trim()&&!rules?'<p class="notice">This chapter is empty. Press Edit to begin.</p>':''}
         <article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
         <details class="notes"><summary>Writing notes <span id="chronicles-note-count"></span></summary>
@@ -216,6 +214,17 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     $('#chronicles-copy').onclick=async()=>{try{await navigator.clipboard.writeText($('#chronicles-reading-title').textContent+'\n\n'+$('#chronicles-entry-body').innerText);say('Text copied.')}catch{say('Select the text and copy it manually.',true)}};
     $('#chronicles-history').onclick=()=>showHistory().catch(e=>say(e.message,true));
     $('#chronicles-print').onclick=()=>window.print();
+    let readingSize=Number(storage.get('chronicles-size'))||17;
+    const size=()=>{$('#chronicles-entry-body').style.fontSize=readingSize+'px';storage.set?.('chronicles-size',String(readingSize));};size();
+    $('#extra-smaller').onclick=()=>{readingSize=Math.max(16,readingSize-1);size()};$('#extra-larger').onclick=()=>{readingSize=Math.min(30,readingSize+1);size()};
+    if(!rules){
+      $('#extra-chapter-select').onchange=e=>navigate(link(book.id)+'&chapter='+e.target.value);
+      $('#extra-prev').onclick=()=>{const prev=list[list.indexOf(c)-1];if(prev)navigate(entryLink(prev))};
+      $('#extra-next').onclick=()=>{const next=list[list.indexOf(c)+1];if(next)navigate(entryLink(next))};
+      $('#extra-export').onclick=()=>showExport(c);$('#extra-add-chapter').onclick=showCreateChapter;
+      $('#extra-print-all').onclick=()=>printEntries(chapterList());
+    }
+
     $('#chronicles-add-note').onclick=addNote;
     const saved=storage.get(draftKey(c.id));let d;
     try{d=saved?JSON.parse(saved):null}catch{}
@@ -225,6 +234,12 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       $('#chronicles-discard').onclick=()=>{if(confirm('Discard this local draft?')){storage.remove(draftKey(c.id));$('#chronicles-save-warning').innerHTML=''}};
     }
     loadNotes(c.id).catch(e=>say(e.message,true));workflow.mount({...c,language:book.language},'extra',book.title,()=>editing);
+  }
+  function exportHTML(rows){return '<!doctype html><html lang="'+book.language+'" dir="'+(book.language==='ar'?'rtl':'ltr')+'"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(book.title)+'</title><style>body{max-width:850px;margin:30px auto;padding:20px;font:20px/1.9 Georgia,serif}article{break-before:page}p{margin:0 0 .6em}small{font-size:13px}</style><h1>'+esc(book.title)+'</h1>'+rows.map(c=>'<article><h2>'+c.chapter_number+' · '+esc(c.title)+'</h2><small>Revision '+c.revision+' · '+esc(c.updated_by)+' · '+esc(c.updated_at)+'</small>'+clean(c.body)+'</article>').join('')+'</html>';}
+  function printEntries(rows){const frame=document.createElement('iframe');frame.style.cssText='position:fixed;width:1px;height:1px;opacity:0;pointer-events:none';frame.title='Print book';frame.srcdoc=exportHTML(rows);frame.onload=()=>{frame.contentWindow.addEventListener('afterprint',()=>frame.remove(),{once:true});frame.contentWindow.focus();frame.contentWindow.print()};document.body.append(frame);}
+  function showExport(c){
+    modal('PDF / HTML',`<form id="extra-export-form"><label>Format<select name="format"><option value="html">HTML</option><option value="pdf">PDF</option></select></label><label>Chapters<select name="scope"><option value="current">Current chapter</option><option value="all">All chapters</option></select></label><button type="submit">Prepare file</button><p id="extra-export-status" role="status"></p></form>`);
+    $('#extra-export-form').onsubmit=async e=>{e.preventDefault();const form=e.target,button=form.querySelector('button');button.disabled=true;const report=t=>$('#extra-export-status').textContent=t;try{const latest=await api('chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=*&order=chapter_number.asc');const rows=(form.elements.scope.value==='all'?latest:latest.filter(x=>x.id===c.id)).map(x=>({...x,language:book.language}));const format=form.elements.format.value;const blob=format==='pdf'?await buildPDF(rows,{cover:false,colors:true,language:book.language,title:book.title},{esc,clean,onProgress:report,signal:new AbortController().signal}):new Blob([exportHTML(rows)],{type:'text/html;charset=utf-8'});const url=downloadBlob(blob,book.title+'.'+format);report('File ready');setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(err){report(err.message)}finally{button.disabled=false}};
   }
   function beginEdit(d){
     if(!active||editing)return;
