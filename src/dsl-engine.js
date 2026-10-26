@@ -37,7 +37,7 @@ export function compareStories(before,after){
  const added=[],changed=[],removed=[];
  for(const [id,e]of b){if(!a.has(id))added.push(e);else if(semanticEvent(a.get(id))!==semanticEvent(e))changed.push({before:a.get(id),after:e});}
  for(const [id,e]of a)if(!b.has(id))removed.push(e);
- const metadata=['title','summary','rules','hypothesis','objects','links'].filter(k=>JSON.stringify(before?.[k])!==JSON.stringify(after?.[k]));
+ const metadata=['title','summary','rules','hypothesis','objects','links','characters','foundation','world','decisions'].filter(k=>JSON.stringify(before?.[k])!==JSON.stringify(after?.[k]));
  return {added,changed,removed,metadata};
 }
 export function impactedEvents(data,ids){

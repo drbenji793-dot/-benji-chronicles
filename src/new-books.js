@@ -1,3 +1,4 @@
+import {renderDSL} from './dsl.js';
 import {OUTSIDE_TIME_BOOK} from './outside-time.js';
 import {buildPDF,downloadBlob} from './export-book.js';
 // Independent language libraries. The original "شرخ زمني" records remain in chronicles_chapters.
@@ -107,6 +108,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     entries=loaded;
     parts=await api("chronicles_book_parts?book_id=eq."+id+"&select=*&order=start_chapter.asc");
     selectedPart=parts.find(p=>p.id===params.get("part"))||null;
+    if(['dsl','storyline'].includes(params.get('view'))){active=null;editing=false;await renderDSL($('#main'),api,book.id,params.get('view'));return;}
     const rules=params.get('rules')==='1';
     const no=Number(params.get('chapter'));
     if(rules||params.has('chapter')){
@@ -161,6 +163,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       <div class="chronicles-book-actions">
         <button id="chronicles-add-chapter" class="primary">+ New chapter</button>
         <a href="${link(book.id)}&rules=1" class="reference-link">Book Rules</a>
+        <a href="${link(book.id)}&view=dsl" class="reference-link">DSL Studio</a>
         <a href="${book.language==='en'?'https://benji-ink.vercel.app/#styles=zenglish&lang=en&view=laws':'#writing-rules'}" class="reference-link">Global Rules</a>
       </div>
       <button id="related-book">Related Story</button>${relatedLinks(book.id)}<h2>Chapters <small>(${list.length})</small></h2>

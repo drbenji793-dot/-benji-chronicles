@@ -1,0 +1,184 @@
+{
+  "id": "DSL-T001",
+  "revision": 1,
+  "modules": [
+    {
+      "id": "foundation",
+      "name": "Story foundation",
+      "fields": [
+        "premise",
+        "genre",
+        "theme",
+        "audience",
+        "centralConflict",
+        "stakes",
+        "narrativePromise"
+      ]
+    },
+    {
+      "id": "characters",
+      "name": "Characters and arcs",
+      "fields": [
+        "name",
+        "role",
+        "desire",
+        "fear",
+        "secret",
+        "arc",
+        "relationships",
+        "knowledge"
+      ]
+    },
+    {
+      "id": "world",
+      "name": "World and rules",
+      "fields": [
+        "locations",
+        "historicalNotes",
+        "technology",
+        "hardRules",
+        "exceptions"
+      ]
+    },
+    {
+      "id": "events",
+      "name": "Events and timelines",
+      "fields": [
+        "date",
+        "precision",
+        "location",
+        "participants",
+        "goal",
+        "obstacle",
+        "outcome",
+        "consequences"
+      ]
+    },
+    {
+      "id": "connections",
+      "name": "Cause and effect",
+      "fields": [
+        "from",
+        "to",
+        "relation",
+        "condition",
+        "evidence"
+      ]
+    },
+    {
+      "id": "twists",
+      "name": "Twists and revelations",
+      "fields": [
+        "truth",
+        "belief",
+        "setup",
+        "reveal",
+        "payoff"
+      ]
+    },
+    {
+      "id": "objects",
+      "name": "Objects and clues",
+      "fields": [
+        "identity",
+        "holder",
+        "location",
+        "history",
+        "originalAndCopies"
+      ]
+    },
+    {
+      "id": "paths",
+      "name": "What If branches",
+      "fields": [
+        "hypothesis",
+        "alternatives",
+        "effects",
+        "approval"
+      ]
+    },
+    {
+      "id": "reading",
+      "name": "Reading order",
+      "fields": [
+        "readerOrder",
+        "revelationOrder",
+        "viewpoint"
+      ]
+    },
+    {
+      "id": "knowledge",
+      "name": "Knowledge tracking",
+      "fields": [
+        "readerKnows",
+        "characterKnows",
+        "characterBelieves"
+      ]
+    },
+    {
+      "id": "quality",
+      "name": "Story health",
+      "fields": [
+        "contradictions",
+        "missingCauses",
+        "openQuestions",
+        "unpaidClues"
+      ]
+    },
+    {
+      "id": "collaboration",
+      "name": "Collaboration",
+      "fields": [
+        "writer",
+        "comments",
+        "revisions",
+        "approval"
+      ]
+    },
+    {
+      "id": "publication",
+      "name": "Published Storyline",
+      "fields": [
+        "preview",
+        "approval",
+        "linkedChapters",
+        "history"
+      ]
+    }
+  ],
+  "blankNovel": {
+    "schema": 2,
+    "template": {
+      "id": "DSL-T001",
+      "revision": 1
+    },
+    "title": "Untitled Novel",
+    "summary": "",
+    "rules": "",
+    "hypothesis": "",
+    "foundation": {
+      "language": "ar",
+      "genre": "",
+      "theme": "",
+      "audience": "",
+      "centralConflict": "",
+      "stakes": "",
+      "narrativePromise": "",
+      "startingApproach": "premise",
+      "complexity": "standard",
+      "collaboration": "shared"
+    },
+    "world": {
+      "locations": "",
+      "historicalNotes": "",
+      "technology": "",
+      "hardRules": "",
+      "exceptions": ""
+    },
+    "characters": [],
+    "events": [],
+    "links": [],
+    "objects": [],
+    "decisions": []
+  }
+}
