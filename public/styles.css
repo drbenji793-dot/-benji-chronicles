@@ -272,3 +272,5 @@ body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padd
 .outside-time-workspace{max-width:1050px;margin:auto}.outside-time-workspace>h1{text-align:center}.outside-time-guide{display:block;width:100%;min-height:500px;border:0;background:transparent}.outside-time-art{max-width:360px;margin:24px auto;text-align:center}.outside-time-art img{width:100%;height:auto}
 
 .book-parts{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 18px;padding:12px 0;border-bottom:1px solid var(--line)}.book-parts select{flex:1;min-width:180px;max-width:100%;padding:10px}.book-parts .part-count{width:100%;margin:0;font-size:13px;color:var(--muted)}.book-parts details{width:100%;font-size:12px;color:var(--muted)}.book-parts details p{margin:6px 0}.book-parts button{font-size:13px}@media print{.book-parts{display:none}}
+
+.part-management{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 0}.part-management .part-count,.part-management details{width:100%;font-size:13px;color:var(--muted);margin:0}.part-management details p{margin:6px 0}.part-management button{font-size:13px}
