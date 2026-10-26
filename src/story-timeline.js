@@ -55,24 +55,24 @@ export function renderStoryTimeline(main,api,bookId){
  const originalHash=window.location.hash;
  let order='chronology', era='all', chapters=[];
  const chapterHref=no=>'#book='+bookId+'&chapter='+no;
- const extra=(c)=>NOTES[c.chapter_number]||{summary:'فصل محفوظ في الرواية. افتحه لقراءة الحدث وتأكيد موضعه في تسلسل القصة.',clues:'التفاصيل تتحدد من نص الفصل المحفوظ.',link:'راجع الصلة بالفصول السابقة واللاحقة.'};
+ const extra=(c)=>NOTES[c.chapter_number]||{summary:'Saved chapter. Open it to read the event and confirm its place in the story.',clues:'Details come from the saved chapter text.',link:'Review the connection to earlier and later chapters.'};
  const years=()=>[...new Set(chapters.map(c=>c.info.year).filter(Boolean))].sort((a,b)=>a-b);
  function eventHTML(c){
   const detail=extra(c),info=c.info;
-  const status=info.precision==='exact'?'تاريخ محدد':info.precision==='missing'?'التاريخ مفقود':'اليوم غير محدد';
-  return '<article class="ct-event" aria-label="الفصل '+c.chapter_number+'">'+
-   '<div class="ct-date">'+h(info.label||'المكان والتاريخ غير محددين')+'</div>'+
+  const status=info.precision==='exact'?'Exact date':info.precision==='missing'?'Missing date':'Day not set';
+  return '<article class="ct-event" aria-label="Chapter '+c.chapter_number+'">'+
+   '<div class="ct-date">'+h(info.label||'Place and date not set')+'</div>'+
    '<h3><a href="'+chapterHref(c.chapter_number)+'">'+String(c.chapter_number).padStart(2,'0')+' · '+h(c.title)+'</a></h3>'+
-   '<div class="ct-pills"><span class="ct-pill '+(info.precision!=='exact'?'partial':'')+'">'+status+'</span><span class="ct-pill">نسخة '+c.revision+'</span></div>'+
+   '<div class="ct-pills"><span class="ct-pill '+(info.precision!=='exact'?'partial':'')+'">'+status+'</span><span class="ct-pill">Revision '+c.revision+'</span></div>'+
    '<p>'+h(detail.summary)+'</p>'+
-   '<details><summary>الأدلة والربط بين الأحداث</summary><p><strong>ما نعرفه:</strong> '+h(detail.clues)+'</p><p><strong>الصلة:</strong> '+h(detail.link)+'</p></details>'+
-   '<a class="ct-go" href="'+chapterHref(c.chapter_number)+'">افتح الفصل</a></article>';
+   '<details><summary lang="en" dir="ltr">Clues and connections</summary><p><strong>Known clues:</strong> '+h(detail.clues)+'</p><p><strong>Connection:</strong> '+h(detail.link)+'</p></details>'+
+   '<a class="ct-go" href="'+chapterHref(c.chapter_number)+'">Open chapter</a></article>';
  }
  function connections(){
-  return '<section class="ct-connections"><h2>الخيوط التي تربط الأزمنة</h2><div class="ct-connection-grid">'+
-    '<div class="ct-connection"><strong>١٩٨٦ ↔ ٢٠٢٦ · مكالمة أم محمود</strong><p>الفصل ٠٣ يقدم المكالمة، والفصل ٠٤ يكشف تسجيلها داخل ملف منى.</p><a href="'+chapterHref(3)+'">الفصل ٠٣</a> · <a href="'+chapterHref(4)+'">الفصل ٠٤</a></div>'+
-    '<div class="ct-connection"><strong>١٩٨٦ ↔ ٢٠٢٦ · حسام ومنى</strong><p>الفصل ٠٩ يصل بالصوت إلى منى. تفاصيل يوم الاتصال ومكانه الدقيق ما زالت بحاجة للتثبيت.</p><a href="'+chapterHref(9)+'">الفصل ٠٩</a></div>'+
-    '<div class="ct-connection"><strong>٢٠٢٢ · رأفت والطاقية الحمراء</strong><p>ظهور المرأة نقطة غموض في مسار رأفت. لا نعتبر هويتها أو علاقتها بالمسارات الأخرى حقيقة مؤكدة الآن.</p><a href="'+chapterHref(1)+'">الفصل ٠١</a></div>'+
+  return '<section class="ct-connections"><h2>Connections across time</h2><div class="ct-connection-grid">'+
+    '<div class="ct-connection"><strong>١٩٨٦ ↔ ٢٠٢٦ · مكالمة أم محمود</strong><p>الفصل ٠٣ يقدم المكالمة، والفصل ٠٤ يكشف تسجيلها داخل ملف منى.</p><a href="'+chapterHref(3)+'">Chapter 03</a> · <a href="'+chapterHref(4)+'">Chapter 04</a></div>'+
+    '<div class="ct-connection"><strong>١٩٨٦ ↔ ٢٠٢٦ · حسام ومنى</strong><p>الفصل ٠٩ يصل بالصوت إلى منى. تفاصيل يوم الاتصال ومكانه الدقيق ما زالت بحاجة للتثبيت.</p><a href="'+chapterHref(9)+'">Chapter 09</a></div>'+
+    '<div class="ct-connection"><strong>٢٠٢٢ · رأفت والطاقية الحمراء</strong><p>ظهور المرأة نقطة غموض في مسار رأفت. لا نعتبر هويتها أو علاقتها بالمسارات الأخرى حقيقة مؤكدة الآن.</p><a href="'+chapterHref(1)+'">Chapter 01</a></div>'+
    '</div></section>';
  }
  function render(){
@@ -88,25 +88,25 @@ export function renderStoryTimeline(main,api,bookId){
    const lanes=(era==='all'?years():[Number(era)]).filter(Boolean);
    body='<div class="ct-lanes">'+lanes.map(year=>{
     const items=sorted.filter(c=>c.info.year===year);
-    return '<section class="ct-lane"><div class="ct-lane-head"><strong>'+year+'</strong><span>'+items.length+' فصل</span></div><div class="ct-events">'+items.map(eventHTML).join('')+'</div></section>';
+    return '<section class="ct-lane"><div class="ct-lane-head"><strong>'+year+'</strong><span>'+items.length+' chapter(s)</span></div><div class="ct-events">'+items.map(eventHTML).join('')+'</div></section>';
    }).join('')+'</div>';
   }
-  if(!list.length)body='<p class="ct-empty">لا توجد فصول محفوظة لهذا الاختيار.</p>';
+  if(!list.length)body='<p class="ct-empty">No saved chapters for this selection.</p>';
   main.innerHTML=stylesheet()+'<section class="ct-root" dir="rtl">'+
-   '<header class="ct-heading"><div><span class="ct-kicker">خارج الزمن · STORYLINE</span><h1>الخريطة الزمنية للرواية</h1><p>نفس الفصول، طريقان لقراءة الأحداث. اضغط على أي فصل لفتحه.</p></div><span class="ct-pill">'+chapters.length+' فصول محفوظة</span></header>'+
-   '<div class="ct-controls"><div class="ct-switch" role="group" aria-label="طريقة الترتيب">'+
-     '<button type="button" data-ct-order="chronology" aria-pressed="'+(order==='chronology')+'">حسب زمن الأحداث</button>'+
-     '<button type="button" data-ct-order="reading" aria-pressed="'+(order==='reading')+'">حسب ترتيب القراءة</button></div>'+
-     '<div class="ct-years" role="group" aria-label="تصفية السنة">'+
-     ['all',...years()].map(y=>'<button type="button" data-ct-era="'+y+'" aria-pressed="'+(era===String(y))+'">'+(y==='all'?'كل الأزمنة':y)+'</button>').join('')+'</div></div>'+
-   '<p class="ct-notice">كل بطاقة تستمد تاريخها من أول سطر في الفصل المحفوظ. '+incomplete.length+' فصول لا تذكر اليوم الكامل بعد، ولذلك موضعها داخل الشهر أو الفصل السنوي قد يكون تقريبيًا. '+(missing.length?'الفصول غير المحفوظة بين الأرقام الموجودة: '+missing.join('، ')+'. ':'')+'لا يغيّر هذا العرض نصوص الرواية.</p>'+
+   '<header class="ct-heading"><div><span class="ct-kicker">خارج الزمن · STORYLINE</span><h1>Story Timeline</h1><p>The same chapters in two views. Select a chapter to open it.</p></div><span class="ct-pill">'+chapters.length+' saved chapters</span></header>'+
+   '<div class="ct-controls"><div class="ct-switch" role="group" aria-label="Sort order">'+
+     '<button type="button" data-ct-order="chronology" aria-pressed="'+(order==='chronology')+'">Chronological Order</button>'+
+     '<button type="button" data-ct-order="reading" aria-pressed="'+(order==='reading')+'">Reading Order</button></div>'+
+     '<div class="ct-years" role="group" aria-label="Filter by year">'+
+     ['all',...years()].map(y=>'<button type="button" data-ct-era="'+y+'" aria-pressed="'+(era===String(y))+'">'+(y==='all'?'All Years':y)+'</button>').join('')+'</div></div>'+
+   '<p class="ct-notice" lang="en" dir="ltr">Each card uses the date in the saved chapter opening. '+incomplete.length+' chapters have no exact day. Their position within the month or season may be approximate. '+(missing.length?'Missing chapters between existing numbers: '+missing.join('، ')+'. ':'')+'This view does not change story text.</p>'+
    body+connections()+
-   '<div class="ct-bottom"><a href="'+chapterHref(1)+'">ابدأ القراءة</a><a href="#book='+bookId+'&view=storyline-guide">دليل القصة ١٠١</a><a href="#book='+bookId+'&rules=1">قواعد الكتاب</a><span>مصدر البيانات: الفصول المحفوظة في Chronicles</span></div></section>';
+   '<div class="ct-bottom" lang="en" dir="ltr"><a href="'+chapterHref(1)+'">Start Reading</a><a href="#book='+bookId+'&view=storyline-guide">Guide 101</a><a href="#book='+bookId+'&rules=1">Book Rules</a><span>Source: saved Chronicles chapters</span></div></section>';
   main.querySelectorAll('[data-ct-order]').forEach(b=>b.addEventListener('click',()=>{order=b.dataset.ctOrder;render()}));
   main.querySelectorAll('[data-ct-era]').forEach(b=>b.addEventListener('click',()=>{era=b.dataset.ctEra;render()}));
  }
- main.innerHTML=stylesheet()+'<section class="ct-root" dir="rtl"><p class="ct-empty">جاري تحميل تواريخ الفصول المحفوظة…</p></section>';
+ main.innerHTML=stylesheet()+'<section class="ct-root" dir="rtl"><p class="ct-empty">Loading saved chapter dates…</p></section>';
  api('chronicles_book_entries?book_id=eq.'+encodeURIComponent(bookId)+'&kind=eq.chapter&select=chapter_number,title,body,revision,updated_at&order=chapter_number.asc')
   .then(rows=>{chapters=rows.filter(c=>Number.isInteger(c.chapter_number)).map(c=>({...c,info:dateInfo(c)}));render();})
-  .catch(err=>{if(main.isConnected&&window.location.hash===originalHash)main.innerHTML=stylesheet()+'<section class="ct-root" dir="rtl"><p class="ct-empty">تعذر تحميل الفصول من قاعدة البيانات. لم تتغير أي بيانات. '+h(err.message)+'</p></section>';});
+  .catch(err=>{if(main.isConnected&&window.location.hash===originalHash)main.innerHTML=stylesheet()+'<section class="ct-root" dir="rtl"><p class="ct-empty">Could not load chapters from the database. No data was changed. '+h(err.message)+'</p></section>';});
 }
