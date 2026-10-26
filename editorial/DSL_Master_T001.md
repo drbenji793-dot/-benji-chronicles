@@ -2,7 +2,7 @@
 
 **Dynamic Storyline Studio | Universal Novel Architecture Base**
 
-Template: `DSL-T001` | Revision: `1` | Introduced with Chronicles Reader v102 | October 26, 2026
+Template: `DSL-T001` | Revision: `2` | Introduced with Chronicles Reader v102 | October 26, 2026
 
 ## Purpose
 
@@ -49,3 +49,13 @@ Benji HQ is the intended reusable template catalog. Google Drive retains a separ
 ## Release tracking
 
 Chronicles reader version numbers start with v101 and increment v102, v103, etc. The master template remains T001 revision 1 unless the reusable structure itself is intentionally revised.
+
+## Revision 2: Story Blender (Reader v103)
+
+Story Blender is an integrated DSL tool, not a separate website. It reads the selected book and branch. Select event ingredients and reading or chronological order, name the scenario, and assemble an editable storyline from the actual event descriptions and outcomes. The original chapter manuscript is never changed.
+
+Every saved blend retains a unique ID, author, time, source branch and revision, selected event IDs, order, scenario and immutable ingredient snapshot. Drafts are saved in the existing branch JSON using its revision guard, Supabase synchronization and history. Compare any two drafts. Repeated blending with unchanged ingredients is deterministic in assembly mode; it does not claim to invent fresh alternatives.
+
+Creative AI workflow: download a grounded brief, discuss it with an AI assistant, paste the response into the editable result, and save a new draft. No live AI generation is configured. Free text scenarios are recorded as hypotheses, not automatically interpreted. Direct AI generation requires a server side model connection and appropriate usage controls.
+
+Adopt Version previews the old and proposed summary and changes only the selected branch summary. Events, rules and chapters remain unchanged. Publishing the readable Storyline still uses the existing explicit Preview and Publish workflow. Older summaries and drafts remain in revision history. Opening this release never migrates existing book data; new fields are introduced only on an explicit save. Blank T001 includes an empty blender object and no example fiction.

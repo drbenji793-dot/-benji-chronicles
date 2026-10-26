@@ -1,6 +1,6 @@
 /* DSL Master T001. Reusable architecture only. Never imports another novel's content. */
 export const TEMPLATE_ID='DSL-T001';
-export const TEMPLATE_REVISION=1;
+export const TEMPLATE_REVISION=2;
 export const MASTER_MODULES=[
  {id:'foundation',name:'Story foundation',fields:['premise','genre','theme','audience','centralConflict','stakes','narrativePromise']},
  {id:'characters',name:'Characters and arcs',fields:['name','role','desire','fear','secret','arc','relationships','knowledge']},
@@ -14,6 +14,7 @@ export const MASTER_MODULES=[
  {id:'knowledge',name:'Knowledge tracking',fields:['readerKnows','characterKnows','characterBelieves']},
  {id:'quality',name:'Story health',fields:['contradictions','missingCauses','openQuestions','unpaidClues']},
  {id:'collaboration',name:'Collaboration',fields:['writer','comments','revisions','approval']},
+ {id:'blender',name:'Story Blender',fields:['scenario','selectedEvents','sourceSnapshot','drafts','compare','adoptSummary','AI brief']},
  {id:'publication',name:'Published Storyline',fields:['preview','approval','linkedChapters','history']}
 ];
 export function makeMasterStory(title='Untitled Novel',options={}){
@@ -21,7 +22,7 @@ export function makeMasterStory(title='Untitled Novel',options={}){
  const allowedComplexity=['simple','standard','layered'].includes(options.complexity)?options.complexity:'standard';
  return {schema:2,template:{id:TEMPLATE_ID,revision:TEMPLATE_REVISION},title:String(title||'Untitled Novel'),summary:'',rules:'',hypothesis:'',
   foundation:{language:allowedLanguage,genre:String(options.genre||''),theme:'',audience:'',centralConflict:'',stakes:'',narrativePromise:'',startingApproach:options.approach||'premise',complexity:allowedComplexity,collaboration:options.collaboration||'shared'},
-  world:{locations:'',historicalNotes:'',technology:'',hardRules:'',exceptions:''},characters:[],events:[],links:[],objects:[],decisions:[]};
+  world:{locations:'',historicalNotes:'',technology:'',hardRules:'',exceptions:''},characters:[],events:[],links:[],objects:[],decisions:[],blender:{drafts:[],adoptedId:null}};
 }
 export function getCharacters(data){return Array.isArray(data?.characters)?data.characters.filter(c=>!c.archived):[];}
 export function appearsIn(event,name){if(!event?.characters||!name)return false;

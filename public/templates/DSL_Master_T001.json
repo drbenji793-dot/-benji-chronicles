@@ -1,6 +1,6 @@
 {
-  "id": "DSL-T001",
-  "revision": 1,
+  "format": "chronicles-dsl-template",
+  "template": "DSL-T001",
   "modules": [
     {
       "id": "foundation",
@@ -136,6 +136,19 @@
       ]
     },
     {
+      "id": "blender",
+      "name": "Story Blender",
+      "fields": [
+        "scenario",
+        "selectedEvents",
+        "sourceSnapshot",
+        "drafts",
+        "compare",
+        "adoptSummary",
+        "AI brief"
+      ]
+    },
+    {
       "id": "publication",
       "name": "Published Storyline",
       "fields": [
@@ -146,11 +159,11 @@
       ]
     }
   ],
-  "blankNovel": {
+  "data": {
     "schema": 2,
     "template": {
       "id": "DSL-T001",
-      "revision": 1
+      "revision": 2
     },
     "title": "Untitled Novel",
     "summary": "",
@@ -179,6 +192,10 @@
     "events": [],
     "links": [],
     "objects": [],
-    "decisions": []
+    "decisions": [],
+    "blender": {
+      "drafts": [],
+      "adoptedId": null
+    }
   }
 }
