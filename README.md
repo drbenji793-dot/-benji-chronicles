@@ -61,3 +61,7 @@ No manuscript or resource is copied, moved or overwritten. Storyline notes remai
 available from the DSL footer; Characters, References and Book Rules retain their
 existing revision protected resource editors. Run node tests/collection-planning.mjs
 for route, toolbar, save isolation and original chapter link verification.
+
+Reader v106 extends the same planning controls to Arabic stories 4, 5 and 6.
+Apply db/collection-planning-v106.sql once. The shared regression now covers
+all six story workspaces and their independent planning saves.
