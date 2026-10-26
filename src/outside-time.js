@@ -18,7 +18,7 @@ export function renderOutsideTime(params,nav,main,api){
  if(view==='references'){
   main.innerHTML=`<section class="reference-page" dir="rtl"><h1>خارج الزمن · المراجع</h1><div class="reference-nav"><a href="/downloads/Outside_Time_101.html" download>تحميل دليل 101 كاملًا</a><a href="/images/outside-time-cover.webp" download>تحميل الغلاف</a></div><figure class="outside-time-art"><img src="/images/outside-time-cover.webp" alt="أتوبيس قديم وامرأة بطاقية حمراء ورجل ينتظرها"><figcaption>الغلاف الفني المقترح لخارج الزمن</figcaption></figure></section>`;return;
  }
- const section={storyline:'story',chapters:'chapters',characters:'characters',rules:'rules'}[view]||'story';
+ const section={storyline:'story','storyline-guide':'story',chapters:'chapters',characters:'characters',rules:'rules'}[view]||'story';
  main.innerHTML=`<section class="outside-time-workspace" dir="rtl"><h1>خارج الزمن</h1>${view==='chapters'?'<p class="collection-caption">خطة فصول مقترحة، وليست فصولًا مكتوبة.</p>':''}<iframe class="outside-time-guide" title="خارج الزمن 101 · دليل القصة" src="/outside-time-101.html?embed=1#${section}"></iframe></section>`;
  const frame=main.querySelector('iframe');frame.addEventListener('load',()=>{const doc=frame.contentDocument;if(!doc)return;const resize=()=>{if(!frame.isConnected){observer.disconnect();return;}frame.style.height=Math.ceil(doc.body.getBoundingClientRect().height+32)+'px';};const observer=new ResizeObserver(resize);observer.observe(doc.body);resize();});
 }
