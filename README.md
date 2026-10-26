@@ -49,3 +49,15 @@ New work is stored separately in `chronicles_books`, `chronicles_book_entries`, 
 Access warning: anyone with the public site link can create or edit a book, because the user explicitly chose a no sign in collaboration space. Writer labels are self selected, not authenticated identities.
 
 Verification: an anonymous role transaction successfully created a book and initial book rules, inserted a chapter, saved its revision, and recorded the revision history. The test transaction was rolled back. The original chapter checksum was compared before and after and was unchanged. The Vercel production deployment built successfully.
+
+Reader v105 collection planning
+
+Arabic stories 1, 2 and 3 use the shared DSL and Story Blender with independent
+planning identities from src/collection-workspace.js. Apply the idempotent data
+seed db/collection-planning-v105.sql before deployment. These chronicles_books
+rows are planning containers, excluded from additional book cards. Chapters stay
+in chronicles_chapters and chapter routes remain #story=N&lang=ar&chapter=M.
+No manuscript or resource is copied, moved or overwritten. Storyline notes remain
+available from the DSL footer; Characters, References and Book Rules retain their
+existing revision protected resource editors. Run node tests/collection-planning.mjs
+for route, toolbar, save isolation and original chapter link verification.

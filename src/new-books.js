@@ -1,3 +1,4 @@
+import {planningStory} from './collection-workspace.js';
 import {renderDSL} from './dsl.js';
 import {OUTSIDE_TIME_BOOK} from './outside-time.js';
 import {buildPDF,downloadBlob} from './export-book.js';
@@ -13,7 +14,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   const entryLink=entry=>link(entry.book_id)+(entry.kind==='rules'?'&rules=1':'&chapter='+entry.chapter_number);
   const writerLabel=e=>e.updated_by==='Ahmed'?'author-ahmed':e.updated_by==='Guest'?'author-guest':'author-benji';
 
-  async function load(){books=await api('chronicles_books?select=*&order=created_at.asc');}
+  async function load(){books=(await api('chronicles_books?select=*&order=created_at.asc')).filter(b=>!planningStory(b.id));}
   function isBookRoute(params){return params.has('book');}
   function cards(language='ar'){
     if(!books.some(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK))return '';
