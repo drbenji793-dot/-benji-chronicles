@@ -19,3 +19,5 @@
 @media(max-width:640px){.dsl-health-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.dsl-template-grid,.dsl-knowledge-grid{grid-template-columns:1fr}.dsl-workspace-intro{align-items:flex-start}.dsl-workspace-intro .dsl-primary{width:100%}}
 
 .dsl-blend-compare{display:grid;grid-template-columns:1fr 1fr;gap:14px}.dsl-blend-compare article{min-width:0;overflow-wrap:anywhere}@media(max-width:650px){.dsl-blend-compare{grid-template-columns:1fr}}
+
+.dsl-scene-grip{touch-action:none;cursor:grab;min-width:30px}.dsl-scene-grip:active{cursor:grabbing}.dsl-dragging .dsl-lane{outline:1px dashed var(--green)}.dsl-event [data-move-scene]{padding:5px 8px;min-height:30px}

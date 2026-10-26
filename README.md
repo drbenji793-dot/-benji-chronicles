@@ -65,3 +65,12 @@ for route, toolbar, save isolation and original chapter link verification.
 Reader v106 extends the same planning controls to Arabic stories 4, 5 and 6.
 Apply db/collection-planning-v106.sql once. The shared regression now covers
 all six story workspaces and their independent planning saves.
+
+Reader v107 adds scene grips for desktop drag and touch hold, plus an accessible
+Move dialog for precise placement and new year columns. Moves save only the active
+DSL branch through the existing revision guard and history. Moving within a year
+changes reading order; moving to another year requires date review and clears any
+old exact date. Source chapter IDs, revisions and connections stay attached. The
+map groups years and displays the chosen order inside each column. Published
+Storyline snapshots still require Preview and Publish. No manuscript migration.
+Validate with node tests/scene-moves.mjs and the existing collection/Blender tests.
