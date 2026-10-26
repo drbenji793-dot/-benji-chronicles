@@ -5,7 +5,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   const $=selector=>document.querySelector(selector);
   const uuid=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
   const draftKey=id=>'chronicles-book-draft:'+id;
-  let books=[],book=null,entries=[],active=null,editing=false,busy=false;
+  let books=[],book=null,entries=[],active=null,editing=false,busy=false,parts=[],selectedPart=null;
 
   const chapterList=()=>entries.filter(e=>e.kind==='chapter').sort((a,b)=>a.chapter_number-b.chapter_number);
   const link=id=>'#book='+id;
@@ -105,14 +105,45 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(!book)throw Error('Book not found.');const footerRules=document.querySelector('.footer-rules [data-book-rules]');if(footerRules){footerRules.hidden=false;footerRules.textContent='Book Rules';footerRules.href=link(book.id)+'&rules=1';}
     const loaded=await api('chronicles_book_entries?book_id=eq.'+id+'&select=*&order=chapter_number.asc.nullslast');
     entries=loaded;
+    parts=await api("chronicles_book_parts?book_id=eq."+id+"&select=*&order=start_chapter.asc");
+    selectedPart=parts.find(p=>p.id===params.get("part"))||null;
     const rules=params.get('rules')==='1';
     const no=Number(params.get('chapter'));
     if(rules||params.has('chapter')){
       active=rules?entries.find(e=>e.kind==='rules'):entries.find(e=>e.kind==='chapter'&&e.chapter_number===no);
       if(!active)throw Error('Page not found.');
+      selectedPart=partFor(active.chapter_number);
       editing=false;
       renderEntry();
-    }else{active=null;editing=false;renderOverview();}
+    }else{active=null;editing=false;if(selectedPart)renderPartHome();else renderOverview();}
+  }
+
+  function partFor(number){return [...parts].reverse().find(p=>number>=p.start_chapter)||null;}
+  function partChapters(p){return chapterList().filter(c=>partFor(c.chapter_number)?.id===p?.id);}
+  function partName(p){return (book.language==='ar'?'الجزء ':'Part ')+(parts.indexOf(p)+1)+' · '+p.title;}
+  function partsUI(){return `<div class="book-parts" dir="${book.language==='ar'?'rtl':'ltr'}"><label for="book-part-select">${book.language==='ar'?'الجزء':'Part'}</label><select id="book-part-select"><option value="">${book.language==='ar'?'اختر الجزء':'Choose part'}</option>${parts.map(p=>`<option value="${p.id}" ${selectedPart?.id===p.id?'selected':''}>${esc(partName(p))}</option>`).join('')}</select><button id="rename-part" ${selectedPart?'':'disabled'}>تعديل اسم الجزء</button><button id="add-part">＋ جزء جديد</button>${selectedPart?`<p class="part-count">${partChapters(selectedPart).length} فصول مكتوبة${selectedPart.planned_chapters?' · '+selectedPart.planned_chapters+' فصول مخططة':''}</p><details><summary>تفاصيل تعديل الجزء</summary><p>${esc(selectedPart.updated_by)} · ${date(selectedPart.updated_at)} · Revision ${selectedPart.revision}</p>${[...(selectedPart.history||[])].reverse().map(h=>`<p>${esc(h.title)} · ${esc(h.updated_by)} · ${date(h.updated_at)} · Revision ${h.revision}</p>`).join('')}</details>`:''}</div>`;}
+  function bindParts(){
+    $('#book-part-select').onchange=async e=>{const p=parts.find(x=>x.id===e.target.value);if(!p)return;const c=partChapters(p)[0];await navigate(c?entryLink(c):link(book.id)+'&part='+p.id);};
+    $('#rename-part').onclick=()=>editPart(selectedPart);
+    $('#add-part').onclick=()=>editPart(null);
+  }
+  function editPart(p){
+    if(editing){say('احفظ الفصل أو ألغِ التعديل أولًا.',true);return;}
+    const next=Math.max(1,...parts.map(x=>x.start_chapter+(x.planned_chapters||1)),...chapterList().map(x=>x.chapter_number+1));
+    modal(p?'تعديل اسم الجزء':'جزء جديد',`<form id="part-form" dir="rtl"><label>اسم الجزء<input name="title" required maxlength="160" value="${esc(p?.title||'')}"></label>${p?'':`<label>رقم أول فصل<input name="start" type="number" min="1" max="999" required value="${next}"></label><label>عدد الفصول المخطط (اختياري)<input name="count" type="number" min="1" max="999"></label>`}<button type="submit">حفظ</button><p id="part-error" role="alert"></p></form>`);
+    $('#part-form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),btn=e.target.querySelector('button');btn.disabled=true;busy=true;try{
+      const title=String(f.get('title')||'').trim();if(!title)throw Error('اكتب اسم الجزء.');
+      const payload={title,updated_by:getWriter()};if(!p){const start=Number(f.get('start'));if(!Number.isInteger(start)||start<1||start>999||parts.some(x=>x.start_chapter>=start))throw Error('الجزء الجديد يبدأ بعد بداية آخر جزء.');Object.assign(payload,{book_id:book.id,start_chapter:start,planned_chapters:f.get('count')?Number(f.get('count')):null});}
+      const rows=await api('chronicles_book_parts'+(p?'?id=eq.'+p.id+'&revision=eq.'+p.revision:''),{method:p?'PATCH':'POST',headers:{Prefer:'return=representation'},body:JSON.stringify(payload)});
+      if(!rows?.length)throw Error('الجزء اتعدل من جهاز آخر. افتح الصفحة تاني قبل الحفظ.');
+      parts=p?parts.map(x=>x.id===p.id?rows[0]:x):[...parts,rows[0]].sort((a,b)=>a.start_chapter-b.start_chapter);selectedPart=rows[0];$('#modal').close();busy=false;
+      if(p){if(active)renderEntry();else renderPartHome();}else await navigate(link(book.id)+'&part='+selectedPart.id);
+      say('تم حفظ الجزء باسم الكاتب ووقت التعديل.');
+    }catch(err){$('#part-error').textContent=err.message;}finally{busy=false;btn.disabled=false;}};
+  }
+  function renderPartHome(){
+    $('#main').innerHTML=header()+`<section class="reference-page" dir="rtl">${partsUI()}<h1>${esc(partName(selectedPart))}</h1><p>لا توجد فصول مكتوبة في هذا الجزء حتى الآن.</p><button id="part-new-chapter">＋ فصل جديد</button></section>`;
+    bindParts();$('#part-new-chapter').onclick=showCreateChapter;
   }
 
   function header(){
@@ -143,8 +174,9 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   function relatedLinks(key){const direct=books.find(b=>b.id===key)?.related_work;const links=[...(direct?[{key:direct,title:books.find(b=>b.id===direct)?.title||'Related story'}]:[]),...books.filter(b=>b.related_work===key).map(b=>({key:b.id,title:b.title}))];return links.map(x=>`<a class="reference-link" href="${relatedRoute(x.key)}">Related Story · ${esc(x.title)}</a>`).join('');}
   function editRelation(){modal('Related Story',`<form id="related-form"><p>A connection is optional. Each work keeps its own chapters and approval.</p><label>Connect to<select name="related"><option value="">None · Independent work</option>${books.filter(b=>b.id!==book.id&&b.language!==book.language).map(b=>`<option value="${b.id}">${esc(b.title)}</option>`).join('')}${book.language==='en'?['قطار الليل','الدور الرابع','ثلاث شقق في وسط البلد','ترجمة ناقصة','الساعة اللي وقفت','شقة بالإيجار القديم','البصمة الغلط','نهر بلا شهود','الراجل اللي بلّغ عن نفسه','فندق الجيزة ١٩٧٣','رسالة من بكرة','شرخ زمني'].map((t,i)=>`<option value="story:${i+1}:ar">${esc(t)}</option>`).join(''):'<option value="story:12:en">A Fracture in Time</option>'}</select></label><button>Save Connection</button></form>`);$('#related-form select').value=book.related_work||'';$('#related-form').onsubmit=async e=>{e.preventDefault();try{const related=new FormData(e.target).get('related')||null;await api('chronicles_books?id=eq.'+book.id,{method:'PATCH',body:JSON.stringify({related_work:related})});book.related_work=related;await load();$('#modal').close();renderOverview();say('Story connection saved.')}catch(e){say(e.message,true)}};}
   function showCreateChapter(){
-    const next=Math.max(0,...chapterList().map(c=>c.chapter_number))+1;
+    const next=selectedPart?Math.max(selectedPart.start_chapter,...partChapters(selectedPart).map(c=>c.chapter_number+1)):Math.max(0,...chapterList().map(c=>c.chapter_number))+1;
     modal('+ New chapter',`<form id="chronicles-create-chapter" class="chronicles-book-form">
+      ${selectedPart?`<p>${esc(partName(selectedPart))}</p>`:''}
       <label>Chapter number<input name="number" type="number" min="1" max="999" value="${next}" required></label>
       <label>Chapter title<input name="title" required maxlength="200" dir="auto" value="${book.language==='en'?'Chapter ':'الفصل '}${next}"></label>
       <p class="reference-note">This chapter will be added only to this book. You can start writing immediately.</p>
@@ -157,6 +189,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       try{
         const number=Number(f.get('number')),title=String(f.get('title')||'').trim();
         if(!Number.isInteger(number)||number<1||number>999||!title)throw Error('Check the chapter number and title.');
+        if(selectedPart&&partFor(number)?.id!==selectedPart.id)throw Error('رقم الفصل خارج نطاق الجزء المختار.');
         const rows=await api('chronicles_book_entries',{
           method:'POST',headers:{Prefer:'return=representation'},
           body:JSON.stringify({book_id:book.id,kind:'chapter',chapter_number:number,title,body:'',updated_by:getWriter()})
@@ -171,7 +204,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
 
   function renderEntry(){
     if(!active)return;
-    const c=active,list=chapterList(),rules=c.kind==='rules';
+    const c=active,rules=c.kind==='rules';selectedPart=rules?null:partFor(c.chapter_number);const list=selectedPart?partChapters(selectedPart):chapterList();
     const selected=rules?'Book Rules':'Chapter '+c.chapter_number;
     $('#main').innerHTML=`<nav class="crumb"><strong dir="auto">${esc(book.title)}</strong></nav><p class="collection-caption">${book.language==='ar'?'Arabic Original':'English Original'}</p><div class="workspace chronicles-workspace">
       <aside class="sidebar" dir="${book.language==='en'?'ltr':'rtl'}">
@@ -183,6 +216,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <a class="reference-link" href="${link(book.id)}">All chapters</a>
       </aside>
       <section class="editor-area" dir="${book.language==='en'?'ltr':'rtl'}">
+        ${rules?'':partsUI()}
         ${rules?'<p class="reference-note">Book Rules</p>':`<div class="chapter-picker" dir="ltr"><button id="extra-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button><select id="extra-chapter-select" aria-label="Choose chapter" dir="${book.language==='ar'?'rtl':'ltr'}">${list.map(x=>`<option value="${x.chapter_number}" ${x.id===c.id?'selected':''}>${String(x.chapter_number).padStart(2,'0')} · ${esc(x.title)}</option>`).join('')}</select><button id="extra-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button></div>`}
         <div class="toolbar" dir="ltr">
           <button id="chronicles-edit">Edit</button>
@@ -197,6 +231,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         </div>
         <div id="chronicles-save-warning"></div>
         
+        ${selectedPart?`<p class="chapter-part">${esc(partName(selectedPart))}</p>`:''}
         <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
         <div class="chapter-word-count" dir="ltr">${clean(c.body).replace(/<[^>]*>/g,' ').trim().split(/\s+/).filter(Boolean).length} words</div><div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'مسودة GPT · _zkalam4 · غير معتمدة<br>':''}Revision ${c.revision} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}</div>
@@ -218,6 +253,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     const size=()=>{$('#chronicles-entry-body').style.fontSize=readingSize+'px';storage.set?.('chronicles-size',String(readingSize));};size();
     $('#extra-smaller').onclick=()=>{readingSize=Math.max(16,readingSize-1);size()};$('#extra-larger').onclick=()=>{readingSize=Math.min(30,readingSize+1);size()};
     if(!rules){
+      bindParts();
       $('#extra-chapter-select').onchange=e=>navigate(link(book.id)+'&chapter='+e.target.value);
       $('#extra-prev').onclick=()=>{const prev=list[list.indexOf(c)-1];if(prev)navigate(entryLink(prev))};
       $('#extra-next').onclick=()=>{const next=list[list.indexOf(c)+1];if(next)navigate(entryLink(next))};
