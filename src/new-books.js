@@ -120,30 +120,30 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
 
   function partFor(number){return [...parts].reverse().find(p=>number>=p.start_chapter)||null;}
   function partChapters(p){return chapterList().filter(c=>partFor(c.chapter_number)?.id===p?.id);}
-  function partName(p){return (book.language==='ar'?'الجزء ':'Part ')+(parts.indexOf(p)+1)+' · '+p.title;}
-  function partsUI(){return `<div class="book-parts" dir="${book.language==='ar'?'rtl':'ltr'}"><label for="book-part-select">${book.language==='ar'?'الجزء':'Part'}</label><select id="book-part-select"><option value="">${book.language==='ar'?'اختر الجزء':'Choose part'}</option>${parts.map(p=>`<option value="${p.id}" ${selectedPart?.id===p.id?'selected':''}>${esc(partName(p))}</option>`).join('')}</select><div class="part-management"><button id="rename-part" ${selectedPart?'':'disabled'}>تعديل اسم الجزء</button><button id="add-part">＋ جزء جديد</button>${selectedPart?`<p class="part-count">${partChapters(selectedPart).length} فصول مكتوبة${selectedPart.planned_chapters?' · '+selectedPart.planned_chapters+' فصول مخططة':''}</p><details><summary>تفاصيل تعديل الجزء</summary><p>${esc(selectedPart.updated_by)} · ${date(selectedPart.updated_at)} · Revision ${selectedPart.revision}</p>${[...(selectedPart.history||[])].reverse().map(h=>`<p>${esc(h.title)} · ${esc(h.updated_by)} · ${date(h.updated_at)} · Revision ${h.revision}</p>`).join('')}</details>`:''}</div></div>`;}
+  function partName(p){return (book.language==='ar'?'Part ':'Part ')+(parts.indexOf(p)+1)+' · '+p.title;}
+  function partsUI(){return `<div class="book-parts" dir="${book.language==='ar'?'rtl':'ltr'}"><label for="book-part-select" lang="en">${book.language==='ar'?'Part':'Part'}</label><select id="book-part-select"><option value="">${book.language==='ar'?'Choose part':'Choose part'}</option>${parts.map(p=>`<option value="${p.id}" ${selectedPart?.id===p.id?'selected':''}>${esc(partName(p))}</option>`).join('')}</select><div class="part-management"><button id="rename-part" ${selectedPart?'':'disabled'}>Rename part</button><button id="add-part">＋ New part</button>${selectedPart?`<p class="part-count" lang="en" dir="ltr">${partChapters(selectedPart).length} written chapters${selectedPart.planned_chapters?' · '+selectedPart.planned_chapters+' planned chapters':''}</p><details><summary lang="en" dir="ltr">Part revision details</summary><p>${esc(selectedPart.updated_by)} · ${date(selectedPart.updated_at)} · Revision ${selectedPart.revision}</p>${[...(selectedPart.history||[])].reverse().map(h=>`<p>${esc(h.title)} · ${esc(h.updated_by)} · ${date(h.updated_at)} · Revision ${h.revision}</p>`).join('')}</details>`:''}</div></div>`;}
   function bindParts(){
     $('#book-part-select').onchange=async e=>{const p=parts.find(x=>x.id===e.target.value);if(!p)return;const c=partChapters(p)[0];await navigate(c?entryLink(c):link(book.id)+'&part='+p.id);};
     $('#rename-part').onclick=()=>editPart(selectedPart);
     $('#add-part').onclick=()=>editPart(null);
   }
   function editPart(p){
-    if(editing){say('احفظ الفصل أو ألغِ التعديل أولًا.',true);return;}
+    if(editing){say('Save or cancel chapter edits first.',true);return;}
     const next=Math.max(1,...parts.map(x=>x.start_chapter+(x.planned_chapters||1)),...chapterList().map(x=>x.chapter_number+1));
-    modal(p?'تعديل اسم الجزء':'جزء جديد',`<form id="part-form" dir="rtl"><label>اسم الجزء<input name="title" required maxlength="160" value="${esc(p?.title||'')}"></label>${p?'':`<label>رقم أول فصل<input name="start" type="number" min="1" max="999" required value="${next}"></label><label>عدد الفصول المخطط (اختياري)<input name="count" type="number" min="1" max="999"></label>`}<button type="submit">حفظ</button><p id="part-error" role="alert"></p></form>`);
+    modal(p?'Rename part':'New part',`<form id="part-form" dir="rtl"><label>Part title<input name="title" required maxlength="160" value="${esc(p?.title||'')}"></label>${p?'':`<label>First chapter number<input name="start" type="number" min="1" max="999" required value="${next}"></label><label>Planned chapter count (optional)<input name="count" type="number" min="1" max="999"></label>`}<button type="submit">Save</button><p id="part-error" role="alert"></p></form>`);
     $('#part-form').onsubmit=async e=>{e.preventDefault();const f=new FormData(e.target),btn=e.target.querySelector('button');btn.disabled=true;busy=true;try{
-      const title=String(f.get('title')||'').trim();if(!title)throw Error('اكتب اسم الجزء.');
-      const payload={title,updated_by:getWriter()};if(!p){const start=Number(f.get('start'));if(!Number.isInteger(start)||start<1||start>999||parts.some(x=>x.start_chapter>=start))throw Error('الجزء الجديد يبدأ بعد بداية آخر جزء.');Object.assign(payload,{book_id:book.id,start_chapter:start,planned_chapters:f.get('count')?Number(f.get('count')):null});}
+      const title=String(f.get('title')||'').trim();if(!title)throw Error('Enter a part title.');
+      const payload={title,updated_by:getWriter()};if(!p){const start=Number(f.get('start'));if(!Number.isInteger(start)||start<1||start>999||parts.some(x=>x.start_chapter>=start))throw Error('The new part must start after the beginning of the last part.');Object.assign(payload,{book_id:book.id,start_chapter:start,planned_chapters:f.get('count')?Number(f.get('count')):null});}
       const rows=await api('chronicles_book_parts'+(p?'?id=eq.'+p.id+'&revision=eq.'+p.revision:''),{method:p?'PATCH':'POST',headers:{Prefer:'return=representation'},body:JSON.stringify(payload)});
-      if(!rows?.length)throw Error('الجزء اتعدل من جهاز آخر. افتح الصفحة تاني قبل الحفظ.');
+      if(!rows?.length)throw Error('This part changed on another device. Reopen the page before saving.');
       parts=p?parts.map(x=>x.id===p.id?rows[0]:x):[...parts,rows[0]].sort((a,b)=>a.start_chapter-b.start_chapter);selectedPart=rows[0];$('#modal').close();busy=false;
       if(p){if(active)renderEntry();else renderPartHome();}else await navigate(link(book.id)+'&part='+selectedPart.id);
-      say('تم حفظ الجزء باسم الكاتب ووقت التعديل.');
+      say('Part saved with the writer name and edit time.');
     }catch(err){$('#part-error').textContent=err.message;}finally{busy=false;btn.disabled=false;}};
   }
   function renderPartHome(){
-    $('#main').innerHTML=header()+`<section class="reference-page" dir="rtl">${partsUI()}<h1>${esc(partName(selectedPart))}</h1><p>لا توجد فصول مكتوبة في هذا الجزء حتى الآن.</p><button id="part-new-chapter">＋ فصل جديد</button></section>`;
-    const info=document.createElement('details');info.className='reading-details';info.innerHTML='<summary>تفاصيل الحفظ والمراجعة</summary>';$('.book-parts').after(info);info.append($('.part-management'));
+    $('#main').innerHTML=header()+`<section class="reference-page" dir="rtl">${partsUI()}<h1>${esc(partName(selectedPart))}</h1><p>No chapters have been written in this part yet.</p><button id="part-new-chapter">＋ New chapter</button></section>`;
+    const info=document.createElement('details');info.className='reading-details';info.innerHTML='<summary lang="en" dir="ltr">Save and review details</summary>';$('.book-parts').after(info);info.append($('.part-management'));
     bindParts();$('#part-new-chapter').onclick=showCreateChapter;
   }
 
@@ -190,7 +190,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       try{
         const number=Number(f.get('number')),title=String(f.get('title')||'').trim();
         if(!Number.isInteger(number)||number<1||number>999||!title)throw Error('Check the chapter number and title.');
-        if(selectedPart&&partFor(number)?.id!==selectedPart.id)throw Error('رقم الفصل خارج نطاق الجزء المختار.');
+        if(selectedPart&&partFor(number)?.id!==selectedPart.id)throw Error('The chapter number is outside the selected part.');
         const rows=await api('chronicles_book_entries',{
           method:'POST',headers:{Prefer:'return=representation'},
           body:JSON.stringify({book_id:book.id,kind:'chapter',chapter_number:number,title,body:'',updated_by:getWriter()})
@@ -235,7 +235,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ${selectedPart?`<p class="chapter-part">${esc(partName(selectedPart))}</p>`:''}
         <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
-        <div class="chapter-word-count" dir="ltr">${clean(c.body).replace(/<[^>]*>/g,' ').trim().split(/\s+/).filter(Boolean).length} words</div><div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'مسودة GPT · _zkalam4 · غير معتمدة<br>':''}Revision ${c.revision} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}</div>
+        <div class="chapter-word-count" dir="ltr">${clean(c.body).replace(/<[^>]*>/g,' ').trim().split(/\s+/).filter(Boolean).length} words</div><div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Revision ${c.revision} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}</div>
         ${!c.body.trim()&&!rules?'<p class="notice">This chapter is empty. Press Edit to begin.</p>':''}
         <article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
         <details class="notes"><summary>Writing notes <span id="chronicles-note-count"></span></summary>
