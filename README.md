@@ -74,3 +74,9 @@ old exact date. Source chapter IDs, revisions and connections stay attached. The
 map groups years and displays the chosen order inside each column. Published
 Storyline snapshots still require Preview and Publish. No manuscript migration.
 Validate with node tests/scene-moves.mjs and the existing collection/Blender tests.
+
+Reader v108 pilots a Contents tab in Arabic story 1 (قطار الليل). It reads fresh
+chapter metadata on each visit and provides book style dotted chapter listings,
+planning shortcuts, supporting material and direct Story Blender navigation.
+Chapter numbers are used rather than invented page numbers. No database writes
+or manuscript changes are required. Other stories keep their existing tabs.

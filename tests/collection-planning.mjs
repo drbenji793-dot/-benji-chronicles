@@ -26,7 +26,12 @@ try{
  await wait();
  for(let n=1;n<=titles.length;n++){
   w.location.hash=collectionRoute(n,'cover');await wait();
-  assert.deepEqual([...w.document.querySelectorAll('.ink-tabs a')].map(a=>a.textContent),['Chapters','Storyline','DSL','Characters','References','Library']);
+  assert.deepEqual([...w.document.querySelectorAll('.ink-tabs a')].map(a=>a.textContent),[...(n===1?['Contents']:[]),'Chapters','Storyline','DSL','Characters','References','Library']);
+  if(n===1){
+   q('.ink-tabs a[href*=contents]').click();await wait();assert(q('#contents-title'));assert.equal(w.document.querySelectorAll('.contents-chapter').length,1);assert.equal(q('.contents-chapter').getAttribute('href'),'#story=1&lang=ar&chapter=1');assert.equal(q('.contents-label').textContent,titles[0]);
+   q('.contents-resource[href*=dsltool]').click();await wait();assert(q('[data-blend-form]'));q('[data-close]').click();
+   q('.ink-tabs a[href*=contents]').click();await wait();q('.contents-chapter').click();await wait();assert.equal(q('#prose').textContent,'Original 1');
+  }
   q('.ink-tabs a[href*=chapter]').click();await wait();assert.equal(q('#prose').textContent,'Original '+n);assert(q('#edit'));assert(q('#history'));assert(q('#export-book'));
   q('.ink-tabs a[href*=view\\=dsl]').click();await wait();
   for(const label of ['Story Map','Timeline','Reading Order','Decisions','Characters','Knowledge','Twists','Objects','Story Health','Review','History'])assert([...w.document.querySelectorAll('.dsl-tabs a')].some(a=>a.textContent===label));
