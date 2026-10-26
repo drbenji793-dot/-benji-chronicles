@@ -1,0 +1,19 @@
+/* DSL T001 evolutionary modules: extends the approved Coffee/Parchment/Sage design. */
+.dsl-workspace-intro{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 17px;flex-wrap:wrap}
+.dsl-workspace-intro h2{font-size:20px;margin:0 0 4px;font-weight:700}
+.dsl-workspace-intro p{font-size:12px;color:var(--muted);margin:0;line-height:1.8;max-width:760px}
+.dsl-person-head{display:flex;align-items:center;gap:9px}
+.dsl-person-head h3{margin:0;font-size:17px}.dsl-person-head small{font-size:11px;color:var(--muted)}
+.dsl-person-mark{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line);background:var(--paper);color:var(--warm);font-size:16px;font-weight:700;flex-shrink:0}
+.dsl-person p{margin:7px 0;font-size:12px}.dsl-person details{border-top:1px solid var(--line);padding-top:8px}.dsl-person summary{cursor:pointer;color:var(--warm);font-size:12px}
+.dsl-knowledge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:9px 0}
+.dsl-knowledge-grid>div{background:color-mix(in srgb,var(--paper) 45%,transparent);border:1px solid var(--line);border-radius:7px;padding:10px}
+.dsl-knowledge-grid strong{font-size:12px;color:var(--warm)}.dsl-knowledge-grid p{font-size:12px;line-height:1.85;white-space:pre-line;margin:5px 0 0}
+.dsl-health-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:14px 0 16px}
+.dsl-health-stats>div{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:12px 7px;text-align:center}
+.dsl-health-stats strong{display:block;font-size:23px;line-height:1.4;color:var(--ink)}.dsl-health-stats small{display:block;color:var(--muted);font-size:10px}
+.dsl-health-list{display:grid;gap:5px}.dsl-health-list .dsl-review-item{display:flex;align-items:center;gap:9px;justify-content:space-between;flex-wrap:wrap;margin:0}
+.dsl-template-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:13px 0}
+.dsl-template-module{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:10px}
+.dsl-template-module strong{font-size:12px}.dsl-template-module p{font-size:11px;color:var(--muted);margin:5px 0 0;line-height:1.6}
+@media(max-width:640px){.dsl-health-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.dsl-template-grid,.dsl-knowledge-grid{grid-template-columns:1fr}.dsl-workspace-intro{align-items:flex-start}.dsl-workspace-intro .dsl-primary{width:100%}}
