@@ -101,7 +101,7 @@ export function renderStoryTimeline(main,api,bookId){
      ['all',...years()].map(y=>'<button type="button" data-ct-era="'+y+'" aria-pressed="'+(era===String(y))+'">'+(y==='all'?'كل الأزمنة':y)+'</button>').join('')+'</div></div>'+
    '<p class="ct-notice">كل بطاقة تستمد تاريخها من أول سطر في الفصل المحفوظ. '+incomplete.length+' فصول لا تذكر اليوم الكامل بعد، ولذلك موضعها داخل الشهر أو الفصل السنوي قد يكون تقريبيًا. '+(missing.length?'الفصول غير المحفوظة بين الأرقام الموجودة: '+missing.join('، ')+'. ':'')+'لا يغيّر هذا العرض نصوص الرواية.</p>'+
    body+connections()+
-   '<div class="ct-bottom"><a href="'+chapterHref(1)+'">ابدأ القراءة</a><a href="#book='+bookId+'&rules=1">قواعد الكتاب</a><span>مصدر البيانات: الفصول المحفوظة في Chronicles</span></div></section>';
+   '<div class="ct-bottom"><a href="'+chapterHref(1)+'">ابدأ القراءة</a><a href="#book='+bookId+'&view=storyline-guide">دليل القصة ١٠١</a><a href="#book='+bookId+'&rules=1">قواعد الكتاب</a><span>مصدر البيانات: الفصول المحفوظة في Chronicles</span></div></section>';
   main.querySelectorAll('[data-ct-order]').forEach(b=>b.addEventListener('click',()=>{order=b.dataset.ctOrder;render()}));
   main.querySelectorAll('[data-ct-era]').forEach(b=>b.addEventListener('click',()=>{era=b.dataset.ctEra;render()}));
  }
