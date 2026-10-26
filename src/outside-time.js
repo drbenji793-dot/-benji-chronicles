@@ -1,9 +1,10 @@
 import {renderStoryTimeline} from './story-timeline.js';
+import {renderDSL} from './dsl.js';
 export const OUTSIDE_TIME_BOOK='ff9fed20-1254-45b6-82f4-9f7b9fe7c3ba';
 const root='#book='+OUTSIDE_TIME_BOOK;
 export function outsideTimeNavigation(params,nav){
  const view=params.has('chapter')?'chapters':params.has('rules')?'rules':params.get('view')||'cover';
- const tabs=[['chapters','Chapters'],['storyline','Storyline'],['characters','Characters'],['references','References']];
+ const tabs=[['chapters','Chapters'],['storyline','Storyline'],['dsl','DSL'],['characters','Characters'],['references','References']];
  nav.hidden=false;nav.dir='ltr';
  nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label])=>`<a href="${id==='chapters'?root+'&chapter=1':root+'&view='+id}" ${view===id?'class="selected" aria-current="page"':''}>${label}</a>`).join('')+'<a href="#collection&lang=ar">Library</a></div>'+`<div class="story-aux-nav"><a href="${root}">Story cover</a><a href="${root}&rules=1">Book Rules</a></div>`;
  const footer=document.querySelector('.footer-rules a[data-book-rules],.footer-rules a[href*="writing-rules"]');if(footer){footer.hidden=false;footer.href=root+'&rules=1';}
@@ -11,7 +12,8 @@ export function outsideTimeNavigation(params,nav){
 export function renderOutsideTime(params,nav,main,api){
  outsideTimeNavigation(params,nav);
  const view=params.get('view')||'cover';
- if(view==='storyline'){renderStoryTimeline(main,api,OUTSIDE_TIME_BOOK);return;}
+ if(view==='dsl'||view==='storyline'){renderDSL(main,api,OUTSIDE_TIME_BOOK,view);return;}
+ if(view==='timeline'){renderStoryTimeline(main,api,OUTSIDE_TIME_BOOK);return;}
  if(view==='cover'){
   main.innerHTML=`<section class="shelf story-entrance" dir="rtl"><a class="story-cover-art outside-time-cover cover-open" href="${root}&chapter=1" aria-label="قراءة رواية خارج الزمن"><div class="cover-lettering"><h2>خارج الزمن</h2><small>رواية قيد الكتابة</small></div><span class="cover-credit">Benji &amp; Almostasherq</span></a><p class="collection-caption">Arabic Original · مسودة قيد الكتابة</p><div class="story-reading"><a class="primary" href="${root}&chapter=1">Read Story</a><a href="${root}&view=storyline">Storyline</a></div></section>`;return;
  }

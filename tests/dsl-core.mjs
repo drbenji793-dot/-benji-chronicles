@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {clone,validDay,validateStory,compareStories,impactBetween,impactedEvents,readableStory,blankStory,orderEvents} from '../src/dsl-engine.js';
+const data={...blankStory('Test'),summary:'Test story',events:[{id:'a',title:'A',type:'event',status:'written',year:1986,date:'1986-11-02',precision:'day',order:1,summary:'A',sourceId:'chapter-a',sourceRevision:1},{id:'b',title:'B',type:'decision',status:'question',year:1986,date:'1986-11',precision:'month',order:2,summary:'B'},{id:'c',title:'C',type:'ending',status:'proposal',year:2026,precision:'unknown',order:3,summary:'C'}],links:[{id:'ab',from:'a',to:'b',kind:'causes'},{id:'bc',from:'b',to:'c',kind:'causes'}]};
+const chapters=[{id:'chapter-a',revision:1}];
+assert.equal(validateStory(data,chapters).filter(x=>x.kind==='error').length,0);
+assert(validDay('1986-11-02'));assert(!validDay('1986-02-30'));assert(!validDay('1986-11'));assert(!validDay(''));
+assert.deepEqual(orderEvents(data,'chronology').map(e=>e.id),['a','b','c']);
+const changed=clone(data);changed.events[1].summary='Alternative';assert.equal(compareStories(data,changed).changed.length,1);assert.deepEqual(impactBetween(data,changed).map(e=>e.id),['b','c']);assert.equal(data.events[1].summary,'B');
+const loop=clone(data);loop.links.push({id:'ca',from:'c',to:'a',kind:'echo',crossTime:true});assert.equal(impactedEvents(loop,['a']).length,3);
+const broken=clone(data);broken.links.push({id:'missing',from:'none',to:'a',kind:'causes'});assert(validateStory(broken).some(e=>e.kind==='error'));
+const xss=clone(data);xss.events[0].title='<img src=x onerror=alert(1)>';assert(!readableStory(xss,'book').includes('<img'));
+assert(validateStory(data,[{id:'chapter-a',revision:2}]).some(e=>e.text.includes('تغيّر الفصل')));
+const wrongYear=clone(data);wrongYear.events[0].year=2026;assert(validateStory(wrongYear).some(e=>e.kind==='error'));
+assert.deepEqual(blankStory().events,[]);
+console.log('DSL core passed: dates, partial-date ordering, branch independence, graph impact, cycles, source drift and escaped output.');
