@@ -11,7 +11,7 @@ export function renderOutsideTime(params,nav,main){
  outsideTimeNavigation(params,nav);
  const view=params.get('view')||'cover';
  if(view==='cover'){
-  main.innerHTML=`<section class="shelf story-entrance" dir="rtl"><div class="story-cover-art outside-time-cover" role="img" aria-label="غلاف خارج الزمن"><div class="cover-lettering"><h2>خارج الزمن</h2><small>رواية قيد الكتابة</small></div><span class="cover-credit">Benji &amp; Almostasherq</span></div><p class="collection-caption">Arabic Original · مسودة قيد الكتابة</p><div class="story-reading"><a class="primary" href="${root}&chapter=1">Read Story</a><a href="${root}&view=storyline">Storyline</a></div></section>`;return;
+  main.innerHTML=`<section class="shelf story-entrance" dir="rtl"><a class="story-cover-art outside-time-cover cover-open" href="${root}&chapter=1" aria-label="قراءة رواية خارج الزمن"><div class="cover-lettering"><h2>خارج الزمن</h2><small>رواية قيد الكتابة</small></div><span class="cover-credit">Benji &amp; Almostasherq</span></a><p class="collection-caption">Arabic Original · مسودة قيد الكتابة</p><div class="story-reading"><a class="primary" href="${root}&chapter=1">Read Story</a><a href="${root}&view=storyline">Storyline</a></div></section>`;return;
  }
  if(view==='references'){
   main.innerHTML=`<section class="reference-page" dir="rtl"><h1>خارج الزمن · المراجع</h1><div class="reference-nav"><a href="/downloads/Outside_Time_101.html" download>تحميل دليل 101 كاملًا</a><a href="/images/outside-time-cover.webp" download>تحميل الغلاف</a></div><figure class="outside-time-art"><img src="/images/outside-time-cover.webp" alt="أتوبيس قديم وامرأة بطاقية حمراء ورجل ينتظرها"><figcaption>الغلاف الفني المقترح لخارج الزمن</figcaption></figure></section>`;return;
