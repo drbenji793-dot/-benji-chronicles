@@ -19,8 +19,8 @@ const download=(text,name,type='text/plain;charset=utf-8')=>{const u=URL.createO
 function icon(kind){const shapes={tape:'<rect x="3" y="5" width="26" height="21" rx="3"/><circle cx="10" cy="15" r="4"/><circle cx="22" cy="15" r="4"/><path d="M10 19h12M9 26l3-5h8l3 5"/>',file:'<path d="M5 6h10l3 4h9v17H5zM10 15h12M10 20h9"/>',phone:'<path d="M5 12c0-9 22-9 22 0l-5 3-4-4h-4l-4 4zM9 17h14l4 10H5z"/><circle cx="16" cy="21" r="2"/>',hat:'<path d="M6 23v-7a10 10 0 0 1 20 0v7M5 23h22v5H5z"/><circle cx="16" cy="4" r="2"/>',object:'<path d="M16 3L28 10v13l-12 7-12-7V10zM4 10l12 7 12-7M16 17v13"/>'};return '<span class="dsl-object-icon" aria-hidden="true"><svg viewBox="0 0 32 32">'+(shapes[kind]||shapes.object)+'</svg></span>';}
 export async function renderDSL(main,api,bookId,mode='dsl'){
  disposePrevious?.();
- if(!document.querySelector('link[data-dsl-style]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/dsl.css?v=103';css.dataset.dslStyle='1';document.head.append(css);}
- if(!document.querySelector('link[data-dsl-evolution]')){const x=document.createElement('link');x.rel='stylesheet';x.href='/dsl-evolution.css?v=103';x.dataset.dslEvolution='1';document.head.append(x);}
+ if(!document.querySelector('link[data-dsl-style]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/dsl.css?v=104';css.dataset.dslStyle='1';document.head.append(css);}
+ if(!document.querySelector('link[data-dsl-evolution]')){const x=document.createElement('link');x.rel='stylesheet';x.href='/dsl-evolution.css?v=104';x.dataset.dslEvolution='1';document.head.append(x);}
  const initialHash=location.hash,params=new URLSearchParams(initialHash.slice(1));
  const view=params.get('dslview')||'map';
  let root,project,branches=[],branch,chapters=[],book,dialog=null,formDirty=false,busy=false,stopped=false,timer=null,refreshNeeded=false;

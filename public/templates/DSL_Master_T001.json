@@ -160,7 +160,7 @@
     }
   ],
   "data": {
-    "schema": 2,
+    "schema": 1,
     "template": {
       "id": "DSL-T001",
       "revision": 2

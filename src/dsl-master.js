@@ -20,7 +20,7 @@ export const MASTER_MODULES=[
 export function makeMasterStory(title='Untitled Novel',options={}){
  const allowedLanguage=['ar','en'].includes(options.language)?options.language:'ar';
  const allowedComplexity=['simple','standard','layered'].includes(options.complexity)?options.complexity:'standard';
- return {schema:2,template:{id:TEMPLATE_ID,revision:TEMPLATE_REVISION},title:String(title||'Untitled Novel'),summary:'',rules:'',hypothesis:'',
+ return {schema:1,template:{id:TEMPLATE_ID,revision:TEMPLATE_REVISION},title:String(title||'Untitled Novel'),summary:'',rules:'',hypothesis:'',
   foundation:{language:allowedLanguage,genre:String(options.genre||''),theme:'',audience:'',centralConflict:'',stakes:'',narrativePromise:'',startingApproach:options.approach||'premise',complexity:allowedComplexity,collaboration:options.collaboration||'shared'},
   world:{locations:'',historicalNotes:'',technology:'',hardRules:'',exceptions:''},characters:[],events:[],links:[],objects:[],decisions:[],blender:{drafts:[],adoptedId:null}};
 }
