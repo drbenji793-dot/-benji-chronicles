@@ -225,6 +225,7 @@ body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padd
 .collection-grid .book-manage button{font-size:9px;padding:4px 6px;min-height:30px}
 .collection-grid .book-manage summary{font-size:18px;padding:0 12px}
 .cover-open{display:block;text-decoration:none}
+.story-entrance a.cover-open:focus-visible{outline:3px solid var(--ink);outline-offset:5px}
 .story-entrance .cover-lettering h2{font-size:clamp(32px,7vw,52px)}
 .story-entrance .cover-lettering{padding:28px 20px 50px}
 .story-entrance .cover-credit{font-size:14px;padding-bottom:22px}
