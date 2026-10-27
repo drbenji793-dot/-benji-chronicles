@@ -98,3 +98,8 @@ Report saves use the planning branch revision guard and never edit prose.
 Independent English books also expose Contents, Storyline, DSL and References.
 Templates and the adaptation queue are downloadable under public/templates.
 Run node tests/critique.mjs plus the Contents, book and planning regression checks.
+
+Reader v112 gives The Night Train to Bellwether a generated illustrated cover,
+matching the existing library cards, and reuses it on the book entrance. Chapter
+count is read from saved chapter metadata. Existing shelf controls and book tools
+remain attached to the same book UUID. No manuscript or database writes.
