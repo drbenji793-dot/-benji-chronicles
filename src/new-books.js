@@ -22,21 +22,21 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   async function load(){books=(await api('chronicles_books?select=*&order=created_at.asc')).filter(b=>!planningStory(b.id));if(books.some(b=>b.id===illustratedBook))illustratedCount=(await api('chronicles_book_entries?book_id=eq.'+illustratedBook+'&kind=eq.chapter&select=id')).length;}
   function illustratedCards(language){return books.filter(b=>b.language===language&&b.id===illustratedBook).map(b=>`<a class="story-card collection-story" href="${link(b.id)}">${illustratedCover(b)}<div class="card-body"><h2>${esc(b.title)}</h2><small>${illustratedCount} chapters · English 2</small><span>Open story</span></div></a>`).join('');}
   function isBookRoute(params){return params.has('book');}
+  // Book Cover T001: one full portrait cover, sharing the Lost Files dimensions.
+  const bookArtwork={
+    '66739f5d-2bac-4d75-a4fd-6df93da8ac7e':{image:'/artwork/ibn-al-jabal-cover-v1.webp',subtitle:'IBN AL JABAL'}
+  };
+  function fullBookCover(b,extraClass=''){
+    const art=bookArtwork[b.id];
+    return `<a class="collection-cover chronicles-new-card full-book-cover ${extraClass}" href="${link(b.id)}" aria-label="Open ${esc(b.title)}" ${art?`style="background-image:url('${art.image}')"`:''}>
+      <div class="collection-cover-title"><h2 dir="auto">${esc(b.title)}</h2><p>${esc(art?.subtitle||'BENJI CHRONICLES')}</p></div>
+      <div class="collection-cover-credit">Benji &amp; Almostasherq<small>${b.language==='en'?'English':'Arabic'} novel</small></div>
+    </a>`;
+  }
   function cards(language='ar'){
     if(!books.some(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK&&b.id!==illustratedBook))return '';
     return '<section class="chronicles-extra-books" aria-label="Additional books"><h2>Books & Stories</h2><div class="chronicles-books-grid">'
-      +books.filter(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK&&b.id!==illustratedBook).map(b=>`<a class="chronicles-new-card" href="#book=${esc(b.id)}">
-        <div class="chronicles-new-cover">
-          <span class="chronicles-book-label">BENJI CHRONICLES · NEW BOOK</span>
-          <strong dir="auto">${esc(b.title)}</strong>
-          <small>${b.collaboration==='shared'?'Shared story':'Independent story'}</small>
-        </div>
-        <div class="chronicles-new-info"><strong dir="auto">${esc(b.title)}</strong>
-          <p dir="auto">${esc(b.description||'A new space for writing and adventures.')}</p>
-          <small><span class="${b.primary_writer==='Ahmed'?'chronicles-writer-ahmed':'chronicles-writer-benji'}">${esc(b.primary_writer)}</span> · ${b.language==='en'?'English':'Arabic'} book</small>
-          <span class="chronicles-new-open">Open book ↗</span>
-        </div>
-      </a>`).join('')+'</div></section>';
+      +books.filter(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK&&b.id!==illustratedBook).map(b=>fullBookCover(b)).join('')+'</div></section>';
   }
 
   function modal(title,html){
@@ -168,7 +168,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   function renderOverview(){
     const list=chapterList();
     $('#main').innerHTML=header()+`<section class="reference-page chronicles-book-home" dir="${book.language==='en'?'ltr':'rtl'}">
-      ${book.id===illustratedBook?'<a class="bellwether-entrance" href="'+link(book.id)+'&view=contents">'+illustratedCover(book)+'</a>':''}
+      ${book.id===illustratedBook?'<a class="bellwether-entrance" href="'+link(book.id)+'&view=contents">'+illustratedCover(book)+'</a>':fullBookCover(book,'book-overview-cover')}
       <div class="eyebrow">BENJI CHRONICLES · ${book.id===illustratedBook?'American adaptation':'Independent book'}</div>
       <h1 dir="auto">${esc(book.title)}</h1>
       <p class="reference-intro" dir="auto">${esc(book.description||'A space to write a new story.')}</p>

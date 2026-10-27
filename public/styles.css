@@ -289,3 +289,13 @@ body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padd
 .bellwether-cover .cover-lettering small{display:block;font-size:clamp(7px,1.4vw,10px);margin-top:10px}
 .bellwether-entrance{display:block;max-width:370px;margin:0 auto 24px;text-decoration:none}
 .bellwether-entrance .cover-lettering h2{font-size:clamp(26px,6vw,36px)}
+
+/* Book Cover T001: full portrait artwork matching the Lost Files cover. */
+.chronicles-extra-books{max-width:440px;margin:30px auto 12px}
+.chronicles-books-grid{display:grid;grid-template-columns:1fr;gap:24px}
+.collection-cover.full-book-cover{display:block;width:100%;max-width:440px;aspect-ratio:2/3;min-height:0;margin:0 auto;border:0;border-radius:4px;background-color:#0b211a;background-size:cover;background-position:center;box-shadow:0 8px 22px #26332930;color:#e2c478;overflow:hidden}
+.collection-cover.full-book-cover:hover{background-color:#0b211a}
+.full-book-cover .collection-cover-title h2{font:clamp(36px,8vw,64px)/1.4 BookArabic,Georgia,serif;margin:0;color:#e2c478}
+.full-book-cover .collection-cover-credit{text-align:left;direction:ltr}
+.full-book-cover:focus-visible{outline:3px solid var(--green);outline-offset:5px}
+.collection-cover.book-overview-cover{margin:0 auto 24px}
