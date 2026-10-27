@@ -1,3 +1,5 @@
+import {storyContents} from './contents.js';
+import {renderCritique,critiqueLink} from './critique.js';
 import {planningStory} from './collection-workspace.js';
 import {renderDSL} from './dsl.js';
 import {OUTSIDE_TIME_BOOK} from './outside-time.js';
@@ -109,6 +111,12 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     entries=loaded;
     parts=await api("chronicles_book_parts?book_id=eq."+id+"&select=*&order=start_chapter.asc");
     selectedPart=parts.find(p=>p.id===params.get("part"))||null;
+    if(book.language==='en'){
+      const nav=document.querySelector('.book-navigation');if(nav){nav.hidden=false;nav.dir='ltr';nav.innerHTML='<div class="ink-tabs">'+[['contents','Contents'],['chapters','Chapters'],['storyline','Storyline'],['dsl','DSL'],['characters','Characters'],['references','References']].map(([id,label])=>'<a href="'+link(book.id)+(id==='chapters'?'&chapter=1':id==='characters'?'&view=dsl&dslview=characters':'&view='+id)+'">'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+link(book.id)+'">Story cover</a><a href="'+link(book.id)+'&rules=1">Book Rules</a><a href="#library&lang=en">English Library</a>'+critiqueLink(link(book.id))+'</div>';}
+    }
+    if(params.get('view')==='contents'){active=null;editing=false;$('#main').innerHTML=storyContents(book.title,chapterList(),null,{root:link(book.id),language:book.language,parts,rulesUrl:link(book.id)+'&rules=1',notesUrl:link(book.id)+'&view=dsl',notesLabel:'Planning Notes'});return;}
+    if(params.get('view')==='critique'){active=null;editing=false;await renderCritique($('#main'),api,{bookId:book.id,title:book.title,sourcePath:'chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=id,chapter_number,title,body,revision&order=chapter_number.asc'});return;}
+    if(params.get('view')==='references'){const branches=await api('chronicles_dsl_branches?book_id=eq.'+book.id+'&select=data&order=updated_at.asc');$('#main').innerHTML=header()+'<section class="reference-page"><h1>References</h1><p style="white-space:pre-wrap">'+esc(branches[0]?.data?.references||'Research notes are not recorded yet.')+'</p></section>';return;}
     if(['dsl','storyline'].includes(params.get('view'))){active=null;editing=false;await renderDSL($('#main'),api,book.id,params.get('view'));return;}
     const rules=params.get('rules')==='1';
     const no=Number(params.get('chapter'));

@@ -89,3 +89,12 @@ Reader v110 adds Contents to the separate خارج الزمن navigation and ren
 fresh independent book chapters grouped by saved parts. Empty parts are labelled;
 planned chapters are not invented. Rules, guide and DSL links use the book UUID.
 The six numbered stories keep their Contents tabs. No database writes.
+
+Reader v111 adds the transparent red Harsh Critique control to the six developed
+stories, Outside Time and independent English books. Reports retain English and
+Arabic text, source chapter revision fingerprints and stale labels. Manual review
+brief export and saved critique drafts do not imply an automatic AI service.
+Report saves use the planning branch revision guard and never edit prose.
+Independent English books also expose Contents, Storyline, DSL and References.
+Templates and the adaptation queue are downloadable under public/templates.
+Run node tests/critique.mjs plus the Contents, book and planning regression checks.
