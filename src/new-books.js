@@ -33,8 +33,9 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       <div class="collection-cover-credit">Benji &amp; Almostasherq<small>${b.language==='en'?'English':'Arabic'} novel</small></div>
     </a>`;
   }
-  function cards(language='ar'){
+  function cards(language='ar',bookshelf=false){
     if(!books.some(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK&&b.id!==illustratedBook))return '';
+    if(bookshelf)return books.filter(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK&&b.id!==illustratedBook).map(b=>fullBookCover(b)).join('');
     return '<section class="chronicles-extra-books" aria-label="Additional books"><h2>Books & Stories</h2><div class="chronicles-books-grid">'
       +books.filter(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK&&b.id!==illustratedBook).map(b=>fullBookCover(b)).join('')+'</div></section>';
   }

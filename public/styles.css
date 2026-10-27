@@ -299,3 +299,17 @@ body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padd
 .full-book-cover .collection-cover-credit{text-align:left;direction:ltr}
 .full-book-cover:focus-visible{outline:3px solid var(--green);outline-offset:5px}
 .collection-cover.book-overview-cover{margin:0 auto 24px}
+
+/* Reader v116: one aligned bookshelf for the Arabic library. */
+.library-bookshelf{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:start;max-width:1120px;margin:24px auto 30px;direction:ltr}
+.library-bookshelf>.collection-cover,.library-bookshelf>.managed-book{min-width:0;width:100%;margin:0}
+.library-bookshelf .collection-cover{display:block;width:100%;max-width:none;margin:0;aspect-ratio:2/3}
+.library-bookshelf .collection-cover-title h2,.library-bookshelf .full-book-cover .collection-cover-title h2{font-size:clamp(27px,3.6vw,46px);line-height:1.4;overflow-wrap:anywhere}
+.library-bookshelf .collection-cover-title p{font-size:clamp(9px,1.3vw,15px);letter-spacing:.12em}
+.library-bookshelf .collection-cover-credit{font-size:clamp(10px,1.4vw,16px);text-align:left;direction:ltr}
+.library-bookshelf .collection-cover-credit small{font-size:10px}
+.library-bookshelf .book-manage{justify-content:space-between;gap:5px;margin:9px 0 0;direction:ltr}
+.library-bookshelf .book-manage button{font-size:11px;min-height:32px;padding:5px 8px}
+.library-bookshelf .book-manage summary{font-size:20px;padding:0 11px;min-height:32px}
+@media(max-width:760px){.library-bookshelf{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 14px}.library-bookshelf .collection-cover-title h2,.library-bookshelf .full-book-cover .collection-cover-title h2{font-size:clamp(20px,4.8vw,34px)}.library-bookshelf .collection-cover-title p{font-size:clamp(7px,1.6vw,12px)}.library-bookshelf .collection-cover-credit{font-size:clamp(8px,2vw,13px)}.library-bookshelf .collection-cover-credit small{font-size:8px}}
+@media(max-width:420px){.library-bookshelf{gap:18px 12px}.library-bookshelf .book-manage button{font-size:10px;padding:5px 6px}.library-bookshelf .book-manage summary{padding:0 8px}.library-bookshelf .collection-cover-title p{letter-spacing:.04em}}
