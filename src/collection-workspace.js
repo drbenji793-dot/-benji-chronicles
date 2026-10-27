@@ -9,8 +9,8 @@ export const COLLECTION_PLANNING = Object.freeze({
 });
 export const planningId = (story, language='ar') => language==='ar' ? COLLECTION_PLANNING[story] : undefined;
 export const planningStory = id => Number(Object.keys(COLLECTION_PLANNING).find(n=>COLLECTION_PLANNING[n]===id)) || null;
-export const collectionRoute = (story, view, extra={}) => '#'+new URLSearchParams({story:String(story),lang:'ar',...(view==='chapters'?{chapter:'1'}:view==='cover'?{}:{view}),...extra});
+export const collectionRoute = (story, view, extra={}) => '#'+new URLSearchParams({story:String(story),lang:'ar',...(view==='chapters'?{}:{view}),...extra});
 export function collectionNavigation(story,params){
- const view=params.has('chapter')?'chapters':params.get('view')||'cover';
+ const view=params.has('chapter')?'chapters':params.get('view')||'chapters';
  return '<div class="ink-tabs">'+[...(planningId(story)?[['contents','Contents']]:[]),['chapters','Chapters'],['storyline','Storyline'],['dsl','DSL'],['characters','Characters'],['references','References']].map(([id,label])=>'<a href="'+collectionRoute(story,id)+'" '+(view===id?'class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'<a href="#collection&lang=ar">Library</a></div><div class="story-aux-nav"><a href="'+collectionRoute(story,'cover')+'">Story cover</a><a href="'+collectionRoute(story,'rules')+'">Book Rules</a></div>';
 }

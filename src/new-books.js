@@ -1,3 +1,4 @@
+import {chapterCards} from './chapter-index.js';
 import {renderBookMedia} from './book-media.js';
 import {storyContents} from './contents.js';
 import {renderCritique} from './critique.js';
@@ -121,10 +122,10 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     const nav=document.querySelector('.book-navigation');
     if(nav){
       const base=link(book.id),view=params.get('view');
-      const selected=params.has('chapter')?'chapters':params.get('dsltool')==='blend'?'blender':params.get('dslview')==='characters'?'characters':view;
+      const selected=params.has('chapter')?'chapters':params.get('dsltool')==='blend'?'blender':params.get('dslview')==='characters'?'characters':view||(params.has('rules')?'rules':'chapters');
       const tabs=[
         ['contents','Contents','&view=contents'],
-        ['chapters','Chapters',chapterList().length?'&chapter='+chapterList()[0].chapter_number:''],
+        ['chapters','Chapters',''],
         ['storyline','Storyline','&view=storyline'],
         ['dsl','DSL','&view=dsl'],
         ['blender','Blender','&view=dsl&dsltool=blend'],
@@ -133,8 +134,9 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ['critique','Critique','&view=critique']
       ];
       nav.hidden=false;nav.dir='ltr';
-      nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+base+suffix+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'">Story cover</a><a href="'+base+'&rules=1">Book Rules</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
+      nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+base+suffix+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">Story cover</a><a href="'+base+'&rules=1">Book Rules</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
     }
+    if(params.get('view')==='cover'){active=null;editing=false;renderOverview(true);return;}
     if(params.get('view')==='contents'){active=null;editing=false;$('#main').innerHTML=storyContents(book.title,chapterList(),null,{root:link(book.id),language:book.language,parts,rulesUrl:link(book.id)+'&rules=1',notesUrl:link(book.id)+'&view=dsl',notesLabel:'Planning Notes'});return;}
     if(params.get('view')==='critique'){active=null;editing=false;await renderCritique($('#main'),api,{bookId:book.id,title:book.title,sourcePath:'chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=id,chapter_number,title,body,revision&order=chapter_number.asc'});return;}
     if(params.get('view')==='references'){const branches=await api('chronicles_dsl_branches?book_id=eq.'+book.id+'&select=data&order=updated_at.asc');$('#main').innerHTML=header()+'<section class="reference-page"><h1>References</h1><h2>Images &amp; Media</h2><p class="reference-note">Artwork and media developed for this book, with original sources and earlier versions preserved.</p>'+renderBookMedia(book.id,bookArtwork[book.id],esc)+'<h2>Research &amp; Notes</h2><p style="white-space:pre-wrap">'+esc(branches[0]?.data?.references||'Research notes are not recorded yet.')+'</p></section>';return;}
@@ -181,10 +183,10 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   function header(){
     return `<nav class="crumb" dir="${book.language==='en'?'ltr':'rtl'}"><a href="#library&lang=${book.language}">Library</a><span>/</span><a href="${link(book.id)}" dir="auto">${esc(book.title)}</a></nav>`;
   }
-  function renderOverview(){
+  function renderOverview(showCover=false){
     const list=chapterList();
     $('#main').innerHTML=header()+`<section class="reference-page chronicles-book-home" dir="${book.language==='en'?'ltr':'rtl'}">
-      ${book.id===illustratedBook?'<a class="bellwether-entrance" href="'+link(book.id)+'&view=contents">'+illustratedCover(book)+'</a>':fullBookCover(book,'book-overview-cover')}
+      ${showCover?(book.id===illustratedBook?'<a class="bellwether-entrance" href="'+link(book.id)+'">'+illustratedCover(book)+'</a>':fullBookCover(book,'book-overview-cover')):''}
       <div class="eyebrow">BENJI CHRONICLES · ${book.id===illustratedBook?'American adaptation':'Independent book'}</div>
       <h1 dir="auto">${esc(book.title)}</h1>
       <p class="reference-intro" dir="auto">${esc(book.description||'A space to write a new story.')}</p>
@@ -196,11 +198,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <a href="${link(book.id)}&view=dsl" class="reference-link">DSL Studio</a>
         <a href="${book.language==='en'?'https://benji-ink.vercel.app/#styles=zenglish&lang=en&view=laws':'#writing-rules'}" class="reference-link">Global Rules</a>
       </div>
-      <button id="related-book">Related Story</button>${relatedLinks(book.id)}<h2>Chapters <small>(${list.length})</small></h2>
-      ${list.length?'<div class="chronicles-chapter-cards">'+list.map(c=>`<a class="chronicles-chapter-card" href="${entryLink(c)}">
-         <strong>Chapter ${c.chapter_number} · <span dir="auto">${esc(c.title)}</span></strong>
-         <small>Revision ${c.revision} · ${esc(c.updated_by)} · ${date(c.updated_at)}</small>
-       </a>`).join('')+'</div>':'<div class="guide-card"><p>No chapters yet. Use New chapter to begin.</p></div>'}
+      <button id="related-book">Related Story</button>${relatedLinks(book.id)}${chapterCards(list,{esc,root:link(book.id),date,language:book.language,empty:'No chapters yet. Use New chapter to begin.'})}
     </section><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     $('#chronicles-add-chapter').onclick=showCreateChapter;$('#related-book').onclick=editRelation;
   }

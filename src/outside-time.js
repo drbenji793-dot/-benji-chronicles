@@ -5,16 +5,16 @@ import {renderDSL} from './dsl.js';
 export const OUTSIDE_TIME_BOOK='ff9fed20-1254-45b6-82f4-9f7b9fe7c3ba';
 const root='#book='+OUTSIDE_TIME_BOOK;
 export function outsideTimeNavigation(params,nav){
- const view=params.has('chapter')?'chapters':params.has('rules')?'rules':params.get('view')||'cover';
+ const view=params.has('chapter')?'chapters':params.has('rules')?'rules':params.get('view')||'chapters';
  const tabs=[['contents','Contents'],['chapters','Chapters'],['storyline','Storyline'],['dsl','DSL'],['characters','Characters'],['references','References']];
  nav.hidden=false;nav.dir='ltr';
- nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label])=>`<a href="${id==='chapters'?root+'&chapter=1':root+'&view='+id}" ${view===id?'class="selected" aria-current="page"':''}>${label}</a>`).join('')+'<a href="#collection&lang=ar">Library</a></div>'+`<div class="story-aux-nav"><a href="${root}">Story cover</a><a href="${root}&rules=1">Book Rules</a></div>`;
+ nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label])=>`<a href="${id==='chapters'?root:root+'&view='+id}" ${view===id?'class="selected" aria-current="page"':''}>${label}</a>`).join('')+'<a href="#collection&lang=ar">Library</a></div>'+`<div class="story-aux-nav"><a href="${root}&view=cover">Story cover</a><a href="${root}&rules=1">Book Rules</a></div>`;
  nav.insertAdjacentHTML('beforeend',critiqueLink(root));
  const footer=document.querySelector('.footer-rules a[data-book-rules],.footer-rules a[href*="writing-rules"]');if(footer){footer.hidden=false;footer.href=root+'&rules=1';}
 }
 export async function renderOutsideTime(params,nav,main,api){
  outsideTimeNavigation(params,nav);
- const view=params.get('view')||'cover';
+ const view=params.get('view')||'chapters';
  if(view==='critique'){await renderCritique(main,api,{bookId:OUTSIDE_TIME_BOOK,title:'خارج الزمن',sourcePath:'chronicles_book_entries?book_id=eq.'+OUTSIDE_TIME_BOOK+'&kind=eq.chapter&select=id,chapter_number,title,body,revision&order=chapter_number.asc'});return;}
  if(view==='contents'){
   const hash=location.hash;main.innerHTML='<div class="loading">Loading Contents…</div>';
