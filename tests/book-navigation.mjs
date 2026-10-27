@@ -22,6 +22,7 @@ for(const language of ['ar','en']){
   assert.equal(tabs[4].getAttribute('href'),'#book='+id+'&view=dsl&dsltool=blend');
   assert.equal(tabs[5].getAttribute('href'),'#book='+id+'&view=dsl&dslview=characters');
   assert(nav.querySelector('a[href="#library&lang='+language+'"]'));
+  if(route.chapter){for(const id of ['add-part','rename-part']){const button=document.getElementById(id);assert(button);assert.equal(button.closest('details'),null);assert(button.closest('.book-parts'));}}
   if(route.chapter)assert.equal(nav.querySelector('[aria-current]').textContent,'Chapters');
   if(route.view)assert.equal(nav.querySelector('[aria-current]').textContent,route.view==='contents'?'Contents':'References');
  }
