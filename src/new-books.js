@@ -1,5 +1,5 @@
 import {storyContents} from './contents.js';
-import {renderCritique,critiqueLink} from './critique.js';
+import {renderCritique} from './critique.js';
 import {planningStory} from './collection-workspace.js';
 import {renderDSL} from './dsl.js';
 import {OUTSIDE_TIME_BOOK} from './outside-time.js';
@@ -115,8 +115,22 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     entries=loaded;
     parts=await api("chronicles_book_parts?book_id=eq."+id+"&select=*&order=start_chapter.asc");
     selectedPart=parts.find(p=>p.id===params.get("part"))||null;
-    if(book.language==='en'){
-      const nav=document.querySelector('.book-navigation');if(nav){nav.hidden=false;nav.dir='ltr';nav.innerHTML='<div class="ink-tabs">'+[['contents','Contents'],['chapters','Chapters'],['storyline','Storyline'],['dsl','DSL'],['characters','Characters'],['references','References']].map(([id,label])=>'<a href="'+link(book.id)+(id==='chapters'?'&chapter=1':id==='characters'?'&view=dsl&dslview=characters':'&view='+id)+'">'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+link(book.id)+'">Story cover</a><a href="'+link(book.id)+'&rules=1">Book Rules</a><a href="#library&lang=en">English Library</a>'+critiqueLink(link(book.id))+'</div>';}
+    const nav=document.querySelector('.book-navigation');
+    if(nav){
+      const base=link(book.id),view=params.get('view');
+      const selected=params.has('chapter')?'chapters':params.get('dsltool')==='blend'?'blender':params.get('dslview')==='characters'?'characters':view;
+      const tabs=[
+        ['contents','Contents','&view=contents'],
+        ['chapters','Chapters',chapterList().length?'&chapter='+chapterList()[0].chapter_number:''],
+        ['storyline','Storyline','&view=storyline'],
+        ['dsl','DSL','&view=dsl'],
+        ['blender','Blender','&view=dsl&dsltool=blend'],
+        ['characters','Characters','&view=dsl&dslview=characters'],
+        ['references','References','&view=references'],
+        ['critique','Critique','&view=critique']
+      ];
+      nav.hidden=false;nav.dir='ltr';
+      nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+base+suffix+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'">Story cover</a><a href="'+base+'&rules=1">Book Rules</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
     }
     if(params.get('view')==='contents'){active=null;editing=false;$('#main').innerHTML=storyContents(book.title,chapterList(),null,{root:link(book.id),language:book.language,parts,rulesUrl:link(book.id)+'&rules=1',notesUrl:link(book.id)+'&view=dsl',notesLabel:'Planning Notes'});return;}
     if(params.get('view')==='critique'){active=null;editing=false;await renderCritique($('#main'),api,{bookId:book.id,title:book.title,sourcePath:'chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=id,chapter_number,title,body,revision&order=chapter_number.asc'});return;}
