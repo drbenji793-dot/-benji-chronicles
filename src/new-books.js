@@ -24,13 +24,13 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   function isBookRoute(params){return params.has('book');}
   // Book Cover T001: one full portrait cover, sharing the Lost Files dimensions.
   const bookArtwork={
-    '43d580d7-a4bd-4d19-bd1c-0cad57b2e105':{image:'/artwork/angels-and-robots-cover-v1.webp',subtitle:'ANGELS & ROBOTS'},
+    '43d580d7-a4bd-4d19-bd1c-0cad57b2e105':{image:'/artwork/angels-and-robots-cover-v1.webp',subtitle:'ANGELS & ROBOTS',title:'ملائكة وروبوتات',className:'angels-robots-cover'},
     '66739f5d-2bac-4d75-a4fd-6df93da8ac7e':{image:'/artwork/ibn-al-jabal-cover-v1.webp',subtitle:'IBN AL JABAL'}
   };
   function fullBookCover(b,extraClass=''){
     const art=bookArtwork[b.id];
-    return `<a class="collection-cover chronicles-new-card full-book-cover ${extraClass}" href="${link(b.id)}" aria-label="Open ${esc(b.title)}" ${art?`style="background-image:url('${art.image}')"`:''}>
-      <div class="collection-cover-title"><h2 dir="auto">${esc(b.title)}</h2><p>${esc(art?.subtitle||'BENJI CHRONICLES')}</p></div>
+    return `<a class="collection-cover chronicles-new-card full-book-cover ${art?.className||''} ${extraClass}" href="${link(b.id)}" aria-label="Open ${esc(b.title)}" ${art?`style="background-image:url('${art.image}')"`:''}>
+      <div class="collection-cover-title"><h2 dir="auto">${esc(art?.title||b.title)}</h2><p>${esc(art?.subtitle||'BENJI CHRONICLES')}</p></div>
       <div class="collection-cover-credit">Benji &amp; Almostasherq<small>${b.language==='en'?'English':'Arabic'} novel</small></div>
     </a>`;
   }

@@ -313,3 +313,8 @@ body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padd
 .library-bookshelf .book-manage summary{font-size:20px;padding:0 11px;min-height:32px}
 @media(max-width:760px){.library-bookshelf{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 14px}.library-bookshelf .collection-cover-title h2,.library-bookshelf .full-book-cover .collection-cover-title h2{font-size:clamp(20px,4.8vw,34px)}.library-bookshelf .collection-cover-title p{font-size:clamp(7px,1.6vw,12px)}.library-bookshelf .collection-cover-credit{font-size:clamp(8px,2vw,13px)}.library-bookshelf .collection-cover-credit small{font-size:8px}}
 @media(max-width:420px){.library-bookshelf{gap:18px 12px}.library-bookshelf .book-manage button{font-size:10px;padding:5px 6px}.library-bookshelf .book-manage summary{padding:0 8px}.library-bookshelf .collection-cover-title p{letter-spacing:.04em}}
+
+/* Preserve the Arabic cover title above the original mirror composition. */
+.angels-robots-cover .collection-cover-title{top:5%}
+.angels-robots-cover.full-book-cover .collection-cover-title h2{font-size:clamp(28px,5vw,46px)}
+.angels-robots-cover .collection-cover-title p{font-size:12px}
