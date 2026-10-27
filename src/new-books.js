@@ -24,6 +24,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   function isBookRoute(params){return params.has('book');}
   // Book Cover T001: one full portrait cover, sharing the Lost Files dimensions.
   const bookArtwork={
+    '43d580d7-a4bd-4d19-bd1c-0cad57b2e105':{image:'/artwork/angels-and-robots-cover-v1.webp',subtitle:'ANGELS & ROBOTS'},
     '66739f5d-2bac-4d75-a4fd-6df93da8ac7e':{image:'/artwork/ibn-al-jabal-cover-v1.webp',subtitle:'IBN AL JABAL'}
   };
   function fullBookCover(b,extraClass=''){
