@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {JSDOM} from 'jsdom';
+import {renderOutsideTime,outsideTimeNavigation,OUTSIDE_TIME_BOOK} from '../src/outside-time.js';
+const root='#book='+OUTSIDE_TIME_BOOK;
+const dom=new JSDOM('<nav id="tools"></nav><main></main>',{url:'https://example.test/'+root+'&view=contents'});
+for(const k of ['window','document','location'])globalThis[k]=dom.window[k];
+let calls=0;const api=async(path,options)=>{assert(!options,'Contents is read only');assert(path.includes('book_id=eq.'+OUTSIDE_TIME_BOOK));calls++;if(path.startsWith('chronicles_book_entries'))return [{id:'one',chapter_number:1,title:'الطاقية الحمرا'},{id:'two',chapter_number:2,title:'الليل وآخره'}];return [{id:'p1',title:'الليل وآخره',start_chapter:1},{id:'p2',title:'العودة',start_chapter:3}];};
+const nav=document.querySelector('nav'),main=document.querySelector('main');await renderOutsideTime(new URLSearchParams('view=contents'),nav,main,api);
+assert.equal(calls,2);assert.equal(nav.querySelector('a').textContent,'Contents');assert.equal(main.querySelectorAll('.contents-chapter').length,2);assert.equal(main.querySelector('.contents-chapter').getAttribute('href'),root+'&chapter=1');assert.equal(main.querySelectorAll('.contents-part-group').length,2);assert(main.textContent.includes('Part 1 · الليل وآخره'));assert(main.textContent.includes('No chapters saved in this part yet.'));const links=[...main.querySelectorAll('a')];assert(links.some(a=>a.getAttribute('href')===root+'&rules=1'));assert(!links.some(a=>a.getAttribute('href').includes('story=')));assert(links.some(a=>a.getAttribute('href').includes('dsltool=blend')));
+outsideTimeNavigation(new URLSearchParams('chapter=1'),nav);assert.equal(nav.querySelector('a').getAttribute('href'),root+'&view=contents');console.log('PASS Outside Time Contents, parts, written chapters, book links and chapter navigation');dom.window.close();

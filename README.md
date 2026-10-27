@@ -84,3 +84,8 @@ or manuscript changes are required. Other stories keep their existing tabs.
 Reader v109 extends Contents to all six developed Arabic stories. Each visit reads
 that story’s fresh chapter metadata. Contents and supporting links remain scoped
 to the selected story. No database writes or manuscript changes.
+
+Reader v110 adds Contents to the separate خارج الزمن navigation and renders its
+fresh independent book chapters grouped by saved parts. Empty parts are labelled;
+planned chapters are not invented. Rules, guide and DSL links use the book UUID.
+The six numbered stories keep their Contents tabs. No database writes.
