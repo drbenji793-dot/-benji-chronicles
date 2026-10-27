@@ -26,11 +26,11 @@ try{
  await wait();
  for(let n=1;n<=titles.length;n++){
   w.location.hash=collectionRoute(n,'cover');await wait();
-  assert.deepEqual([...w.document.querySelectorAll('.ink-tabs a')].map(a=>a.textContent),[...(n===1?['Contents']:[]),'Chapters','Storyline','DSL','Characters','References','Library']);
-  if(n===1){
-   q('.ink-tabs a[href*=contents]').click();await wait();assert(q('#contents-title'));assert.equal(w.document.querySelectorAll('.contents-chapter').length,1);assert.equal(q('.contents-chapter').getAttribute('href'),'#story=1&lang=ar&chapter=1');assert.equal(q('.contents-label').textContent,titles[0]);
+  assert.deepEqual([...w.document.querySelectorAll('.ink-tabs a')].map(a=>a.textContent),['Contents','Chapters','Storyline','DSL','Characters','References','Library']);
+  if(n<=6){
+   q('.ink-tabs a[href*=contents]').click();await wait();assert(q('#contents-title'));assert.equal(w.document.querySelectorAll('.contents-chapter').length,1);assert.equal(q('.contents-chapter').getAttribute('href'),'#story='+n+'&lang=ar&chapter=1');assert.equal(q('.contents-label').textContent,titles[n-1]);
    q('.contents-resource[href*=dsltool]').click();await wait();assert(q('[data-blend-form]'));q('[data-close]').click();
-   q('.ink-tabs a[href*=contents]').click();await wait();q('.contents-chapter').click();await wait();assert.equal(q('#prose').textContent,'Original 1');
+   q('.ink-tabs a[href*=contents]').click();await wait();q('.contents-chapter').click();await wait();assert.equal(q('#prose').textContent,'Original '+n);
   }
   q('.ink-tabs a[href*=chapter]').click();await wait();assert.equal(q('#prose').textContent,'Original '+n);assert(q('#edit'));assert(q('#history'));assert(q('#export-book'));
   q('.ink-tabs a[href*=view\\=dsl]').click();await wait();

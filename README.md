@@ -80,3 +80,7 @@ chapter metadata on each visit and provides book style dotted chapter listings,
 planning shortcuts, supporting material and direct Story Blender navigation.
 Chapter numbers are used rather than invented page numbers. No database writes
 or manuscript changes are required. Other stories keep their existing tabs.
+
+Reader v109 extends Contents to all six developed Arabic stories. Each visit reads
+that story’s fresh chapter metadata. Contents and supporting links remain scoped
+to the selected story. No database writes or manuscript changes.
