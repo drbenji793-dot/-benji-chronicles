@@ -23,7 +23,7 @@ function icon(kind){const shapes={tape:'<rect x="3" y="5" width="26" height="21"
 export async function renderDSL(main,api,bookId,mode='dsl',context={}){
  disposePrevious?.();
  if(!document.querySelector('link[data-dsl-style]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/dsl.css?v=124';css.dataset.dslStyle='1';document.head.append(css);}
- if(!document.querySelector('link[data-dsl-evolution]')){const x=document.createElement('link');x.rel='stylesheet';x.href='/dsl-evolution.css?v=124';x.dataset.dslEvolution='1';document.head.append(x);}
+ if(!document.querySelector('link[data-dsl-evolution]')){const x=document.createElement('link');x.rel='stylesheet';x.href='/dsl-evolution.css?v=125';x.dataset.dslEvolution='1';document.head.append(x);}
  const collection=Number(context.storyNumber)||null;
  const initialHash=location.hash,params=new URLSearchParams(initialHash.slice(1));
  const view=params.get('dslview')||'map';
