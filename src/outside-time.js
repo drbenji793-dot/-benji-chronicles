@@ -8,7 +8,7 @@ export function outsideTimeNavigation(params,nav){
  const view=params.has('chapter')?'chapters':params.has('rules')?'rules':params.get('view')||'chapters';
  const tabs=[['contents','Contents'],['chapters','Chapters'],['storyline','Storyline'],['dsl','DSL'],['characters','Characters'],['references','References']];
  nav.hidden=false;nav.dir='ltr';
- nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label])=>`<a href="${id==='chapters'?root:root+'&view='+id}" ${view===id?'class="selected" aria-current="page"':''}>${label}</a>`).join('')+'<a href="#collection&lang=ar">Library</a></div>'+`<div class="story-aux-nav"><a href="${root}&view=cover">Story cover</a><a href="${root}&rules=1">Book Rules</a></div>`;
+ nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label])=>`<a href="${id==='chapters'?root:root+'&view='+id}" ${view===id?'class="selected" aria-current="page"':''}>${label}</a>`).join('')+'<a href="#collection&lang=ar">Library</a></div>'+`<div class="story-aux-nav"><a href="${root}&view=cover">Story cover</a></div>`;
  nav.insertAdjacentHTML('beforeend',critiqueLink(root));
  const footer=document.querySelector('.footer-rules a[data-book-rules],.footer-rules a[href*="writing-rules"]');if(footer){footer.hidden=false;footer.href=root+'&rules=1';}
 }

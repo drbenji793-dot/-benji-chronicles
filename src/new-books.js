@@ -79,7 +79,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         if(!b?.id)throw Error('Book creation was not confirmed.');
         await load();
         $('#modal').close();
-        say('Book created. Its rules are ready to edit.');
+        say('Book created. Manage its rules in HQ.');
         await navigate(link(b.id));
       }catch(err){say(err.message,true)}finally{button.disabled=false}
     };
@@ -134,7 +134,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ['critique','Critique','&view=critique']
       ];
       nav.hidden=false;nav.dir='ltr';
-      nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+base+suffix+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">Story cover</a><a href="'+base+'&rules=1">Book Rules</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
+      nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+base+suffix+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">Story cover</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
     }
     if(params.get('view')==='cover'){active=null;editing=false;renderOverview(true);return;}
     if(params.get('view')==='contents'){active=null;editing=false;$('#main').innerHTML=storyContents(book.title,chapterList(),null,{root:link(book.id),language:book.language,parts,rulesUrl:link(book.id)+'&rules=1',notesUrl:link(book.id)+'&view=dsl',notesLabel:'Planning Notes'});return;}
@@ -194,9 +194,9 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
          · ${book.collaboration==='shared'?'Shared writing workspace':'Independent book'} · ${book.language==='en'?'English':'Arabic'}</p>
       <div class="chronicles-book-actions">
         <button id="chronicles-add-chapter" class="primary">+ New chapter</button>
-        <a href="${link(book.id)}&rules=1" class="reference-link">Book Rules</a>
+
         <a href="${link(book.id)}&view=dsl" class="reference-link">DSL Studio</a>
-        <a href="${book.language==='en'?'https://benji-ink.vercel.app/#styles=zenglish&lang=en&view=laws':'#writing-rules'}" class="reference-link">Global Rules</a>
+
       </div>
       <button id="related-book">Related Story</button>${relatedLinks(book.id)}${chapterCards(list,{esc,root:link(book.id),date,language:book.language,empty:'No chapters yet. Use New chapter to begin.'})}
     </section><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
@@ -242,7 +242,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       <aside class="sidebar" dir="${book.language==='en'?'ltr':'rtl'}">
         <h2>${esc(book.title)}</h2>
         <div class="chapter-list">
-          <a class="chapter-link ${rules?'active':''}" href="${link(book.id)}&rules=1">Book Rules</a>
+
           ${list.map(x=>`<a class="chapter-link ${x.id===c.id?'active':''}" href="${entryLink(x)}">${x.chapter_number} · ${esc(x.title)}</a>`).join('')}
         </div>
         <a class="reference-link" href="${link(book.id)}">All chapters</a>
@@ -262,7 +262,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
           <button id="extra-smaller" aria-label="Smaller text">A−</button><button id="extra-larger" aria-label="Larger text">A+</button>
         </div>
         <div id="chronicles-save-warning"></div>
-        
+
         ${selectedPart?`<p class="chapter-part">${esc(partName(selectedPart))}</p>`:''}
         <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>

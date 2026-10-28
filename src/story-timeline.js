@@ -101,7 +101,7 @@ export function renderStoryTimeline(main,api,bookId){
      ['all',...years()].map(y=>'<button type="button" data-ct-era="'+y+'" aria-pressed="'+(era===String(y))+'">'+(y==='all'?'All Years':y)+'</button>').join('')+'</div></div>'+
    '<p class="ct-notice" lang="en" dir="ltr">Each card uses the date in the saved chapter opening. '+incomplete.length+' chapters have no exact day. Their position within the month or season may be approximate. '+(missing.length?'Missing chapters between existing numbers: '+missing.join('، ')+'. ':'')+'This view does not change story text.</p>'+
    body+connections()+
-   '<div class="ct-bottom" lang="en" dir="ltr"><a href="'+chapterHref(1)+'">Start Reading</a><a href="#book='+bookId+'&view=storyline-guide">Guide 101</a><a href="#book='+bookId+'&rules=1">Book Rules</a><span>Source: saved Chronicles chapters</span></div></section>';
+   '<div class="ct-bottom" lang="en" dir="ltr"><a href="'+chapterHref(1)+'">Start Reading</a><a href="#book='+bookId+'&view=storyline-guide">Guide 101</a><span>Source: saved Chronicles chapters</span></div></section>';
   main.querySelectorAll('[data-ct-order]').forEach(b=>b.addEventListener('click',()=>{order=b.dataset.ctOrder;render()}));
   main.querySelectorAll('[data-ct-era]').forEach(b=>b.addEventListener('click',()=>{era=b.dataset.ctEra;render()}));
  }

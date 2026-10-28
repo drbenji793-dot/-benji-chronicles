@@ -328,3 +328,5 @@ body>.topbar,body>.theme-picker,body>.author-controls,body>.book-navigation{padd
 .book-media-card figcaption{padding:14px;line-height:1.6;font-size:12px}
 .book-media-card h3{font-size:16px;margin:0 0 8px}.book-media-card p{margin:5px 0;color:var(--muted)}
 @media(max-width:520px){.book-media-grid{grid-template-columns:1fr}.book-media-card img{height:auto;max-height:520px}}
+
+.dsl-synopsis-text{white-space:pre-wrap;line-height:1.9}.dsl-event-breakdown{margin-top:1.5rem}.dsl-event-breakdown>summary{cursor:pointer;font-weight:600;padding:.75rem 0}
