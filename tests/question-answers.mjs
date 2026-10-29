@@ -11,4 +11,20 @@ Object.defineProperty(globalThis,'navigator',{value:{canShare:()=>true,share:asy
 await q('[data-option="0"]').onclick();await q('[data-option="1"]').onclick();assert.deepEqual(b.data.workshop.questions[0].selectedAnswers,['One','Two']);assert.equal(b.data.workshop.questions[0].writtenAnswer,'Custom');assert.equal(b.data.workshop.questions[0].answer,'One\nTwo\nCustom');
 await renderDSL(q('main'),api,'b');assert.equal(document.querySelectorAll('[data-option][aria-pressed=true]').length,2);await q('[data-answers-export=json]').onclick();out=JSON.parse(await blob.text());assert.deepEqual(out.branch.data.workshop.questions[0].selectedAnswers,['One','Two']);
 await q('[data-option="0"]').onclick();assert.equal(b.data.workshop.questions[0].answer,'Two\nCustom');assert.equal(b.data.workshop.questions[0].answerNotes,'My reasoning');await q('[data-option="1"]').onclick();assert.equal(b.data.workshop.questions[0].answer,'Custom');
+// Both legacy wording variants open the same editor without recording a choice.
+for(const label of ['اقتراح آخر أكتبه','إجابة أخرى أكتبها']){
+ b.data.workshop.questions[0].options[2]=label;
+ await renderDSL(q('main'),api,'b');
+ const before=JSON.stringify(b),revision=b.revision;
+ assert.equal(q('[data-option="2"]').textContent,'إجابة أخرى أكتبها');
+ q('[data-option="2"]').click();
+ assert(q('dialog form'));assert.equal(q('dialog form').elements.answer.value,'Custom');
+ assert.equal(JSON.stringify(b),before);assert.equal(b.revision,revision);
+ const form=q('dialog form');form.elements.answer.value='Updated custom';
+ await form.onsubmit({preventDefault(){}});
+ assert.equal(b.data.workshop.questions[0].writtenAnswer,'Updated custom');
+ assert.equal(b.data.workshop.questions[0].answerNotes,'My reasoning');
+ q('[data-option="2"]').click();assert.equal(q('dialog form').elements.answer.value,'Updated custom');
+ const again=q('dialog form');again.elements.answer.value='Custom';await again.onsubmit({preventDefault(){}});
+}
 q('[data-discuss-question]').click();assert(q('[data-change-form]'));assert.equal(q('[name=request]').value,'Custom');console.log('PASS direct answer, toggle, reopen, conflict, custom notes, full JSON export, share cancellation, separate discussion');dom.window.close();process.exit(0);
