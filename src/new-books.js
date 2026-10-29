@@ -18,7 +18,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   let books=[],book=null,entries=[],active=null,editing=false,busy=false,parts=[],selectedPart=null;
 
   const chapterList=()=>entries.filter(e=>e.kind==='chapter').sort((a,b)=>a.chapter_number-b.chapter_number);
-  const link=id=>'#book='+id;
+  const link=id=>'#book='+id+(id===IBN_BOOK&&new URLSearchParams(location.hash.slice(1)).get('archive')==='1'?'&archive=1':'');
   const entryLink=entry=>link(entry.book_id)+(entry.kind==='rules'?'&rules=1':'&chapter='+entry.chapter_number);
   const writerLabel=e=>e.updated_by==='Ahmed'?'author-ahmed':e.updated_by==='Guest'?'author-guest':'author-benji';
 
@@ -34,17 +34,17 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     '66739f5d-2bac-4d75-a4fd-6df93da8ac7e':{image:'/artwork/ibn-al-jabal-cover-v1.webp',subtitle:'IBN AL JABAL'}
   };
   function fullBookCover(b,extraClass=''){
-    const art=bookArtwork[b.id];
+    const art=bookArtwork[b.id===REVIEW_BOOK?IBN_BOOK:b.id];
     return `<a class="collection-cover chronicles-new-card full-book-cover ${art?.className||''} ${extraClass}" href="${link(b.id)}" aria-label="Open ${esc(b.title)}" ${art?`style="background-image:url('${art.image}')"`:''}>
       <div class="collection-cover-title"><h2 dir="auto">${esc(art?.title||b.title)}</h2><p>${esc(art?.subtitle||'BENJI CHRONICLES')}</p></div>
       <div class="collection-cover-credit">Benji &amp; Almostasherq<small>${b.language==='en'?'English':'Arabic'} novel</small></div>
     </a>`;
   }
   function cards(language='ar',bookshelf=false){
-    if(!books.some(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK&&b.id!==illustratedBook))return '';
-    if(bookshelf)return books.filter(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK&&b.id!==illustratedBook).map(b=>fullBookCover(b)).join('');
+    if(!books.some(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK&&b.id!==illustratedBook&&b.id!==IBN_BOOK))return '';
+    if(bookshelf)return books.filter(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK&&b.id!==illustratedBook&&b.id!==IBN_BOOK).map(b=>fullBookCover(b)).join('');
     return '<section class="chronicles-extra-books" aria-label="Additional books"><h2>Books & Stories</h2><div class="chronicles-books-grid">'
-      +books.filter(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK&&b.id!==illustratedBook).map(b=>fullBookCover(b)).join('')+'</div></section>';
+      +books.filter(b=>b.language===language&&b.id!==OUTSIDE_TIME_BOOK&&b.id!==illustratedBook&&b.id!==IBN_BOOK).map(b=>fullBookCover(b)).join('')+'</div></section>';
   }
 
   function modal(title,html){
@@ -116,7 +116,14 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
 
   async function render(params){
     const id=params.get('book');
-    if(id===IBN_BOOK&&(params.get('view')==='chapters'||params.get('storytab')==='manuscript')){const draft=params.get('draftchapter');const number=draft?.match(/ch-(\d+)$/)?.[1];await navigate('#book='+REVIEW_BOOK+(number?'&chapter='+number:''));return;}
+    if(id===IBN_BOOK&&params.get('archive')!=='1'){
+      const view=params.get('view');
+      if(!view||['chapters','originals','contents','cover'].includes(view)||params.get('storytab')==='manuscript'){
+        const draft=params.get('draftchapter'),number=draft?.match(/ch-(\d+)$/)?.[1];
+        await navigate('#book='+REVIEW_BOOK+(number?'&chapter='+number:view==='contents'?'&view=contents':view==='cover'?'&view=cover':''));return;
+      }
+    }
+    if(id===REVIEW_BOOK&&params.get('view')==='chapters'){await navigate('#book='+REVIEW_BOOK);return;}
     if(!uuid.test(id))throw Error('Invalid book link.');
     book=books.find(b=>b.id===id);
     if(!book){await load();book=books.find(b=>b.id===id);}
@@ -140,15 +147,14 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ['references','References','&view=references'],
         ['critique','Critique','&view=critique']
       ];
-      if(book.id===IBN_BOOK){tabs.splice(2,1,['originals','الفصول الأصلية','&view=originals']);tabs.splice(3,0,['workbook','Workbook','&view=dsl&dslview=workbook']);}
-      if(book.id===REVIEW_BOOK){tabs.splice(2,0,['originals','الفصول الأصلية','']);tabs.find(t=>t[0]==='originals')[2]='&original=1';}
+      if(book.id===IBN_BOOK||book.id===REVIEW_BOOK){tabs.splice(3,0,['workbook','Workbook','&view=dsl&dslview=workbook']);}
       nav.hidden=false;nav.dir='ltr';
-      nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+(book.id===REVIEW_BOOK&&id==='originals'?'#book='+IBN_BOOK+'&view=originals':base+suffix)+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">Story cover</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
+      nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+(book.id===IBN_BOOK&&id==='chapters'?'#book='+REVIEW_BOOK:base+suffix)+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">Story cover</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
       if(book.id===IBN_BOOK||book.id===REVIEW_BOOK){
        nav.classList.add('ibn-navigation');
        const back=document.createElement('nav');back.className='current-back';back.innerHTML='<a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a><a href="'+base+'&view=cover">Story cover</a>';
        nav.querySelector('.story-aux-nav')?.remove();nav.prepend(back);
-       const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href=base+'&view=storyline';entrance.innerHTML='<strong>الحكاية الحالية</strong><small>النص الكامل · الملخص · خطة الفصول · الملاحظات</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');nav.append(entrance);
+       const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href='#book='+REVIEW_BOOK;entrance.innerHTML='<strong>الفصول الجديدة</strong><small>النص الكامل · التعديل · المراجعة والاعتماد</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');nav.append(entrance);
       }else nav.classList.remove('ibn-navigation');
     }
     if(params.get('view')==='cover'){active=null;editing=false;renderOverview(true);return;}
@@ -213,7 +219,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <a href="${link(book.id)}&view=dsl" class="reference-link">DSL Studio</a>
 
       </div>
-      <button id="related-book">Related Story</button>${relatedLinks(book.id)}${book.id===IBN_BOOK?`<section dir="rtl"><h2>الفصول الأصلية</h2><p>${list.reduce((n,c)=>n+countWords(clean(c.body).replace(/<[^>]*>/g,' ')),0).toLocaleString('ar-EG')} كلمة في المخطوط الأصلي</p><a href="${link(book.id)}&view=chapters">افتح المسودات الجديدة للتحرير</a><p>${list.map(c=>esc(c.title)+': '+countWords(clean(c.body).replace(/<[^>]*>/g,' ')).toLocaleString('ar-EG')+' كلمة').join(' · ')}</p></section>`:''}${book.id===REVIEW_BOOK?`<p dir="rtl">إجمالي النصوص: ${list.reduce((n,c)=>n+countWords(clean(c.body).replace(/<[^>]*>/g,' ')),0).toLocaleString('ar-EG')} كلمة · مسودات للمراجعة</p>`:''}${chapterCards(list,{esc,root:link(book.id),date,language:book.language,empty:'No chapters yet. Use New chapter to begin.'})}
+      <button id="related-book" ${book.id===REVIEW_BOOK?'hidden':''}>Related Story</button>${book.id===REVIEW_BOOK?'':relatedLinks(book.id)}${book.id===IBN_BOOK?`<section dir="rtl"><h2>الفصول الأصلية</h2><p>${list.reduce((n,c)=>n+countWords(clean(c.body).replace(/<[^>]*>/g,' ')),0).toLocaleString('ar-EG')} كلمة في المخطوط الأصلي</p><a href="${link(book.id)}&view=chapters">افتح المسودات الجديدة للتحرير</a><p>${list.map(c=>esc(c.title)+': '+countWords(clean(c.body).replace(/<[^>]*>/g,' ')).toLocaleString('ar-EG')+' كلمة').join(' · ')}</p></section>`:''}${book.id===REVIEW_BOOK?`<p dir="rtl">إجمالي النصوص: ${list.reduce((n,c)=>n+countWords(clean(c.body).replace(/<[^>]*>/g,' ')),0).toLocaleString('ar-EG')} كلمة · مسودات للمراجعة</p>`:''}${chapterCards(list,{esc,root:link(book.id),date,language:book.language,empty:'No chapters yet. Use New chapter to begin.'})}${book.id===REVIEW_BOOK?`<details><summary>الأرشيف</summary><a href="#book=${IBN_BOOK}&archive=1&view=originals">المخطوط السابق المحفوظ</a></details>`:''}
     </section><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     $('#chronicles-add-chapter').onclick=showCreateChapter;$('#related-book').onclick=editRelation;
   }
@@ -253,7 +259,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(!active)return;
     const c=active,rules=c.kind==='rules';selectedPart=rules?null:partFor(c.chapter_number);const list=selectedPart?partChapters(selectedPart):chapterList();
     const selected=rules?'Book Rules':'Chapter '+c.chapter_number;
-    $('#main').innerHTML=`<nav class="crumb"><strong dir="auto">${esc(book.title)}</strong></nav><p class="collection-caption">${book.language==='ar'?'Arabic Original':'English Original'}</p><div class="workspace chronicles-workspace">
+    $('#main').innerHTML=`<nav class="crumb"><strong dir="auto">${esc(book.title)}</strong></nav><p class="collection-caption">${book.id===REVIEW_BOOK?'الفصول الجديدة · مسودات للمراجعة':book.language==='ar'?'Arabic Original':'English Original'}</p><div class="workspace chronicles-workspace">
       <aside class="sidebar" dir="${book.language==='en'?'ltr':'rtl'}">
         <h2>${esc(book.title)}</h2>
         <div class="chapter-list">
@@ -266,7 +272,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ${rules?'':partsUI()}
         ${rules?'<p class="reference-note">Book Rules</p>':`<div class="chapter-picker" dir="ltr"><button id="extra-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button><select id="extra-chapter-select" aria-label="Choose chapter" dir="${book.language==='ar'?'rtl':'ltr'}">${list.map(x=>`<option value="${x.chapter_number}" ${x.id===c.id?'selected':''}>${String(x.chapter_number).padStart(2,'0')} · ${esc(x.title)}</option>`).join('')}</select><button id="extra-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button></div>`}
         <div class="toolbar" dir="ltr">
-          <button id="chronicles-edit">Edit</button>
+          <button id="chronicles-exit">Exit · الفصول</button><button id="chronicles-library">Exit · المكتبة</button><button id="chronicles-edit">Edit</button>
           <button id="chronicles-save" class="primary" disabled>Save</button>
           <button id="chronicles-cancel" hidden>Cancel</button>
           <span class="protected" id="chronicles-entry-status">Protected</span>
@@ -290,6 +296,8 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
           <button class="primary" id="chronicles-add-note">Add note</button>
         </details>
       </section></div><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
+    $('#chronicles-exit').onclick=()=>navigate(book.id===IBN_BOOK?'#book='+REVIEW_BOOK:link(book.id));
+    $('#chronicles-library').onclick=()=>navigate('#library&lang='+book.language);
     $('#chronicles-edit').onclick=()=>beginEdit();
     $('#chronicles-save').onclick=save;
     $('#chronicles-cancel').onclick=cancel;
