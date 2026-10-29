@@ -134,14 +134,14 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ['references','References','&view=references'],
         ['critique','Critique','&view=critique']
       ];
-      if(book.id===IBN_BOOK){tabs.splice(2,1);tabs.splice(3,0,['workbook','Workbook','&view=dsl&dslview=workbook']);}
+      if(book.id===IBN_BOOK){tabs.splice(2,1,['drafts','نصوص الفصول الجديدة','&view=storyline&storytab=manuscript']);tabs.splice(3,0,['workbook','Workbook','&view=dsl&dslview=workbook']);}
       nav.hidden=false;nav.dir='ltr';
       nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+base+suffix+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">Story cover</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
       if(book.id===IBN_BOOK){
        nav.classList.add('ibn-navigation');
        const back=document.createElement('nav');back.className='current-back';back.innerHTML='<a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a><a href="'+base+'&view=cover">Story cover</a>';
        nav.querySelector('.story-aux-nav')?.remove();nav.prepend(back);
-       const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href=base+'&view=storyline';entrance.innerHTML='<strong>الحكاية الحالية</strong><small>الملخص · الحكاية · الفصول المقترحة · الملاحظات</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');nav.append(entrance);
+       const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href=base+'&view=storyline';entrance.innerHTML='<strong>الحكاية الحالية</strong><small>النص الكامل · الملخص · خطة الفصول · الملاحظات</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');nav.append(entrance);
       }else nav.classList.remove('ibn-navigation');
     }
     if(params.get('view')==='cover'){active=null;editing=false;renderOverview(true);return;}
@@ -406,4 +406,5 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   }
   return {load,isBookRoute,cards,illustratedCards,relatedLinks,showCreateModal,render,hasChanges,allowLeave,leave,backup};
 }
+
 
