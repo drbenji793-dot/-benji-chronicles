@@ -359,3 +359,10 @@ body:has(.ibn-navigation) .topbar{padding-top:12px;padding-bottom:12px}body:has(
 .dsl [data-question-card] [data-answer-state="answered"],.dsl [data-question-card] [data-answer-state="applied"],.dsl [data-question-card] button[data-has-answer="true"],.dsl [data-question-card] button[data-has-answer="true"]:hover,.dsl [data-question-card] button[data-has-answer="true"]:focus{background:rgba(65,145,91,.18);color:#214c35;border-color:#59866a}
 
 .dsl [data-question-card] [data-saved-answer="true"]{background:rgba(65,145,91,.18);color:#214c35;border:1px solid #59866a;border-radius:10px;padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* Keep mobile answer editors at a focus-safe size without disabling pinch zoom. */
+@media(max-width:760px){
+ body .dsl-dialog input:not([type=checkbox]),body .dsl-dialog select,body .dsl-dialog textarea,
+ body .dsl input:not([type=checkbox]),body .dsl select,body .dsl textarea{font-size:16px;max-width:100%;min-width:0}
+ body .dsl-dialog fieldset{min-width:0}
+}
