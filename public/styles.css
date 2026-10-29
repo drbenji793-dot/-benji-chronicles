@@ -353,5 +353,7 @@ body:has(.ibn-navigation) .topbar{padding-top:12px;padding-bottom:12px}body:has(
 [data-answer-question][aria-pressed="true"]{background:var(--green,#2e5648);color:#fff;box-shadow:inset 0 0 0 2px currentColor}
 
 /* Saved question choices stay green, including iPhone sticky hover/focus. */
-.dsl [data-question-card] button[data-answer-question][aria-pressed="true"],.dsl [data-question-card] button[data-answer-question][aria-pressed="true"]:hover,.dsl [data-question-card] button[data-answer-question][aria-pressed="true"]:focus{background:#2f634d;color:#fff;border-color:#244e3c;box-shadow:inset 0 0 0 1px #244e3c;font-weight:700}
+.dsl [data-question-card] button[data-answer-question][aria-pressed="true"],.dsl [data-question-card] button[data-answer-question][aria-pressed="true"]:hover,.dsl [data-question-card] button[data-answer-question][aria-pressed="true"]:focus{background:rgba(65,145,91,.18);color:#214c35;border-color:#59866a;box-shadow:inset 0 0 0 1px rgba(65,145,91,.15);font-weight:700}
 .dsl [data-question-card] button[data-answer-question][aria-pressed="true"]::before{content:"✓ ";}
+
+.dsl [data-question-card] [data-answer-state="answered"],.dsl [data-question-card] [data-answer-state="applied"],.dsl [data-question-card] button[data-has-answer="true"],.dsl [data-question-card] button[data-has-answer="true"]:hover,.dsl [data-question-card] button[data-has-answer="true"]:focus{background:rgba(65,145,91,.18);color:#214c35;border-color:#59866a}
