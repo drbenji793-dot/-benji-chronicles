@@ -10,6 +10,8 @@ import {OUTSIDE_TIME_BOOK} from './outside-time.js';
 import {buildPDF,downloadBlob} from './export-book.js';
 // Independent language libraries. The original "شرخ زمني" records remain in chronicles_chapters.
 export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,navigate,date,workflow,trackAuthors}) {
+  const REVIEW_BOOK='c911584d-bd5b-42fe-b41c-a2a456c64d41';
+  let planningData=null;
   const $=selector=>document.querySelector(selector);
   const uuid=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
   const draftKey=id=>'chronicles-book-draft:'+id;
@@ -101,7 +103,8 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       saved_at:new Date().toISOString()
     }));
     const status=$('#chronicles-entry-status');
-    if(status)status.textContent='Unsaved draft';
+    if(status)status.textContent='محفوظ على الجهاز فقط';
+    const counter=$('.chapter-word-count');if(counter)counter.textContent=countWords($('#chronicles-entry-body').innerText)+' words';
   }
   function allowLeave(){
     if(busy){say('Saving. Please keep this page open.',true);return false}
@@ -113,12 +116,14 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
 
   async function render(params){
     const id=params.get('book');
+    if(id===IBN_BOOK&&(params.get('view')==='chapters'||params.get('storytab')==='manuscript')){const draft=params.get('draftchapter');const number=draft?.match(/ch-(\d+)$/)?.[1];await navigate('#book='+REVIEW_BOOK+(number?'&chapter='+number:''));return;}
     if(!uuid.test(id))throw Error('Invalid book link.');
     book=books.find(b=>b.id===id);
     if(!book){await load();book=books.find(b=>b.id===id);}
     if(!book)throw Error('Book not found.');const footerRules=document.querySelector('.footer-rules [data-book-rules]');if(footerRules){footerRules.hidden=false;footerRules.textContent='Book Rules';footerRules.href=link(book.id)+'&rules=1';}
     const loaded=await api('chronicles_book_entries?book_id=eq.'+id+'&select=*&order=chapter_number.asc.nullslast');
     entries=loaded;
+    if(id===REVIEW_BOOK){const branches=await api('chronicles_dsl_branches?book_id=eq.'+IBN_BOOK+'&archived=eq.false&select=data&order=updated_at.desc&limit=1');planningData=branches[0]?.data;const statuses=await api('chronicles_workflow?source_id=in.('+entries.map(e=>e.id).join(',')+')&select=*');entries=entries.map(e=>{const w=statuses.find(w=>w.source_id===e.id);return {...e,wordCount:countWords(clean(e.body).replace(/<[^>]*>/g,' ')),statusLabel:w?.transferred_revision===e.revision?'نُقلت إلى Ink':w?.approved_revision===e.revision?'معتمد ولم يُنقل':w?.transferred_revision?'تعديلات لم تُعتمد':'مسودة للمراجعة'};});}
     parts=await api("chronicles_book_parts?book_id=eq."+id+"&select=*&order=start_chapter.asc");
     selectedPart=parts.find(p=>p.id===params.get("part"))||null;
     const nav=document.querySelector('.book-navigation');
@@ -136,9 +141,10 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ['critique','Critique','&view=critique']
       ];
       if(book.id===IBN_BOOK){tabs.splice(2,1,['originals','الفصول الأصلية','&view=originals']);tabs.splice(3,0,['workbook','Workbook','&view=dsl&dslview=workbook']);}
+      if(book.id===REVIEW_BOOK){tabs.splice(2,0,['originals','الفصول الأصلية','']);tabs.find(t=>t[0]==='originals')[2]='&original=1';}
       nav.hidden=false;nav.dir='ltr';
-      nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+base+suffix+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">Story cover</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
-      if(book.id===IBN_BOOK){
+      nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+(book.id===REVIEW_BOOK&&id==='originals'?'#book='+IBN_BOOK+'&view=originals':base+suffix)+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">Story cover</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
+      if(book.id===IBN_BOOK||book.id===REVIEW_BOOK){
        nav.classList.add('ibn-navigation');
        const back=document.createElement('nav');back.className='current-back';back.innerHTML='<a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a><a href="'+base+'&view=cover">Story cover</a>';
        nav.querySelector('.story-aux-nav')?.remove();nav.prepend(back);
@@ -149,7 +155,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(params.get('view')==='contents'){active=null;editing=false;$('#main').innerHTML=storyContents(book.title,chapterList(),null,{root:link(book.id),language:book.language,parts,rulesUrl:link(book.id)+'&rules=1',notesUrl:link(book.id)+'&view=dsl',notesLabel:'Planning Notes'});return;}
     if(params.get('view')==='critique'){active=null;editing=false;await renderCritique($('#main'),api,{bookId:book.id,title:book.title,sourcePath:'chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=id,chapter_number,title,body,revision&order=chapter_number.asc'});return;}
     if(params.get('view')==='references'){const branches=await api('chronicles_dsl_branches?book_id=eq.'+book.id+'&select=data&order=updated_at.asc');$('#main').innerHTML=header()+'<section class="reference-page"><h1>References</h1><h2>Images &amp; Media</h2><p class="reference-note">Artwork and media developed for this book, with original sources and earlier versions preserved.</p>'+renderBookMedia(book.id,bookArtwork[book.id],esc)+'<h2>Research &amp; Notes</h2><p style="white-space:pre-wrap">'+esc(branches[0]?.data?.references||'Research notes are not recorded yet.')+'</p></section>';return;}
-    if(['dsl','storyline','chapters'].includes(params.get('view'))){active=null;editing=false;await renderDSL($('#main'),api,book.id,params.get('view'));return;}
+    if(['dsl','storyline','chapters'].includes(params.get('view'))){active=null;editing=false;await renderDSL($('#main'),api,book.id===REVIEW_BOOK?IBN_BOOK:book.id,params.get('view'));return;}
     const rules=params.get('rules')==='1';
     const no=Number(params.get('chapter'));
     if(rules||params.has('chapter')){
@@ -270,17 +276,17 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
           ${rules?'':'<button id="extra-export">PDF / HTML</button><button id="extra-print-all">Print all</button><button id="extra-add-chapter">+ New Chapter</button>'}
           <button id="extra-smaller" aria-label="Smaller text">A−</button><button id="extra-larger" aria-label="Larger text">A+</button>
         </div>
-        <div id="chronicles-save-warning"></div>
+        <div id="chronicles-save-warning"></div>${book.id===REVIEW_BOOK?`<nav class="chapter-links" dir="rtl"><a href="#book=${IBN_BOOK}&view=dsl">أحداث الفصل في DSL</a> · <a href="https://benji-ink.vercel.app/#book=b81d1e63-6cae-445f-b8e4-a472ea5451d9">نسخة Ink</a>${(planningData?.storyDraft?.chapters?.find(p=>p.manuscriptEntryId===c.id)?.eventIds||[]).map(id=>`<a class="reference-link" href="#book=${IBN_BOOK}&view=dsl&dslview=map&focuskind=event&focusid=${id}">${esc(planningData.events.find(e=>e.id===id)?.title||'حدث')}</a>`).join('')}</nav>`:''}
 
         ${selectedPart?`<p class="chapter-part">${esc(partName(selectedPart))}</p>`:''}
         <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
-        <div class="chapter-word-count" dir="ltr">${clean(c.body).replace(/<[^>]*>/g,' ').trim().split(/\s+/).filter(Boolean).length} words</div><div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Revision ${c.revision} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}</div>
+        <div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div><div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Revision ${c.revision} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}</div>
         ${!c.body.trim()&&!rules?'<p class="notice">This chapter is empty. Press Edit to begin.</p>':''}
         <article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
         <details class="notes"><summary>Writing notes <span id="chronicles-note-count"></span></summary>
           <div id="chronicles-notes"></div>
-          <textarea id="chronicles-note-body" rows="3" dir="auto" placeholder="A note or idea to revisit…"></textarea>
+          <button id="chronicles-quote-note">ملاحظة على النص المحدد</button><p id="chronicles-note-quote" dir="auto"></p><textarea id="chronicles-note-body" rows="3" dir="auto" placeholder="A note or idea to revisit…"></textarea>
           <button class="primary" id="chronicles-add-note">Add note</button>
         </details>
       </section></div><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
@@ -303,6 +309,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     }
 
     $('#chronicles-add-note').onclick=addNote;
+    $('#chronicles-quote-note').onclick=()=>{const sel=window.getSelection();if(!sel?.rangeCount||!$('#chronicles-entry-body').contains(sel.anchorNode)||!$('#chronicles-entry-body').contains(sel.focusNode)||!sel.toString().trim()){say('حدد فقرة من الفصل أولًا.',true);return;}$('#chronicles-note-quote').textContent=sel.toString().slice(0,3000);$('#chronicles-note-body').focus();};
     const saved=storage.get(draftKey(c.id));let d;
     try{d=saved?JSON.parse(saved):null}catch{}
     if(d&&d.title!==undefined){
@@ -391,8 +398,9 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(active?.id!==id||!$('#chronicles-notes'))return;
     $('#chronicles-note-count').textContent='('+notes.length+')';
     $('#chronicles-notes').innerHTML=notes.map(n=>`<div class="note ${n.author==='Ahmed'?'ahmed':'zee'}">
-      <small><strong>${esc(n.author)}</strong> · ${date(n.created_at)}</small><p dir="auto">${esc(n.body)}</p>
+      <small><strong>${esc(n.author)}</strong> · ${date(n.created_at)}</small>${n.quote_text?`<blockquote dir="auto">${esc(n.quote_text)}</blockquote><small>نسخة الفصل وقت التعليق: ${n.source_revision||''}</small>`:''}<p dir="auto">${esc(n.body)}</p><button data-resolve-note="${n.id}">${n.resolved_at?'إعادة فتح الملاحظة':'اتعالجت'}</button>${n.resolved_at?`<small>اتعالجت بواسطة ${esc(n.resolved_by)} · ${date(n.resolved_at)}</small>`:''}
     </div>`).join('');
+    document.querySelectorAll('[data-resolve-note]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const n=notes.find(n=>n.id===b.dataset.resolveNote);await api('chronicles_book_notes?id=eq.'+n.id,{method:'PATCH',body:JSON.stringify({resolved_at:n.resolved_at?null:new Date().toISOString(),resolved_by:n.resolved_at?null:getWriter()})});await loadNotes(id);}catch(e){say(e.message,true);b.disabled=false;}});
   }
   async function addNote(){
     if(!active)return;
@@ -400,8 +408,8 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(!body)return;
     const button=$('#chronicles-add-note');button.disabled=true;
     try{
-      await api('chronicles_book_notes',{method:'POST',body:JSON.stringify({entry_id:id,author:getWriter(),body})});
-      if(active?.id===id){input.value='';await loadNotes(id);}
+      await api('chronicles_book_notes',{method:'POST',body:JSON.stringify({entry_id:id,author:getWriter(),body,quote_text:$('#chronicles-note-quote')?.textContent||'',source_revision:active.revision})});
+      if(active?.id===id){input.value='';$('#chronicles-note-quote').textContent='';await loadNotes(id);}
       say('Note added.');
     }catch(e){say(e.message,true)}finally{if($('#chronicles-add-note'))$('#chronicles-add-note').disabled=false}
   }
