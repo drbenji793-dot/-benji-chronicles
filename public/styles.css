@@ -366,3 +366,7 @@ body:has(.ibn-navigation) .topbar{padding-top:12px;padding-bottom:12px}body:has(
  body .dsl input:not([type=checkbox]),body .dsl select,body .dsl textarea{font-size:16px;max-width:100%;min-width:0}
  body .dsl-dialog fieldset{min-width:0}
 }
+
+/* The connected reading entrance remains visible beside planning tabs. */
+.current-tabs .current-story-entry{grid-column:1 / -1;background:rgba(224,139,48,.18);border:2px solid #b2753e;color:#553b21;font-weight:700}
+.current-tabs .current-story-entry[aria-pressed="true"]{background:rgba(224,139,48,.29);color:#442e18;box-shadow:inset 0 0 0 1px #b2753e}
