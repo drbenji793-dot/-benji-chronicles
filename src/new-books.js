@@ -1,3 +1,4 @@
+import {countWords} from './current-story.js';
 import {IBN_BOOK} from './current-story.js';
 import {chapterCards} from './chapter-index.js';
 import {renderBookMedia} from './book-media.js';
@@ -126,7 +127,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       const selected=params.has('chapter')?'chapters':params.get('dsltool')==='blend'?'blender':params.get('dslview')==='characters'?'characters':view||(params.has('rules')?'rules':'chapters');
       const tabs=[
         ['contents','Contents','&view=contents'],
-        ['chapters','Chapters',''],
+        ['chapters','Chapters',book.id===IBN_BOOK?'&view=chapters':''],
         ['storyline','Storyline','&view=storyline'],
         ['dsl','DSL','&view=dsl'],
         ['blender','Blender','&view=dsl&dsltool=blend&dslview=map'],
@@ -134,7 +135,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ['references','References','&view=references'],
         ['critique','Critique','&view=critique']
       ];
-      if(book.id===IBN_BOOK){tabs.splice(2,1,['drafts','نصوص الفصول الجديدة','&view=storyline&storytab=manuscript']);tabs.splice(3,0,['workbook','Workbook','&view=dsl&dslview=workbook']);}
+      if(book.id===IBN_BOOK){tabs.splice(2,1,['originals','الفصول الأصلية','&view=originals']);tabs.splice(3,0,['workbook','Workbook','&view=dsl&dslview=workbook']);}
       nav.hidden=false;nav.dir='ltr';
       nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+base+suffix+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">Story cover</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
       if(book.id===IBN_BOOK){
@@ -148,7 +149,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(params.get('view')==='contents'){active=null;editing=false;$('#main').innerHTML=storyContents(book.title,chapterList(),null,{root:link(book.id),language:book.language,parts,rulesUrl:link(book.id)+'&rules=1',notesUrl:link(book.id)+'&view=dsl',notesLabel:'Planning Notes'});return;}
     if(params.get('view')==='critique'){active=null;editing=false;await renderCritique($('#main'),api,{bookId:book.id,title:book.title,sourcePath:'chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=id,chapter_number,title,body,revision&order=chapter_number.asc'});return;}
     if(params.get('view')==='references'){const branches=await api('chronicles_dsl_branches?book_id=eq.'+book.id+'&select=data&order=updated_at.asc');$('#main').innerHTML=header()+'<section class="reference-page"><h1>References</h1><h2>Images &amp; Media</h2><p class="reference-note">Artwork and media developed for this book, with original sources and earlier versions preserved.</p>'+renderBookMedia(book.id,bookArtwork[book.id],esc)+'<h2>Research &amp; Notes</h2><p style="white-space:pre-wrap">'+esc(branches[0]?.data?.references||'Research notes are not recorded yet.')+'</p></section>';return;}
-    if(['dsl','storyline'].includes(params.get('view'))){active=null;editing=false;await renderDSL($('#main'),api,book.id,params.get('view'));return;}
+    if(['dsl','storyline','chapters'].includes(params.get('view'))){active=null;editing=false;await renderDSL($('#main'),api,book.id,params.get('view'));return;}
     const rules=params.get('rules')==='1';
     const no=Number(params.get('chapter'));
     if(rules||params.has('chapter')){
@@ -206,7 +207,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <a href="${link(book.id)}&view=dsl" class="reference-link">DSL Studio</a>
 
       </div>
-      <button id="related-book">Related Story</button>${relatedLinks(book.id)}${chapterCards(list,{esc,root:link(book.id),date,language:book.language,empty:'No chapters yet. Use New chapter to begin.'})}
+      <button id="related-book">Related Story</button>${relatedLinks(book.id)}${book.id===IBN_BOOK?`<section dir="rtl"><h2>الفصول الأصلية</h2><p>${list.reduce((n,c)=>n+countWords(clean(c.body).replace(/<[^>]*>/g,' ')),0).toLocaleString('ar-EG')} كلمة في المخطوط الأصلي</p><a href="${link(book.id)}&view=chapters">افتح المسودات الجديدة للتحرير</a><p>${list.map(c=>esc(c.title)+': '+countWords(clean(c.body).replace(/<[^>]*>/g,' ')).toLocaleString('ar-EG')+' كلمة').join(' · ')}</p></section>`:''}${chapterCards(list,{esc,root:link(book.id),date,language:book.language,empty:'No chapters yet. Use New chapter to begin.'})}
     </section><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     $('#chronicles-add-chapter').onclick=showCreateChapter;$('#related-book').onclick=editRelation;
   }
