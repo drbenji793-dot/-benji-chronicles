@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import {JSDOM} from 'jsdom';
 import {renderDSL} from '../src/dsl.js';
 const book='66739f5d-2bac-4d75-a4fd-6df93da8ac7e';
-const dom=new JSDOM('<main></main>',{url:'https://example.test/#book='+book+'&view=dsl'});
+const dom=new JSDOM('<main></main>',{url:'https://example.test/#book='+book+'&view=dsl&dslview=workbook'});
 for(const k of ['window','document','location','MutationObserver','localStorage','FormData'])globalThis[k]=dom.window[k];
 globalThis.requestAnimationFrame=f=>f();
 let writes=0;

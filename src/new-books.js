@@ -1,3 +1,4 @@
+import {IBN_BOOK} from './current-story.js';
 import {chapterCards} from './chapter-index.js';
 import {renderBookMedia} from './book-media.js';
 import {storyContents} from './contents.js';
@@ -128,13 +129,20 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ['chapters','Chapters',''],
         ['storyline','Storyline','&view=storyline'],
         ['dsl','DSL','&view=dsl'],
-        ['blender','Blender','&view=dsl&dsltool=blend'],
+        ['blender','Blender','&view=dsl&dsltool=blend&dslview=map'],
         ['characters','Characters','&view=dsl&dslview=characters'],
         ['references','References','&view=references'],
         ['critique','Critique','&view=critique']
       ];
+      if(book.id===IBN_BOOK){tabs.splice(2,1);tabs.splice(3,0,['workbook','Workbook','&view=dsl&dslview=workbook']);}
       nav.hidden=false;nav.dir='ltr';
       nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+base+suffix+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">Story cover</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
+      if(book.id===IBN_BOOK){
+       nav.classList.add('ibn-navigation');
+       const back=document.createElement('nav');back.className='current-back';back.innerHTML='<a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a><a href="'+base+'&view=cover">Story cover</a>';
+       nav.querySelector('.story-aux-nav')?.remove();nav.prepend(back);
+       const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href=base+'&view=storyline';entrance.innerHTML='<strong>الحكاية الحالية</strong><small>الملخص · الحكاية · الفصول المقترحة · الملاحظات</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');nav.append(entrance);
+      }else nav.classList.remove('ibn-navigation');
     }
     if(params.get('view')==='cover'){active=null;editing=false;renderOverview(true);return;}
     if(params.get('view')==='contents'){active=null;editing=false;$('#main').innerHTML=storyContents(book.title,chapterList(),null,{root:link(book.id),language:book.language,parts,rulesUrl:link(book.id)+'&rules=1',notesUrl:link(book.id)+'&view=dsl',notesLabel:'Planning Notes'});return;}

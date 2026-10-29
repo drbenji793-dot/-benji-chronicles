@@ -17,9 +17,10 @@ for(const language of ['ar','en']){
   const nav=document.querySelector('.book-navigation');
   assert.equal(nav.hidden,false);
   const tabs=[...nav.querySelectorAll('.ink-tabs a')];
-  assert.deepEqual(tabs.map(a=>a.textContent),['Contents','Chapters','Storyline','DSL','Blender','Characters','References','Critique']);
+  assert.deepEqual(tabs.map(a=>a.textContent),['Contents','Chapters','DSL','Workbook','Blender','Characters','References','Critique']);
+  assert(nav.querySelector('.current-story-entrance').getAttribute('href').endsWith('&view=storyline'));
   assert(tabs.every(a=>a.getAttribute('href').startsWith('#book='+id)));
-  assert.equal(tabs[4].getAttribute('href'),'#book='+id+'&view=dsl&dsltool=blend');
+  assert.equal(tabs[4].getAttribute('href'),'#book='+id+'&view=dsl&dsltool=blend&dslview=map');
   assert.equal(tabs[5].getAttribute('href'),'#book='+id+'&view=dsl&dslview=characters');
   assert(nav.querySelector('a[href="#library&lang='+language+'"]'));
   if(route.chapter){for(const id of ['add-part','rename-part']){const button=document.getElementById(id);assert(button);assert.equal(button.closest('details'),null);assert(button.closest('.book-parts'));}}
