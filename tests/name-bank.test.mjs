@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {normalizeName,bankStatus,filterNames,loadNameBank,saveNameEntry} from '../src/name-bank.js';
+const seed=JSON.parse(fs.readFileSync(new URL('../data/name-bank-seed.json',import.meta.url),'utf8')).map(e=>({...e,archived:false,usages:[]}));
+assert.equal(seed.length,556);assert.equal(new Set(seed.flatMap(e=>e.categories)).size,23);
+assert.equal(normalizeName(' إِبْرَاهِيم  '),'ابراهيم');
+assert(filterNames(seed,{query:'ابراهيم'}).some(e=>e.name==='إبراهيم'));
+assert(filterNames(seed,{query:'الحريري'}).some(e=>e.name==='شمس الدين الحريري'));
+assert.equal(filterNames(seed,{query:'غيرموجودابدا'}).length,0);
+assert.equal(bankStatus({usages:[]}), 'available');assert.equal(bankStatus({usages:[{state:'candidate'}]}),'candidate');assert.equal(bankStatus({usages:[{state:'used'}]}),'used');
+let calls=0;const all=await loadNameBank(async path=>{calls++;return path.includes('offset=0')?seed.slice(0,500):seed.slice(500)});assert.equal(all.length,556);assert.equal(calls,2);
+await assert.rejects(()=>saveNameEntry(async()=>[],{id:'a',revision:2},{notes:'test'}),/اتعدل/);
+let request;await saveNameEntry(async(path,opts)=>{request={path,opts};return [{id:'a',revision:3}]},{id:'a',revision:2},{usages:[{state:'candidate'}]});assert(request.path.includes('revision=eq.2'));assert.equal(request.opts.method,'PATCH');assert.deepEqual(JSON.parse(request.opts.body),{usages:[{state:'candidate'}]});
+const original=structuredClone(seed);filterNames(seed,{category:seed[0].categories[0]});assert.deepEqual(seed,original);
+const b={...seed[0],usages:[{book_id:'bookA',state:'candidate'}]};assert.equal(filterNames([b],{book:'bookB'}).length,0);assert.equal(filterNames([b],{state:'candidate',book:'bookA'}).length,1);assert.equal(filterNames([{...b,archived:true}]).length,0);
+console.log('PASS: 556 entries, 23 categories, Arabic search, pagination, status and book filters, immutable filtering, optimistic conflicts, nomination payload.');
