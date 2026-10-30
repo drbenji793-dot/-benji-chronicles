@@ -39,6 +39,29 @@ body:has(.chronicles-workspace)>.book-navigation,body:has(.chronicles-workspace)
 .chronicles-workspace .toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
 .chronicles-workspace .toolbar>*{min-width:0;white-space:normal;text-align:center;padding:9px 5px}
 @media(max-width:380px){.chronicles-workspace .toolbar{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* Aligned chapter controls and quiet, structured review drawer. */
+.chronicles-workspace .chapter-picker{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:8px;align-items:stretch;margin:16px 0;padding:16px 0}
+.chronicles-workspace .chapter-picker select{width:100%;min-width:0;font-size:16px}
+.chronicles-workspace .chapter-picker button{padding:6px;min-height:44px}
+.chronicles-workspace .toolbar{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:16px 0;align-items:stretch}
+.chronicles-workspace .toolbar button{min-height:44px;font-size:14px;line-height:1.35;border-radius:9px;margin:0}
+.chronicles-workspace .toolbar [hidden]{display:none!important}
+.chronicles-workspace #chronicles-exit,.chronicles-workspace #chronicles-library{grid-column:span 2}
+.chronicles-workspace #chronicles-entry-status{grid-column:1 / -1;padding:2px 0;font-size:12px;text-align:start}
+.chronicles-workspace .chapter-part{margin:24px 0 8px;font-size:16px;line-height:1.6}
+.chronicles-workspace .chapter-title{font-size:clamp(30px,7vw,48px);line-height:1.5;margin:8px 0 12px}
+.chronicles-workspace .chapter-word-count{font-size:13px;margin:0 0 16px}
+.chronicles-workspace .reading-details{margin:0 0 24px;border:1px solid var(--line);border-radius:10px;padding:0 12px;overflow-wrap:anywhere}
+.chronicles-workspace .reading-details>summary{padding:14px 0;font-size:14px;line-height:1.5}
+.chronicles-workspace .reading-details .save-meta{line-height:1.8;padding:12px 0}
+.chronicles-workspace .reading-details .save-meta>p{margin:6px 0}
+.chronicles-workspace .reading-details .workflow-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.chronicles-workspace .reading-details button,.chronicles-workspace .review-workspace-links a{min-width:0;min-height:44px;padding:10px 8px;font-size:13px;line-height:1.5;white-space:normal}
+.chronicles-workspace .reading-details .chapter-links{display:flex;flex-wrap:wrap;gap:8px;align-items:center;line-height:1.8;padding:14px 0;border-block:1px solid var(--line)}
+.chronicles-workspace .reading-details>details{padding:12px 0;border-top:1px solid var(--line);line-height:1.7}
+.chronicles-workspace .chapter-writing-settings input,.chronicles-workspace .chapter-writing-settings select{box-sizing:border-box;font-size:16px;min-height:44px}
+@media(max-width:600px){.chronicles-workspace .editor-area{min-width:0}.chronicles-workspace .toolbar{grid-template-columns:repeat(4,minmax(0,1fr))}.chronicles-workspace #chronicles-copy{grid-column:span 2}.chronicles-workspace #chronicles-edit,.chronicles-workspace #chronicles-save{grid-column:span 2}}
 </style><script>
 (function(){var t='coffee';try{var saved=localStorage.getItem('chronicles-theme');if(['coffee','parchment','sage'].includes(saved))t=saved}catch(e){}document.documentElement.dataset.theme=t})();
 </script></head><body><a class="skip" href="#main">Skip to story</a><header class="topbar"><a class="brand" href="#" aria-label="Benji Chronicles home"><img src="/compass-icon-192.png" alt="" width="46" height="46"><span><strong>Benji Chronicles</strong><small class="collaboration" lang="en" dir="ltr">A creative collaboration between Benji &amp; Almostasherq</small><small class="collaboration" lang="ar" dir="rtl">شراكة إبداعية بين بنجي والمستشرق</small></span></a></header><nav class="theme-picker" aria-label="Page colors" lang="en" dir="ltr"><button type="button" data-color="coffee" aria-pressed="false">Coffee</button><button type="button" data-color="parchment" aria-pressed="false">Parchment</button><button type="button" data-color="sage" aria-pressed="false">Sage</button></nav><section class="author-controls" aria-label="Writer and author colors"><div class="author-row" dir="ltr"><div class="identity writer-buttons" role="group" aria-label="Writer"><button type="button" data-writer="Ahmed" aria-pressed="false">Ahmed</button><button type="button" data-writer="Benji" aria-pressed="false">Benji</button><button type="button" data-writer="Guest" aria-pressed="false">Guest</button></div><button type="button" id="author-colors" aria-pressed="true">Show author colors</button></div><p class="author-help" lang="en" dir="ltr">Choose your name before editing. Ahmed: red · Benji: orange · Guest: brown. Hide colors for reading.</p></section><script>
