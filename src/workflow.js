@@ -38,7 +38,13 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
    details.append(tools);
    const management=area.querySelector('.part-management');if(management){const more=document.createElement('details');more.innerHTML='<summary>Part setup and history</summary>';more.append(management);details.append(more);}
    const nav=document.createElement('nav');nav.className='workflow-actions review-workspace-links';nav.setAttribute('aria-label','Planning and rules');
-   document.querySelectorAll('.book-navigation .ink-tabs a').forEach(a=>nav.append(a.cloneNode(true)));
+   area.querySelector('.chapter-quick-links')?.remove();
+   const quick=document.createElement('nav');quick.className='chapter-quick-links';quick.dir='ltr';quick.setAttribute('aria-label','Chapter and story shortcuts');
+   const quickLabels=['Chapters','Contents','Storyline','DSL','Characters'];
+   const links=Array.from(document.querySelectorAll('.book-navigation .ink-tabs a'));
+   for(const label of quickLabels){const a=links.find(a=>a.textContent.trim()===label);if(a)quick.append(a.cloneNode(true));}
+   links.filter(a=>!quickLabels.includes(a.textContent.trim())).forEach(a=>nav.append(a.cloneNode(true)));
+   if(quick.children.length)area.querySelector('.toolbar').after(quick);
    const rules=document.createElement('a');rules.href='#book='+c.book_id+'&rules=1';rules.textContent='Book Rules';nav.append(rules);
    const hq=document.createElement('a');hq.href='https://benji-hq.dr-z01.chatgpt.site/#rules';hq.textContent='HQ · Writing styles and rules';nav.append(hq);details.append(nav);
    const technical=document.createElement('details');technical.innerHTML='<summary>Technical record</summary><p>Chapter version '+esc(version(c.revision))+' · Internal revision '+esc(c.revision)+'</p><p>Entry: '+esc(c.id)+'</p><p>Saved UTC: '+esc(c.updated_at)+'</p><p>Chapter versions start at 101. The style guide has its own version.</p>';
