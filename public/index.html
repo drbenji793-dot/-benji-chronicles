@@ -27,6 +27,18 @@
 .show-author-colors .author-benji{color:var(--author-benji)!important}
 .chronicles-writer-benji{color:var(--author-benji)}
 .dsl-author[data-author="Benji"]{color:var(--author-benji)!important;background:#d8731714!important}
+
+/* Keep the chapter page focused; secondary tools live in review details. */
+body:has(.chronicles-workspace)>.book-navigation,body:has(.chronicles-workspace) .book-navigation,body:has(.chronicles-workspace) .rules-global-footer{display:none}
+.chapter-writing-settings{border:1px solid var(--line);border-radius:8px;padding:12px;margin:12px 0;min-width:0}
+.chapter-writing-settings label{display:grid;gap:5px;margin:8px 0;font-size:12px}
+.chapter-writing-settings input,.chapter-writing-settings select{width:100%;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:9px}
+.review-extra-tools,.review-workspace-links{margin:14px 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.review-workspace-links a{border:1px solid var(--line);border-radius:8px;padding:9px;text-align:center;text-decoration:none;overflow-wrap:anywhere}
+.reading-details>details{margin:12px 0}
+.chronicles-workspace .toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.chronicles-workspace .toolbar>*{min-width:0;white-space:normal;text-align:center;padding:9px 5px}
+@media(max-width:380px){.chronicles-workspace .toolbar{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style><script>
 (function(){var t='coffee';try{var saved=localStorage.getItem('chronicles-theme');if(['coffee','parchment','sage'].includes(saved))t=saved}catch(e){}document.documentElement.dataset.theme=t})();
 </script></head><body><a class="skip" href="#main">Skip to story</a><header class="topbar"><a class="brand" href="#" aria-label="Benji Chronicles home"><img src="/compass-icon-192.png" alt="" width="46" height="46"><span><strong>Benji Chronicles</strong><small class="collaboration" lang="en" dir="ltr">A creative collaboration between Benji &amp; Almostasherq</small><small class="collaboration" lang="ar" dir="rtl">شراكة إبداعية بين بنجي والمستشرق</small></span></a></header><nav class="theme-picker" aria-label="Page colors" lang="en" dir="ltr"><button type="button" data-color="coffee" aria-pressed="false">Coffee</button><button type="button" data-color="parchment" aria-pressed="false">Parchment</button><button type="button" data-color="sage" aria-pressed="false">Sage</button></nav><section class="author-controls" aria-label="Writer and author colors"><div class="author-row" dir="ltr"><div class="identity writer-buttons" role="group" aria-label="Writer"><button type="button" data-writer="Ahmed" aria-pressed="false">Ahmed</button><button type="button" data-writer="Benji" aria-pressed="false">Benji</button><button type="button" data-writer="Guest" aria-pressed="false">Guest</button></div><button type="button" id="author-colors" aria-pressed="true">Show author colors</button></div><p class="author-help" lang="en" dir="ltr">Choose your name before editing. Ahmed: red · Benji: orange · Guest: brown. Hide colors for reading.</p></section><script>
