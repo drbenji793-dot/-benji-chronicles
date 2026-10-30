@@ -12,6 +12,16 @@ import {buildPDF,downloadBlob} from './export-book.js';
 export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,navigate,date,workflow,trackAuthors}) {
   const REVIEW_BOOK='c911584d-bd5b-42fe-b41c-a2a456c64d41';
   let planningData=null;
+  const version=n=>'v'+(Number(n||1)+100);
+  const writingLabel=m=>!m?.method||m.method==='unknown'?'Writing method not recorded':m.method==='Manual'?'Manual · no style guide':m.method+' · '+(m.style_version||'style version not recorded')+(m.variant?' · '+m.variant:'');
+  function writingInputs(){
+    const current=active?.writing_meta||{};
+    const method=$('#chapter-writing-method')?.value||current.method||'unknown';
+    return {...current,method,style_version:method==='Manual'?'':($('#chapter-style-version')?.value||'').trim(),variant:method==='Manual'?'':($('#chapter-style-variant')?.value||'')};
+  }
+  function fillWriting(m={}){
+    $('#chapter-writing-method').value=m.method||'unknown';$('#chapter-style-version').value=m.style_version||'';$('#chapter-style-variant').value=m.variant||'';
+  }
   const $=selector=>document.querySelector(selector);
   const uuid=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
   const draftKey=id=>'chronicles-book-draft:'+id;
@@ -92,14 +102,15 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   function hasChanges(){
     if(!editing||!active||!$('#chronicles-entry-title')||!$('#chronicles-entry-body'))return false;
     return $('#chronicles-entry-title').value!==active.title
-      ||clean($('#chronicles-entry-body').innerHTML)!==clean(active.body);
+      ||clean($('#chronicles-entry-body').innerHTML)!==clean(active.body)
+      ||JSON.stringify(writingInputs())!==JSON.stringify({...active.writing_meta,method:active.writing_meta?.method||'unknown',style_version:active.writing_meta?.style_version||'',variant:active.writing_meta?.variant||''});
   }
   function backup(){
     if(!editing||!active||!$('#chronicles-entry-title')||!$('#chronicles-entry-body'))return;
     storage.set(draftKey(active.id),JSON.stringify({
       title:$('#chronicles-entry-title').value,
       body:clean($('#chronicles-entry-body').innerHTML),
-      revision:active.revision,
+      writing_meta:writingInputs(),revision:active.revision,
       saved_at:new Date().toISOString()
     }));
     const status=$('#chronicles-entry-status');
@@ -130,6 +141,12 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(!book)throw Error('Book not found.');const footerRules=document.querySelector('.footer-rules [data-book-rules]');if(footerRules){footerRules.hidden=false;footerRules.textContent='Book Rules';footerRules.href=link(book.id)+'&rules=1';}
     const loaded=await api('chronicles_book_entries?book_id=eq.'+id+'&select=*&order=chapter_number.asc.nullslast');
     entries=loaded;
+    const missing=entries.filter(e=>!e.writing_meta?.method);
+    if(missing.length){
+      const matches=missing.map(e=>'and(entry_id.eq.'+e.id+',revision.eq.'+e.revision+')').join(',');
+      const meta=await api('chronicles_book_versions?select=entry_id,revision,writing_meta&or=('+matches+')');
+      entries=entries.map(e=>({...e,writing_meta:e.writing_meta?.method?e.writing_meta:meta.find(v=>v.entry_id===e.id&&v.revision===e.revision)?.writing_meta||{}}));
+    }
     if(id===REVIEW_BOOK){const branches=await api('chronicles_dsl_branches?book_id=eq.'+IBN_BOOK+'&archived=eq.false&select=data&order=updated_at.desc&limit=1');planningData=branches[0]?.data;const statuses=await api('chronicles_workflow?source_id=in.('+entries.map(e=>e.id).join(',')+')&select=*');entries=entries.map(e=>{const w=statuses.find(w=>w.source_id===e.id);return {...e,wordCount:countWords(clean(e.body).replace(/<[^>]*>/g,' ')),statusLabel:w?.transferred_revision===e.revision?'نُقلت إلى Ink':w?.approved_revision===e.revision?'معتمد ولم يُنقل':w?.transferred_revision?'تعديلات لم تُعتمد':'مسودة للمراجعة'};});}
     parts=await api("chronicles_book_parts?book_id=eq."+id+"&select=*&order=start_chapter.asc");
     selectedPart=parts.find(p=>p.id===params.get("part"))||null;
@@ -245,7 +262,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         if(selectedPart&&partFor(number)?.id!==selectedPart.id)throw Error('The chapter number is outside the selected part.');
         const rows=await api('chronicles_book_entries',{
           method:'POST',headers:{Prefer:'return=representation'},
-          body:JSON.stringify({book_id:book.id,kind:'chapter',chapter_number:number,title,body:'',updated_by:getWriter()})
+          body:JSON.stringify({book_id:book.id,kind:'chapter',chapter_number:number,title,body:'',writing_meta:{method:'Manual',style_version:'',variant:''},updated_by:getWriter()})
         });
         if(!rows?.[0]?.id)throw Error('Could not create the chapter.');
         $('#modal').close();
@@ -287,7 +304,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ${selectedPart?`<p class="chapter-part">${esc(partName(selectedPart))}</p>`:''}
         <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
-        <div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div><div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Revision ${c.revision} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}</div>
+        <div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div><div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Chapter ${version(c.revision)} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}<p>${esc(writingLabel(c.writing_meta))}</p>${c.writing_meta?.origin?`<p>${esc(c.writing_meta.origin)}</p>`:''}</div>
         ${!c.body.trim()&&!rules?'<p class="notice">This chapter is empty. Press Edit to begin.</p>':''}
         <article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
         <details class="notes"><summary>Writing notes <span id="chronicles-note-count"></span></summary>
@@ -296,6 +313,12 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
           <button class="primary" id="chronicles-add-note">Add note</button>
         </details>
       </section></div><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
+    const metaBlock=$('.save-meta');
+    metaBlock.insertAdjacentHTML('beforeend',"<fieldset class=\"chapter-writing-settings\" id=\"chapter-writing-settings\" disabled dir=\"ltr\">\n          <legend>Writing method for this saved version</legend>\n          <label>Method<select id=\"chapter-writing-method\"><option value=\"unknown\">Not recorded</option><option value=\"Manual\">Manual</option><option value=\"zk5\">zk5</option><option value=\"zkalam4\">zkalam4</option></select></label>\n          <label>Style guide version<input id=\"chapter-style-version\" maxlength=\"40\" placeholder=\"e.g. v001\"></label>\n          <label>Variant<select id=\"chapter-style-variant\"><option value=\"\">Not specified</option><option value=\"E\">E · Egyptian</option><option value=\"F\">F · Fusha</option></select></label>\n          <p>Use Edit to change these details, then Save. Manual does not use a style guide version.</p>\n        </fieldset>");
+    fillWriting(c.writing_meta);
+    for(const id of ['chapter-writing-method','chapter-style-version','chapter-style-variant'])$('#'+id).onchange=()=>{if(editing)backup();};
+    $('#chapter-writing-method').onchange=()=>{if($('#chapter-writing-method').value==='Manual'){$('#chapter-style-version').value='';$('#chapter-style-variant').value='';}if(editing)backup();};
+    $('#chapter-style-version').oninput=()=>{if(editing)backup();};
     $('#chronicles-exit').onclick=()=>navigate(book.id===IBN_BOOK?'#book='+REVIEW_BOOK:link(book.id));
     $('#chronicles-library').onclick=()=>navigate('#library&lang='+book.language);
     $('#chronicles-edit').onclick=()=>beginEdit();
@@ -327,15 +350,16 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     }
     loadNotes(c.id).catch(e=>say(e.message,true));workflow.mount({...c,language:book.language},'extra',book.title,()=>editing);
   }
-  function exportHTML(rows){return '<!doctype html><html lang="'+book.language+'" dir="'+(book.language==='ar'?'rtl':'ltr')+'"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(book.title)+'</title><style>body{max-width:850px;margin:30px auto;padding:20px;font:20px/1.9 Georgia,serif}article{break-before:page}p{margin:0 0 .6em}small{font-size:13px}</style><h1>'+esc(book.title)+'</h1>'+rows.map(c=>'<article><h2>'+c.chapter_number+' · '+esc(c.title)+'</h2><small>Revision '+c.revision+' · '+esc(c.updated_by)+' · '+esc(c.updated_at)+'</small>'+clean(c.body)+'</article>').join('')+'</html>';}
+  function exportHTML(rows){return '<!doctype html><html lang="'+book.language+'" dir="'+(book.language==='ar'?'rtl':'ltr')+'"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(book.title)+'</title><style>body{max-width:850px;margin:30px auto;padding:20px;font:20px/1.9 Georgia,serif}article{break-before:page}p{margin:0 0 .6em}small{font-size:13px}</style><h1>'+esc(book.title)+'</h1>'+rows.map(c=>'<article><h2>'+c.chapter_number+' · '+esc(c.title)+'</h2><small>Chapter '+version(c.revision)+' · '+esc(c.updated_by)+' · '+esc(c.updated_at)+' · '+esc(writingLabel(c.writing_meta))+'</small>'+clean(c.body)+'</article>').join('')+'</html>';}
   function printEntries(rows){const frame=document.createElement('iframe');frame.style.cssText='position:fixed;width:1px;height:1px;opacity:0;pointer-events:none';frame.title='Print book';frame.srcdoc=exportHTML(rows);frame.onload=()=>{frame.contentWindow.addEventListener('afterprint',()=>frame.remove(),{once:true});frame.contentWindow.focus();frame.contentWindow.print()};document.body.append(frame);}
   function showExport(c){
     modal('PDF / HTML',`<form id="extra-export-form"><label>Format<select name="format"><option value="html">HTML</option><option value="pdf">PDF</option></select></label><label>Chapters<select name="scope"><option value="current">Current chapter</option><option value="all">All chapters</option></select></label><button type="submit">Prepare file</button><p id="extra-export-status" role="status"></p></form>`);
-    $('#extra-export-form').onsubmit=async e=>{e.preventDefault();const form=e.target,button=form.querySelector('button');button.disabled=true;const report=t=>$('#extra-export-status').textContent=t;try{const latest=await api('chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=*&order=chapter_number.asc');const rows=(form.elements.scope.value==='all'?latest:latest.filter(x=>x.id===c.id)).map(x=>({...x,language:book.language}));const format=form.elements.format.value;const blob=format==='pdf'?await buildPDF(rows,{cover:false,colors:true,language:book.language,title:book.title},{esc,clean,onProgress:report,signal:new AbortController().signal}):new Blob([exportHTML(rows)],{type:'text/html;charset=utf-8'});const url=downloadBlob(blob,book.title+'.'+format);report('File ready');setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(err){report(err.message)}finally{button.disabled=false}};
+    $('#extra-export-form').onsubmit=async e=>{e.preventDefault();const form=e.target,button=form.querySelector('button');button.disabled=true;const report=t=>$('#extra-export-status').textContent=t;try{const latest=await api('chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=*&order=chapter_number.asc');const rows=(form.elements.scope.value==='all'?latest:latest.filter(x=>x.id===c.id)).map(x=>({...x,writing_meta:x.writing_meta?.method?x.writing_meta:entries.find(e=>e.id===x.id&&e.revision===x.revision)?.writing_meta||{},language:book.language}));const format=form.elements.format.value;const blob=format==='pdf'?await buildPDF(rows,{cover:false,colors:true,language:book.language,title:book.title},{esc,clean,onProgress:report,signal:new AbortController().signal}):new Blob([exportHTML(rows)],{type:'text/html;charset=utf-8'});const url=downloadBlob(blob,book.title+'.'+format);report('File ready');setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(err){report(err.message)}finally{button.disabled=false}};
   }
   function beginEdit(d){
     if(!active||editing)return;
     editing=true;
+    $('#chapter-writing-settings').disabled=false;fillWriting(d?.writing_meta||active.writing_meta);
     $('#chronicles-edit').disabled=true;
     $('#chronicles-save').disabled=false;
     $('#chronicles-cancel').hidden=false;
@@ -362,7 +386,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     try{
       const rows=await api('chronicles_book_entries?id=eq.'+active.id+'&revision=eq.'+active.revision,{
         method:'PATCH',headers:{Prefer:'return=representation'},
-        body:JSON.stringify({title,body,updated_by:getWriter()})
+        body:JSON.stringify({title,body,writing_meta:writingInputs(),updated_by:getWriter()})
       });
       if(!rows?.length){
         say('Someone saved a newer revision. Your local draft is safe. Review the latest version before saving.',true);
@@ -383,8 +407,8 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(active?.id!==id)return;
     $('#modal-content').innerHTML='<p class="reference-note">History keeps each revision with its writer and time. Restoring an older revision opens a draft and preserves newer versions.</p>'
       +versions.map((v,i)=>`<div class="version">
-        <strong>Revision ${v.revision} ${i===0?'· Current':''}</strong>
-        <small class="${writerLabel({updated_by:v.saved_by})}">${esc(v.saved_by)} · ${date(v.saved_at)}</small>
+        <strong>Chapter ${version(v.revision)} ${i===0?'· Current':''}</strong>
+        <small class="${writerLabel({updated_by:v.saved_by})}">${esc(v.saved_by)} · ${date(v.saved_at)} · ${esc(writingLabel(v.writing_meta))}</small>
         <button data-new-version="${i}">Read</button>
         ${i>0?`<button data-new-restore="${i}">Use as draft</button>`:''}
       </div>`).join('')+'<div id="chronicles-version-preview"></div>';
