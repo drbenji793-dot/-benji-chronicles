@@ -25,8 +25,8 @@ export function makeMasterStory(title='Untitled Novel',options={}){
   world:{locations:'',historicalNotes:'',technology:'',hardRules:'',exceptions:''},characters:[],events:[],links:[],objects:[],decisions:[],blender:{drafts:[],adoptedId:null}};
 }
 export function getCharacters(data){return Array.isArray(data?.characters)?data.characters.filter(c=>!c.archived):[];}
-export function appearsIn(event,name){if(!event?.characters||!name)return false;
- return String(event.characters).split(/[,،;؛\n]/u).some(part=>part.trim().toLocaleLowerCase()===String(name).trim().toLocaleLowerCase());}
+export function appearsIn(event,name,aliases=[]){if(!event?.characters||!name)return false;
+ return String(event.characters).split(/[,،;؛\n]/u).some(part=>part.trim().toLocaleLowerCase()!==''&&[name,...(Array.isArray(aliases)?aliases:[])].some(n=>part.trim().toLocaleLowerCase()===String(n).trim().toLocaleLowerCase()));}
 export function storyHealth(data,chapters=[]){
  const events=(data?.events||[]).filter(e=>!e.archived), links=(data?.links||[]), characters=getCharacters(data), byId=new Map(events.map(e=>[e.id,e])),checks=[];
  const add=(kind,text,id=null)=>checks.push({kind,text,id});
@@ -49,5 +49,6 @@ export function storyHealth(data,chapters=[]){
 export function knowledgeMap(data){
  const chars=getCharacters(data);
  return (data?.events||[]).filter(e=>!e.archived).slice().sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0)).map(e=>({
- id:e.id,title:e.title,reader:e.readerKnows||'',hidden:e.truth||'',characters:chars.filter(c=>appearsIn(e,c.name)).map(c=>({name:c.name,knowledge:e.knowledge||'',secret:c.secret||''}))}));
+ id:e.id,title:e.title,reader:e.readerKnows||'',hidden:e.truth||'',characters:chars.filter(c=>appearsIn(e,c.name,c.aliases)).map(c=>({name:c.name,knowledge:e.knowledge||'',secret:c.secret||''}))}));
 }
+
