@@ -120,10 +120,10 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       const view=params.get('view');
       if(!view||['chapters','originals','contents','cover'].includes(view)||params.get('storytab')==='manuscript'){
         const draft=params.get('draftchapter'),number=draft?.match(/ch-(\d+)$/)?.[1];
-        await navigate('#book='+REVIEW_BOOK+(number?'&chapter='+number:view==='contents'?'&view=contents':view==='cover'?'&view=cover':''));return;
+        const target='#book='+REVIEW_BOOK+(number?'&chapter='+number:view==='contents'?'&view=contents':view==='cover'?'&view=cover':'');history.replaceState(history.state,'',location.pathname+location.search+target);await render(new URLSearchParams(target.slice(1)));return;
       }
     }
-    if(id===REVIEW_BOOK&&params.get('view')==='chapters'){await navigate('#book='+REVIEW_BOOK);return;}
+    if(id===REVIEW_BOOK&&params.get('view')==='chapters'){const target='#book='+REVIEW_BOOK;history.replaceState(history.state,'',location.pathname+location.search+target);await render(new URLSearchParams(target.slice(1)));return;}
     if(!uuid.test(id))throw Error('Invalid book link.');
     book=books.find(b=>b.id===id);
     if(!book){await load();book=books.find(b=>b.id===id);}
