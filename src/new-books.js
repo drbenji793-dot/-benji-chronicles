@@ -307,6 +307,11 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div><div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Chapter ${version(c.revision)} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}<p>${esc(writingLabel(c.writing_meta))}</p>${c.writing_meta?.origin?`<p>${esc(c.writing_meta.origin)}</p>`:''}</div>
         ${!c.body.trim()&&!rules?'<p class="notice">This chapter is empty. Press Edit to begin.</p>':''}
         <article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
+        <nav class="chapter-bottom-controls" aria-label="Chapter editing and navigation" dir="ltr">
+          ${rules?'':`<button id="bottom-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button>`}
+          <button id="bottom-edit">Edit</button><button id="bottom-save" class="primary" disabled>Save</button>
+          ${rules?'':`<button id="bottom-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button>`}
+        </nav>
         <details class="notes"><summary>Writing notes <span id="chronicles-note-count"></span></summary>
           <div id="chronicles-notes"></div>
           <button id="chronicles-quote-note">ملاحظة على النص المحدد</button><p id="chronicles-note-quote" dir="auto"></p><textarea id="chronicles-note-body" rows="3" dir="auto" placeholder="A note or idea to revisit…"></textarea>
@@ -323,6 +328,12 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     $('#chronicles-library').onclick=()=>navigate('#library&lang='+book.language);
     $('#chronicles-edit').onclick=()=>beginEdit();
     $('#chronicles-save').onclick=save;
+    $('#bottom-edit').onclick=()=>beginEdit(null,true);
+    $('#bottom-save').onclick=save;
+    if(!rules){
+      $('#bottom-prev').onclick=()=>$('#extra-prev').click();
+      $('#bottom-next').onclick=()=>$('#extra-next').click();
+    }
     $('#chronicles-cancel').onclick=cancel;
     $('#chronicles-copy').onclick=async()=>{try{await navigator.clipboard.writeText($('#chronicles-reading-title').textContent+'\n\n'+$('#chronicles-entry-body').innerText);say('Text copied.')}catch{say('Select the text and copy it manually.',true)}};
     $('#chronicles-history').onclick=()=>showHistory().catch(e=>say(e.message,true));
@@ -356,11 +367,11 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     modal('PDF / HTML',`<form id="extra-export-form"><label>Format<select name="format"><option value="html">HTML</option><option value="pdf">PDF</option></select></label><label>Chapters<select name="scope"><option value="current">Current chapter</option><option value="all">All chapters</option></select></label><button type="submit">Prepare file</button><p id="extra-export-status" role="status"></p></form>`);
     $('#extra-export-form').onsubmit=async e=>{e.preventDefault();const form=e.target,button=form.querySelector('button');button.disabled=true;const report=t=>$('#extra-export-status').textContent=t;try{const latest=await api('chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=*&order=chapter_number.asc');const rows=(form.elements.scope.value==='all'?latest:latest.filter(x=>x.id===c.id)).map(x=>({...x,writing_meta:x.writing_meta?.method?x.writing_meta:entries.find(e=>e.id===x.id&&e.revision===x.revision)?.writing_meta||{},language:book.language}));const format=form.elements.format.value;const blob=format==='pdf'?await buildPDF(rows,{cover:false,colors:true,language:book.language,title:book.title},{esc,clean,onProgress:report,signal:new AbortController().signal}):new Blob([exportHTML(rows)],{type:'text/html;charset=utf-8'});const url=downloadBlob(blob,book.title+'.'+format);report('File ready');setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(err){report(err.message)}finally{button.disabled=false}};
   }
-  function beginEdit(d){
+  function beginEdit(d,keepPosition=false){
     if(!active||editing)return;
     editing=true;
     $('#chapter-writing-settings').disabled=false;fillWriting(d?.writing_meta||active.writing_meta);
-    $('#chronicles-edit').disabled=true;
+    $('#chronicles-edit').disabled=true;$('#bottom-edit').disabled=true;$('#bottom-save').disabled=false;
     $('#chronicles-save').disabled=false;
     $('#chronicles-cancel').hidden=false;
     $('#chronicles-entry-status').textContent='Editing';
@@ -372,7 +383,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     $('#chronicles-entry-title').oninput=backup;
     trackAuthors($('#chronicles-entry-body'),getWriter,backup);
     $('#chronicles-save-warning').innerHTML='';
-    $('#chronicles-entry-body').focus();
+    $('#chronicles-entry-body').focus({preventScroll:keepPosition});
   }
   function cancel(){
     if(hasChanges()&&!confirm('Discard unsaved edits?'))return;
@@ -382,7 +393,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(!editing||busy||!active)return;
     const title=$('#chronicles-entry-title').value.trim(),body=clean($('#chronicles-entry-body').innerHTML),plain=$('#chronicles-entry-body').textContent.trim();
     if(!title||!plain){say('Enter a title and text before saving.',true);return}
-    backup();busy=true;$('#chronicles-save').disabled=true;$('#chronicles-entry-body').contentEditable='false';
+    backup();busy=true;$('#chronicles-save').disabled=true;$('#bottom-save').disabled=true;$('#chronicles-entry-body').contentEditable='false';
     try{
       const rows=await api('chronicles_book_entries?id=eq.'+active.id+'&revision=eq.'+active.revision,{
         method:'PATCH',headers:{Prefer:'return=representation'},
@@ -397,7 +408,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       storage.remove(draftKey(active.id));editing=false;renderEntry();
       say('Saved. The previous revision remains in History.');
     }catch(err){say('Save failed. Your draft remains on this device. '+err.message,true)}
-    finally{busy=false;if(editing&&$('#chronicles-save')){$('#chronicles-save').disabled=false;$('#chronicles-entry-body').contentEditable='true'}}
+    finally{busy=false;if(editing&&$('#chronicles-save')){$('#chronicles-save').disabled=false;$('#bottom-save').disabled=false;$('#chronicles-entry-body').contentEditable='true'}}
   }
   async function showHistory(){
     if(!active)return;
