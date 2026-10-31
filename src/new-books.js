@@ -200,8 +200,11 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
 .book-part-heading{justify-content:space-between;font-size:13px;color:var(--muted)}
 .book-part-row>a{display:flex;align-items:center;gap:12px;flex:1;min-width:0;min-height:48px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--ink);background:var(--panel);box-sizing:border-box}
 .book-part-row small{font-size:11px;color:var(--muted);white-space:nowrap}.book-part-row strong{font-size:15px;line-height:1.5;font-weight:600;overflow-wrap:anywhere}
-#main .part-circle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;height:44px;min-height:44px;padding:0;border-radius:50%;font:12px/1 system-ui;box-sizing:border-box;margin:0}
-#main .part-add{font-size:23px;font-weight:400}
+#main .part-circle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;height:44px;min-height:44px;padding:0;border-radius:8px;font:12px/1 system-ui;box-sizing:border-box;margin:0}
+#main .part-add{font-size:20px;font-weight:400}
+#main .compact-chapter-picker{display:block;margin:0 0 12px;padding:0;border:0}
+#main .chapter-step-controls{display:flex;justify-content:center;gap:6px;margin:6px 0 0}
+#main .chapter-step-controls button{width:44px;height:32px;min-height:32px;padding:0;font-size:18px;border-radius:8px}
 #main .compact-book-parts{display:block;padding:8px 0;margin:0 0 10px}
 .book-part-picker{display:flex;align-items:center;gap:6px;width:100%;min-width:0}
 #main .book-part-picker select{width:0;min-width:0;flex:1;height:44px;min-height:44px;margin:0;padding:6px 8px;font-size:14px;border-radius:12px}
@@ -304,7 +307,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       </aside>
       <section class="editor-area" dir="${book.language==='en'?'ltr':'rtl'}">
         ${rules?'':partsUI()}
-        ${rules?'<p class="reference-note">Book Rules</p>':`<div class="chapter-picker" dir="ltr"><button id="extra-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button><select id="extra-chapter-select" aria-label="Choose chapter" dir="${book.language==='ar'?'rtl':'ltr'}">${list.map(x=>`<option value="${x.chapter_number}" ${x.id===c.id?'selected':''}>${String(x.chapter_number).padStart(2,'0')} · ${esc(x.title)}</option>`).join('')}</select><button id="extra-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button></div>`}
+        ${rules?'<p class="reference-note">Book Rules</p>':`<div class="chapter-picker compact-chapter-picker"><div class="book-part-picker" dir="${book.language==='ar'?'rtl':'ltr'}"><select id="extra-chapter-select" aria-label="Choose chapter" dir="${book.language==='ar'?'rtl':'ltr'}">${list.map(x=>`<option value="${x.chapter_number}" ${x.id===c.id?'selected':''}>${String(x.chapter_number).padStart(2,'0')} · ${esc(x.title)}</option>`).join('')}</select><button id="edit-chapter-name" class="part-circle" lang="en" dir="ltr" aria-label="Edit chapter name">Edit</button><button id="picker-add-chapter" class="part-circle part-add" aria-label="Add chapter" title="Add chapter">＋</button></div><div class="chapter-step-controls" dir="ltr"><button id="extra-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button><button id="extra-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button></div></div>`}
         <div class="toolbar" dir="ltr">
           <button id="chronicles-exit">Exit · الفصول</button><button id="chronicles-library">Exit · المكتبة</button><button id="chronicles-edit">Edit</button>
           <button id="chronicles-save" class="primary" disabled>Save</button>
@@ -360,6 +363,8 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     $('#extra-smaller').onclick=()=>{readingSize=Math.max(16,readingSize-1);size()};$('#extra-larger').onclick=()=>{readingSize=Math.min(30,readingSize+1);size()};
     if(!rules){
       bindParts();
+      $('#edit-chapter-name').onclick=editChapterName;
+      $('#picker-add-chapter').onclick=()=>{if(editing){say('Save or cancel chapter edits first.',true);return;}showCreateChapter();};
       $('#extra-chapter-select').onchange=e=>navigate(link(book.id)+'&chapter='+e.target.value);
       $('#extra-prev').onclick=()=>{const prev=list[list.indexOf(c)-1];if(prev)navigate(entryLink(prev))};
       $('#extra-next').onclick=()=>{const next=list[list.indexOf(c)+1];if(next)navigate(entryLink(next))};
@@ -383,6 +388,16 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   function showExport(c){
     modal('PDF / HTML',`<form id="extra-export-form"><label>Format<select name="format"><option value="html">HTML</option><option value="pdf">PDF</option></select></label><label>Chapters<select name="scope"><option value="current">Current chapter</option><option value="all">All chapters</option></select></label><button type="submit">Prepare file</button><p id="extra-export-status" role="status"></p></form>`);
     $('#extra-export-form').onsubmit=async e=>{e.preventDefault();const form=e.target,button=form.querySelector('button');button.disabled=true;const report=t=>$('#extra-export-status').textContent=t;try{const latest=await api('chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=*&order=chapter_number.asc');const rows=(form.elements.scope.value==='all'?latest:latest.filter(x=>x.id===c.id)).map(x=>({...x,writing_meta:x.writing_meta?.method?x.writing_meta:entries.find(e=>e.id===x.id&&e.revision===x.revision)?.writing_meta||{},language:book.language}));const format=form.elements.format.value;const blob=format==='pdf'?await buildPDF(rows,{cover:false,colors:true,language:book.language,title:book.title},{esc,clean,onProgress:report,signal:new AbortController().signal}):new Blob([exportHTML(rows)],{type:'text/html;charset=utf-8'});const url=downloadBlob(blob,book.title+'.'+format);report('File ready');setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(err){report(err.message)}finally{button.disabled=false}};
+  }
+  function editChapterName(){
+    if(editing){say('Save or cancel chapter edits first.',true);return;}
+    const chapter=active;
+    modal('Edit chapter name',`<form id="chapter-name-form"><label>Chapter title<input name="title" dir="auto" required maxlength="200" value="${esc(chapter.title)}"></label><button type="submit">Save</button><p id="chapter-name-error" role="alert"></p></form>`);
+    $('#chapter-name-form').onsubmit=async e=>{e.preventDefault();const button=e.target.querySelector('button'),title=String(new FormData(e.target).get('title')||'').trim();if(!title){$('#chapter-name-error').textContent='Enter a chapter title.';return;}button.disabled=true;busy=true;
+      try{const rows=await api('chronicles_book_entries?id=eq.'+chapter.id+'&revision=eq.'+chapter.revision,{method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify({title,updated_by:getWriter()})});if(!rows?.length)throw Error('This chapter changed on another device. Reopen the page before saving.');
+        active={...chapter,...rows[0]};entries=entries.map(x=>x.id===active.id?active:x);$('#modal').close();renderEntry();say('Chapter name saved.');
+      }catch(err){$('#chapter-name-error').textContent=err.message;}finally{busy=false;button.disabled=false;}
+    };
   }
   function beginEdit(d,keepPosition=false){
     if(!active||editing)return;
