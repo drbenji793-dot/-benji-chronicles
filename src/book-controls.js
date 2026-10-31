@@ -1,12 +1,14 @@
+const mounting=new WeakMap();
 // One set of English controls for collection stories, independent books and future books.
 export async function mountBookControls({params,api,esc,getWriter,say,refresh,navigate,canManage,siteLanguage='ar'}){
  const host=document.querySelector('#main'),hash=location.hash;
  const book=params.get('book'),story=book?null:Number(params.get('story')||12),language=book?null:params.get('lang')||siteLanguage;
  if(params.has('library')||params.has('collection')||(!book&&!params.has('story')&&!params.has('chapter'))||params.has('rules')||params.has('archive')||params.has('reference')||!['','chapters','contents'].includes(params.get('view')||''))return;
+ const ticket={};mounting.set(host,ticket);
  const scope=book?'book_id=eq.'+book:'story_number=eq.'+story+'&language=eq.'+language;
  const table=book?'chronicles_book_entries':'chronicles_chapters';
  const [parts,chapters]=await Promise.all([api('chronicles_book_parts?'+scope+'&select=*&order=start_chapter.asc'),api(table+'?'+scope+(book?'&kind=eq.chapter':'')+'&select=id,chapter_number,title,revision&order=chapter_number.asc')]);
- if(location.hash!==hash||document.querySelector('#main')!==host)return;
+ if(location.hash!==hash||document.querySelector('#main')!==host||mounting.get(host)!==ticket)return;
  const root=book?'#book='+book:'#story='+story+'&lang='+language;
  const chapter=chapters.find(c=>c.chapter_number===Number(params.get('chapter')));
  const partFor=n=>[...parts].reverse().find(p=>n>=p.start_chapter);
