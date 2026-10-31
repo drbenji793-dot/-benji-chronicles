@@ -36,7 +36,7 @@ export async function mountBookControls({params,api,esc,getWriter,say,refresh,na
  if(chapter){const toolbar=host.querySelector('.toolbar');if(toolbar)toolbar.before(box);else target.prepend(box);}else{const actions=host.querySelector('.chronicles-book-actions');if(actions)actions.after(box);else target.prepend(box);}
  paint();
  if(!chapter&&!host.querySelector('#chronicles-add-chapter,#new-adaptation-chapter,#part-new-chapter')){const add=document.createElement('button');add.className='primary';add.textContent='+ New chapter';add.onclick=()=>addChapter();box.before(add);}
- if(chapter&&!host.querySelector('a[href="'+root+'&view=chapters"]')){const back=document.createElement('a');back.className='button benji-chapters-back';back.href=root+'&view=chapters';back.textContent='Chapters';host.querySelector('.toolbar')?.after(back);}
+ if(chapter&&![...host.querySelectorAll('a')].some(a=>a.textContent.trim()==='Chapters')){const back=document.createElement('a');back.className='button benji-chapters-back';back.href=root+'&view=chapters';back.textContent='Chapters';host.querySelector('.toolbar')?.after(back);}
  // Existing overview/empty-part shortcuts use the same shared creation form.
  for(const id of ['chronicles-add-chapter','new-adaptation-chapter','part-new-chapter','extra-add-chapter','picker-add-chapter']){const b=host.querySelector('#'+id);if(b){b.textContent='+ New chapter';b.onclick=()=>addChapter();}}
  const partLabel=host.querySelector('#chapter-part');if(partLabel&&chapter){const p=partFor(chapter.chapter_number);partLabel.textContent=p?.title||'';partLabel.hidden=!p;}
