@@ -1,0 +1,14 @@
+Benji Layout BL01
+Approved October 31, 2026. Applies to every current and future book on both Arabic and English Chronicles sites.
+
+The two reference screenshots supplied by Benji are the approved layout. Extending functionality must preserve this layout. Do not replace it with another arrangement without Benji’s explicit approval.
+
+Book index: retain a visible vertical list of parts. Each row has a compact Edit button on the left and a wide part title card on the right. A square + button sits above the Edit column. Keep chapter cards below the parts, and the + New chapter action near Garden of Eden. Do not replace the visible parts with dropdown rows on the index.
+
+Inside a chapter: two compact rows, each ordered left to right as +, Edit, wide selector. The first row selects a part; the second selects a chapter. Keep chapter previous and next arrow buttons centered immediately below. Keep one Chapters return control. Use English button labels, including Edit, Save, Copy and Chapters. Accessible labels identify Add part, Rename Part, Add chapter and Rename Chapter. Preserve Arabic titles and reading direction where applicable.
+
+Use the established coffee colors, aligned borders, generous selector width and compact square action buttons. On iPhone all controls fit without horizontal scrolling. Preserve existing editing, History, print and export capabilities. No Delete or Archive is added by this rule.
+
+Preserve manuscript text, author colors, chapter identity, notes, revision checks and existing insertion safeguards. New book templates inherit this shared layout automatically.
+
+This rule supersedes the presentation specified in BKC01 while retaining its functionality and data safeguards. Save the same rule in Benji HQ and Google Drive. Implementation reference: src/book-controls.js and public/styles.css.
