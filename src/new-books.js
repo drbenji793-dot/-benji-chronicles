@@ -166,7 +166,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       ];
       if(book.id===IBN_BOOK||book.id===REVIEW_BOOK){tabs.splice(3,0,['workbook','Workbook','&view=dsl&dslview=workbook']);}
       nav.hidden=false;nav.dir='ltr';
-      nav.innerHTML='<div class="ink-tabs">'+tabs.map(([id,label,suffix])=>'<a href="'+(book.id===IBN_BOOK&&id==='chapters'?'#book='+REVIEW_BOOK:base+suffix)+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">Story cover</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
+      nav.innerHTML='<div class="ink-tabs">'+tabs.filter(([id])=>!['dsl','blender','workbook'].includes(id)).map(([id,label,suffix])=>'<a href="'+(book.id===IBN_BOOK&&id==='chapters'?'#book='+REVIEW_BOOK:base+suffix)+'"'+(selected===id?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">Story cover</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
       if(book.id===IBN_BOOK||book.id===REVIEW_BOOK){
        nav.classList.add('ibn-navigation');
        const back=document.createElement('nav');back.className='current-back';back.innerHTML='<a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a><a href="'+base+'&view=cover">Story cover</a>';
@@ -387,8 +387,8 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       $('#chronicles-recover').onclick=()=>{beginEdit(d);if(d.revision!==c.revision)say('The saved version changed after this draft. Review it before saving.',true)};
       $('#chronicles-discard').onclick=()=>{if(confirm('Discard this local draft?')){storage.remove(draftKey(c.id));$('#chronicles-save-warning').innerHTML=''}};
     }
-    const technical=$('.reading-details');if(technical) $('.editor-area').append(technical);
-    loadNotes(c.id).catch(e=>say(e.message,true));workflow.mount({...c,language:book.language},'extra',book.title,()=>editing);
+    
+    loadNotes(c.id).catch(e=>say(e.message,true));workflow.mount({...c,language:book.language},'extra',book.title,()=>editing);const technical=$('.reading-details');if(technical){technical.open=false;$('.editor-area').append(technical);const count=$('.chapter-word-count');if(count)technical.append(count);}
   }
   function exportHTML(rows){return '<!doctype html><html lang="'+book.language+'" dir="'+(book.language==='ar'?'rtl':'ltr')+'"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(book.title)+'</title><style>body{max-width:850px;margin:30px auto;padding:20px;font:20px/1.9 Georgia,serif}article{break-before:page}p{margin:0 0 .6em}small{font-size:13px}</style><h1>'+esc(book.title)+'</h1>'+rows.map(c=>'<article><h2>'+c.chapter_number+' · '+esc(c.title)+'</h2><small>Chapter '+version(c.revision)+' · '+esc(c.updated_by)+' · '+esc(c.updated_at)+' · '+esc(writingLabel(c.writing_meta))+'</small>'+clean(c.body)+'</article>').join('')+'</html>';}
   function printEntries(rows){const frame=document.createElement('iframe');frame.style.cssText='position:fixed;width:1px;height:1px;opacity:0;pointer-events:none';frame.title='Print book';frame.srcdoc=exportHTML(rows);frame.onload=()=>{frame.contentWindow.addEventListener('afterprint',()=>frame.remove(),{once:true});frame.contentWindow.focus();frame.contentWindow.print()};document.body.append(frame);}
