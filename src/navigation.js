@@ -59,7 +59,7 @@ export function createNavigation({ render, allowLeave, leave, onError }) {
  });
  // Leave edge gestures to iOS/Safari so a native swipe never causes two traversals.
  let touch=null;
- const blocked=target=>!!target.closest('input,textarea,select,button,a,[contenteditable="true"],dialog,.export-chapters')||!!document.querySelector('dialog[open]')||!!window.getSelection()?.toString();
+ const blocked=target=>!!target.closest('input,textarea,select,button,a,[contenteditable="true"],dialog,.export-chapters,.goe-board')||!!document.querySelector('dialog[open]')||!!window.getSelection()?.toString();
  document.addEventListener('touchstart',e=>{
   touch=null;if(e.touches.length!==1||loading||repairing||blocked(e.target))return;
   const p=e.touches[0];if(p.clientX<25||p.clientX>innerWidth-25)return;
