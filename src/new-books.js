@@ -171,7 +171,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
        nav.classList.add('ibn-navigation');
        const back=document.createElement('nav');back.className='current-back';back.innerHTML='<a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a><a href="'+base+'&view=cover">Story cover</a>';
        nav.querySelector('.story-aux-nav')?.remove();nav.prepend(back);
-       const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href='#book='+REVIEW_BOOK;entrance.innerHTML='<strong>الفصول الجديدة</strong><small>النص الكامل · التعديل · المراجعة والاعتماد</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');nav.append(entrance);
+       const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href='#book='+REVIEW_BOOK;entrance.innerHTML='<strong>الفصول الجديدة</strong><small>النص الكامل · التعديل · المراجعة والاعتماد</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');if(view==='chapters'||(!view&&book.id===REVIEW_BOOK))nav.append(entrance);
       }else nav.classList.remove('ibn-navigation');
     }
     if(params.get('view')==='cover'){active=null;editing=false;renderOverview(true);return;}

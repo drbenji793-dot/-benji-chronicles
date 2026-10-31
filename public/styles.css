@@ -399,3 +399,7 @@ body:has(.ibn-navigation) .topbar{padding-top:12px;padding-bottom:12px}body:has(
 .shelf-drag-ghost>a{display:block;width:100%;margin:0}.shelf-drag-ghost .shelf-moves{display:none}
 .drag-active,.drag-active *{cursor:grabbing!important}
 @media print{.shelf-arrange,.shelf-moves,.shelf-drag-ghost{display:none!important}}
+
+.edition-menu>summary{display:list-item;cursor:pointer;width:fit-content;padding:8px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px}
+.edition-menu[open]>summary{margin-bottom:8px}
+.edition-menu .edition-actions{gap:8px;flex-wrap:wrap}
