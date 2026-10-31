@@ -96,6 +96,11 @@ body:has(.chronicles-workspace)>.book-navigation,body:has(.chronicles-workspace)
  body>#main .library-bookshelf{max-width:100%}
  body>#main .dsl{max-width:100%;box-sizing:border-box}
 }
+
+/* Keep the compact desktop header on the same paper as the page. */
+@media screen and (min-width:1001px){
+ body>.topbar,body>.theme-picker,body>.author-controls{background:var(--paper)}
+}
 </style><script>
 (function(){var t='coffee';try{var saved=localStorage.getItem('chronicles-theme');if(['coffee','parchment','sage'].includes(saved))t=saved}catch(e){}document.documentElement.dataset.theme=t})();
 </script></head><body><a class="skip" href="#main">Skip to story</a><header class="topbar"><a class="brand" href="#" aria-label="Benji Chronicles home"><img src="/compass-icon-192.png" alt="" width="46" height="46"><span><strong>Benji Chronicles</strong><small class="collaboration" lang="en" dir="ltr">A creative collaboration between Benji &amp; Almostasherq</small><small class="collaboration" lang="ar" dir="rtl">شراكة إبداعية بين بنجي والمستشرق</small></span></a></header><nav class="theme-picker" aria-label="Page colors" lang="en" dir="ltr"><button type="button" data-color="coffee" aria-pressed="false">Coffee</button><button type="button" data-color="parchment" aria-pressed="false">Parchment</button><button type="button" data-color="sage" aria-pressed="false">Sage</button></nav><section class="author-controls" aria-label="Writer and author colors"><div class="author-row" dir="ltr"><div class="identity writer-buttons" role="group" aria-label="Writer"><button type="button" data-writer="Ahmed" aria-pressed="false">Ahmed</button><button type="button" data-writer="Benji" aria-pressed="false">Benji</button><button type="button" data-writer="Guest" aria-pressed="false">Guest</button></div><button type="button" id="author-colors" aria-pressed="true">Show author colors</button></div><p class="author-help" lang="en" dir="ltr">Choose your name before editing. Ahmed: red · Benji: orange · Guest: brown. Hide colors for reading.</p></section><script>
