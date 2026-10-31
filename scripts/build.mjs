@@ -1,0 +1,18 @@
+import {build} from 'esbuild';
+import {readFile,writeFile} from 'node:fs/promises';
+const language=process.env.SITE_LANGUAGE||'ar';
+if(!['ar','en'].includes(language))throw Error('SITE_LANGUAGE must be ar or en');
+await build({entryPoints:['src/app.js'],bundle:true,minify:true,format:'esm',outfile:'public/app.js',define:{__CHRONICLES_EDITION__:JSON.stringify(language)}});
+const path='public/index.html';
+let html=await readFile(path,'utf8');
+html=html.replace(/<html lang="(?:ar|en)"/,'<html lang="'+language+'"');
+html=html.replace(/<title>.*?<\/title>/,'<title>Benji Chronicles'+(language==='en'?' English':' Arabic')+' · Benji &amp; Almostasherq</title>');
+html=html.replace(/<strong>Benji Chronicles(?: English)?<\/strong>/,'<strong>Benji Chronicles'+(language==='en'?' English':'')+'</strong>');
+html=html.replace(/(name="apple-mobile-web-app-title" content=")[^"]*/, '$1Chronicles'+(language==='en'?' English':''));
+await writeFile(path,html);
+const manifest=JSON.parse(await readFile('public/manifest.webmanifest','utf8'));
+manifest.name='Benji Chronicles'+(language==='en'?' English':' Arabic');
+manifest.short_name=language==='en'?'Chronicles EN':'Chronicles';
+manifest.background_color='#d9c4ab';
+await writeFile('public/manifest.webmanifest',JSON.stringify(manifest,null,2)+'\n');
+console.log('Built Chronicles '+language);

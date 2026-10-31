@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild src/app.js --bundle --minify --format=esm --outfile=public/app.js",
-    "test": "node tests/reader.cjs && node tests/workflow.cjs && node tests/chapter-transfer.cjs && node tests/arabic-authors.cjs && node tests/collection.cjs && node tests/gates.cjs && node tests/book-navigation.mjs && node tests/independent-books.mjs && node tests/book-parts.mjs && node tests/name-bank.test.mjs"
+    "build": "node scripts/build.mjs",
+    "test": "node tests/reader.cjs && node tests/workflow.cjs && node tests/chapter-transfer.cjs && node tests/arabic-authors.cjs && node tests/collection.cjs && node tests/gates.cjs && node tests/book-navigation.mjs && node tests/independent-books.mjs && node tests/book-parts.mjs && node tests/name-bank.test.mjs",
+    "test:editions": "node tests/edition-sites.mjs"
   },
   "dependencies": {
     "dompurify": "3.4.16",
