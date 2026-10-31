@@ -276,7 +276,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(!active)return;
     const c=active,rules=c.kind==='rules';selectedPart=rules?null:partFor(c.chapter_number);const list=selectedPart?partChapters(selectedPart):chapterList();
     const selected=rules?'Book Rules':'Chapter '+c.chapter_number;
-    $('#main').innerHTML=`<nav class="crumb"><strong dir="auto">${esc(book.title)}</strong></nav><p class="collection-caption">${book.id===REVIEW_BOOK?'الفصول · مسودات للمراجعة':book.language==='ar'?'Arabic Original':'English Original'}</p><div class="workspace chronicles-workspace">
+    $('#main').innerHTML=`<nav class="crumb" style="position:relative"><strong dir="auto">${esc(book.title)}</strong><a href="${book.id===IBN_BOOK?'#book='+REVIEW_BOOK:link(book.id)}" aria-label="${esc(book.title)} · الفصول" style="position:absolute;inset:0"></a></nav><p class="collection-caption">${book.id===REVIEW_BOOK?'الفصول · مسودات للمراجعة':book.language==='ar'?'Arabic Original':'English Original'}</p><div class="workspace chronicles-workspace">
       <aside class="sidebar" dir="${book.language==='en'?'ltr':'rtl'}">
         <h2>${esc(book.title)}</h2>
         <div class="chapter-list">
