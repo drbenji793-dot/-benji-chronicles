@@ -171,7 +171,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
        nav.classList.add('ibn-navigation');
        const back=document.createElement('nav');back.className='current-back';back.innerHTML='<a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a><a href="'+base+'&view=cover">Story cover</a>';
        nav.querySelector('.story-aux-nav')?.remove();nav.prepend(back);
-       const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href='#book='+REVIEW_BOOK;entrance.innerHTML='<strong>الفصول الجديدة</strong><small>النص الكامل · التعديل · المراجعة والاعتماد</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');if(view==='chapters'||(!view&&book.id===REVIEW_BOOK))nav.append(entrance);
+       const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href='#book='+REVIEW_BOOK;entrance.innerHTML='<strong>الفصول</strong><small>النص الكامل · التعديل · المراجعة والاعتماد</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');if(view==='chapters'||(!view&&book.id===REVIEW_BOOK))nav.append(entrance);
       }else nav.classList.remove('ibn-navigation');
     }
     if(params.get('view')==='cover'){active=null;editing=false;renderOverview(true);return;}
@@ -236,7 +236,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <a href="${link(book.id)}&view=dsl" class="reference-link">DSL Studio</a>
 
       </div>
-      <button id="related-book" ${book.id===REVIEW_BOOK?'hidden':''}>Related Story</button>${book.id===REVIEW_BOOK?'':relatedLinks(book.id)}${book.id===IBN_BOOK?`<section dir="rtl"><h2>الفصول الأصلية</h2><p>${list.reduce((n,c)=>n+countWords(clean(c.body).replace(/<[^>]*>/g,' ')),0).toLocaleString('ar-EG')} كلمة في المخطوط الأصلي</p><a href="${link(book.id)}&view=chapters">افتح المسودات الجديدة للتحرير</a><p>${list.map(c=>esc(c.title)+': '+countWords(clean(c.body).replace(/<[^>]*>/g,' ')).toLocaleString('ar-EG')+' كلمة').join(' · ')}</p></section>`:''}${book.id===REVIEW_BOOK?`<p dir="rtl">إجمالي النصوص: ${list.reduce((n,c)=>n+countWords(clean(c.body).replace(/<[^>]*>/g,' ')),0).toLocaleString('ar-EG')} كلمة · مسودات للمراجعة</p>`:''}${chapterCards(list,{esc,root:link(book.id),date,language:book.language,empty:'No chapters yet. Use New chapter to begin.'})}${book.id===REVIEW_BOOK?`<details><summary>الأرشيف</summary><a href="#book=${IBN_BOOK}&archive=1&view=originals">المخطوط السابق المحفوظ</a></details>`:''}
+      <button id="related-book" ${book.id===REVIEW_BOOK?'hidden':''}>Related Story</button>${book.id===REVIEW_BOOK?'':relatedLinks(book.id)}${book.id===IBN_BOOK?`<section dir="rtl"><h2>الأرشيف</h2><p>${list.reduce((n,c)=>n+countWords(clean(c.body).replace(/<[^>]*>/g,' ')),0).toLocaleString('ar-EG')} كلمة في المخطوط الأصلي</p><a href="${link(book.id)}&view=chapters">افتح الفصول للتحرير</a><p>${list.map(c=>esc(c.title)+': '+countWords(clean(c.body).replace(/<[^>]*>/g,' ')).toLocaleString('ar-EG')+' كلمة').join(' · ')}</p></section>`:''}${book.id===REVIEW_BOOK?`<p dir="rtl">إجمالي النصوص: ${list.reduce((n,c)=>n+countWords(clean(c.body).replace(/<[^>]*>/g,' ')),0).toLocaleString('ar-EG')} كلمة · مسودات للمراجعة</p>`:''}${chapterCards(list,{esc,root:link(book.id),date,language:book.language,empty:'No chapters yet. Use New chapter to begin.'})}${book.id===REVIEW_BOOK?`<details><summary>الأرشيف</summary><a href="#book=${IBN_BOOK}&archive=1&view=originals">المخطوط السابق المحفوظ</a></details>`:''}
     </section><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     $('#chronicles-add-chapter').onclick=showCreateChapter;$('#related-book').onclick=editRelation;
   }
@@ -276,7 +276,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(!active)return;
     const c=active,rules=c.kind==='rules';selectedPart=rules?null:partFor(c.chapter_number);const list=selectedPart?partChapters(selectedPart):chapterList();
     const selected=rules?'Book Rules':'Chapter '+c.chapter_number;
-    $('#main').innerHTML=`<nav class="crumb"><strong dir="auto">${esc(book.title)}</strong></nav><p class="collection-caption">${book.id===REVIEW_BOOK?'الفصول الجديدة · مسودات للمراجعة':book.language==='ar'?'Arabic Original':'English Original'}</p><div class="workspace chronicles-workspace">
+    $('#main').innerHTML=`<nav class="crumb"><strong dir="auto">${esc(book.title)}</strong></nav><p class="collection-caption">${book.id===REVIEW_BOOK?'الفصول · مسودات للمراجعة':book.language==='ar'?'Arabic Original':'English Original'}</p><div class="workspace chronicles-workspace">
       <aside class="sidebar" dir="${book.language==='en'?'ltr':'rtl'}">
         <h2>${esc(book.title)}</h2>
         <div class="chapter-list">
