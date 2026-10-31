@@ -417,3 +417,19 @@ body:has(.ibn-navigation) .topbar{padding-top:12px;padding-bottom:12px}body:has(
 #main .benji-parts-heading button,#main .benji-part-row button{height:44px;min-width:0;padding:4px;font-size:14px}
 .benji-part-row a{display:flex;align-items:center;gap:12px;min-height:40px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);text-decoration:none;min-width:0;box-sizing:border-box;flex-wrap:wrap}
 .benji-part-row small{color:var(--muted)}.benji-part-row strong{font-size:16px}.benji-chapters-back{display:table;margin:18px auto}
+/* BL01 reference photo proportions, shared by every reader. */
+#main .universal-book-controls{margin:12px auto}
+#main .universal-control-row{padding:0;border:0;margin:0 0 6px;gap:6px}
+#main .universal-control-row:first-child{padding:0 0 8px;margin:0 0 10px;border-bottom:1px solid var(--line)}
+#main .universal-control-row select{height:44px;min-height:44px;padding:6px 8px;border-radius:12px}
+#main .universal-control-row button{display:inline-flex;justify-content:center;align-items:center;width:44px;height:44px;min-height:44px;padding:0;margin:0;border-radius:8px;font:12px/1 system-ui}
+#main #universal-add-part,#main #universal-add-chapter{font-size:20px;font-weight:400}
+#main .universal-steps{gap:6px;margin:6px 0 12px}
+#main .universal-steps button{width:44px;height:32px;min-height:32px;padding:0;font-size:18px;border-radius:8px}
+#main .benji-parts-heading,#main .benji-part-row{gap:10px;margin:6px 0}
+#main .benji-parts-heading button,#main .benji-part-row button{width:44px;height:44px;min-height:44px;padding:0;border-radius:8px;font:12px/1 system-ui}
+#main .benji-parts-heading #universal-add-part{font-size:20px}
+#main .benji-part-row a{min-height:40px;padding:6px 10px;border-radius:12px}
+#main .benji-part-row small{font-size:11px;white-space:nowrap}
+#main .benji-part-row strong{font-size:15px;line-height:1.5;font-weight:600;overflow-wrap:anywhere}
+@media(max-width:360px){#main .universal-control-row select{font-size:12px}#main .benji-part-row a{gap:8px;padding:8px}#main .benji-part-row strong{font-size:14px}}
