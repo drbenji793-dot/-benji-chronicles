@@ -147,7 +147,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       const meta=await api('chronicles_book_versions?select=entry_id,revision,writing_meta&or=('+matches+')');
       entries=entries.map(e=>({...e,writing_meta:e.writing_meta?.method?e.writing_meta:meta.find(v=>v.entry_id===e.id&&v.revision===e.revision)?.writing_meta||{}}));
     }
-    if(id===REVIEW_BOOK){const branches=await api('chronicles_dsl_branches?book_id=eq.'+IBN_BOOK+'&archived=eq.false&select=data&order=updated_at.desc&limit=1');planningData=branches[0]?.data;const statuses=await api('chronicles_workflow?source_id=in.('+entries.map(e=>e.id).join(',')+')&select=*');entries=entries.map(e=>{const w=statuses.find(w=>w.source_id===e.id);return {...e,wordCount:countWords(clean(e.body).replace(/<[^>]*>/g,' ')),statusLabel:w?.transferred_revision===e.revision?'نُقلت إلى Ink':w?.approved_revision===e.revision?'معتمد ولم يُنقل':w?.transferred_revision?'تعديلات لم تُعتمد':'مسودة للمراجعة'};});}
+    if(id===REVIEW_BOOK){const branches=await api('chronicles_dsl_branches?book_id=eq.'+IBN_BOOK+'&archived=eq.false&select=data&order=updated_at.desc&limit=1');planningData=branches[0]?.data;const statuses=await api('chronicles_workflow?source_id=in.('+entries.map(e=>e.id).join(',')+')&select=*');entries=entries.map(e=>{const w=statuses.find(w=>w.source_id===e.id);return {...e,wordCount:countWords(clean(e.body).replace(/<[^>]*>/g,' ')),statusLabel:!clean(e.body).replace(/<[^>]*>/g,'').trim()?'Planned':w?.approved_revision===e.revision?'Approved':'Draft'};});}
     parts=await api("chronicles_book_parts?book_id=eq."+id+"&select=*&order=start_chapter.asc");
     selectedPart=parts.find(p=>p.id===params.get("part"))||null;
     const nav=document.querySelector('.book-navigation');
@@ -289,6 +289,19 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     };
   }
 
+  function chapterPlan(entry){
+    return planningData?.storyDraft?.chapters?.find(p=>p.manuscriptEntryId===entry.id);
+  }
+  function planningNotes(entry){
+    const p=chapterPlan(entry);if(!p)return '';
+    const points=Array.isArray(p.points)?p.points:[];
+    return '<details class="notes chapter-planning-notes"><summary lang="en" dir="ltr">Planning notes</summary><div dir="rtl">'+
+      (p.summary?'<p>'+esc(p.summary).replace(/\\n/g,'<br>')+'</p>':'')+
+      (points.length?'<ul>'+points.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>':'')+
+      (p.turn?'<p><strong>Purpose</strong><br>'+esc(p.turn)+'</p>':'')+
+      (p.next?'<p><strong>Next</strong><br>'+esc(p.next)+'</p>':'')+
+      '<small>Planning only · _zk5 · E</small></div></details>';
+  }
   function renderEntry(){
     if(!active)return;
     const c=active,rules=c.kind==='rules';selectedPart=rules?null:partFor(c.chapter_number);const list=selectedPart?partChapters(selectedPart):chapterList();
@@ -320,9 +333,10 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
 
         ${selectedPart?`<p class="chapter-part">${esc(partName(selectedPart))}</p>`:''}
         <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
+        ${!rules&&book.id===REVIEW_BOOK?'<p class="chapter-stage" dir="ltr">'+esc(c.statusLabel||(!clean(c.body).replace(/<[^>]*>/g,'').trim()?'Planned':'Draft'))+'</p>'+planningNotes(c):''}
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
         <div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div><div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Chapter ${version(c.revision)} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}<p>${esc(writingLabel(c.writing_meta))}</p>${c.writing_meta?.origin?`<p>${esc(c.writing_meta.origin)}</p>`:''}</div>
-        ${!c.body.trim()&&!rules?'<p class="notice">This chapter is empty. Press Edit to begin.</p>':''}
+        ${!c.body.trim()&&!rules?'<p class="notice" dir="ltr">Chapter text · Not written yet. Press Edit to begin.</p>':''}
         <article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
         <nav class="chapter-bottom-controls" aria-label="Chapter editing and navigation" dir="ltr">
           ${rules?'':`<button id="bottom-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button>`}
