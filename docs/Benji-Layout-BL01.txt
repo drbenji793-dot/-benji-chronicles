@@ -12,3 +12,5 @@ Use the established coffee colors, aligned borders, generous selector width and 
 Preserve manuscript text, author colors, chapter identity, notes, revision checks and existing insertion safeguards. New book templates inherit this shared layout automatically.
 
 This rule supersedes the presentation specified in BKC01 while retaining its functionality and data safeguards. Save the same rule in Benji HQ and Google Drive. Implementation reference: src/book-controls.js and public/styles.css.
+
+Mandatory book navigation: every existing and future book, including every Lost Files collection story, must show six English buttons in two columns and three rows: Story Brief / Chapters; Notes / Review; Export / Garden of Eden. Garden uses transparent red. All six stay visible on iPhone without horizontal scrolling. Use src/book-navigation.js as the common renderer. Each destination must remain scoped to the current book and language. This includes outside-time overrides and independent book templates. Do not add duplicate top-level controls.

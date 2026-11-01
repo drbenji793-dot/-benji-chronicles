@@ -28,6 +28,7 @@ export async function renderDSL(main,api,bookId,mode='dsl',context={}){
  if(!document.querySelector('link[data-dsl-style]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/dsl.css?v=124';css.dataset.dslStyle='1';document.head.append(css);}
  if(!document.querySelector('link[data-dsl-evolution]')){const x=document.createElement('link');x.rel='stylesheet';x.href='/dsl-evolution.css?v=126';x.dataset.dslEvolution='1';document.head.append(x);}
  const collection=Number(context.storyNumber)||null;
+ const collectionLanguage=context.language==='en'?'en':'ar';
  const initialHash=location.hash,params=new URLSearchParams(initialHash.slice(1));
  let view=params.get('dslview')||'map';
  const is009=()=>bookId==='66739f5d-2bac-4d75-a4fd-6df93da8ac7e'&&model().sourceDocument?.version==='009';
@@ -37,8 +38,8 @@ export async function renderDSL(main,api,bookId,mode='dsl',context={}){
  const key=()=> 'chronicles-dsl-draft:'+bookId+':'+(branch?.id||'');
  const readLocal=()=>{try{return JSON.parse(localStorage.getItem(key())||'null')}catch{return null}};
  const clearLocal=()=>{try{localStorage.removeItem(key())}catch{}};
- const route=(v='dsl',extra={})=>{const p=new URLSearchParams({...(collection?{story:String(collection),lang:'ar'}:{book:bookId}),view:v,...(branch?{dslbranch:branch.id}:{}),...extra});return '#'+p.toString();};
- const chapterLink=n=>collection?'#story='+collection+'&lang=ar&chapter='+Number(n):'#book='+bookId+'&chapter='+Number(n);
+ const route=(v='dsl',extra={})=>{const p=new URLSearchParams({...(collection?{story:String(collection),lang:collectionLanguage}:{book:bookId}),view:v,...(branch?{dslbranch:branch.id}:{}),...extra});return '#'+p.toString();};
+ const chapterLink=n=>collection?'#story='+collection+'&lang='+collectionLanguage+'&chapter='+Number(n):'#book='+bookId+'&chapter='+Number(n);
  const readable=data=>readableStory(data,bookId,chapterLink,e=>{const items=[['Open event','reading','event',e.id],...getCharacters(data).filter(c=>appearsIn(e,c.name,c.aliases)).map(c=>[c.name,'characters','character',c.id]),...(data.objects||[]).filter(o=>(o.eventIds||[]).includes(e.id)).map(o=>[o.title,'objects','object',o.id]),...(data.workshop?.questions||[]).filter(q=>(q.eventIds||[]).includes(e.id)).map(q=>[q.title,'decisions','question',q.id]),...(['twist','decision'].includes(e.type)||e.status==='question'?[[e.type==='twist'?'Open twist':e.status==='question'?'Open question':'Open decision',e.type==='twist'?'twists':e.status==='question'?'proposals':'reading','event',e.id]]:[])];return chapterDraftLinks(data,e.id,route)+'<nav class="dsl-related" aria-label="Related story records">'+items.map(([label,target,kind,id])=>'<a data-related class="dsl-btn" href="'+route('dsl',{dslview:target,focuskind:kind,focusid:id,returnview:mode==='storyline'?'synopsis':view})+'">'+h(label)+'</a>').join('')+'</nav>';});
  const current=()=>!stopped&&main.isConnected&&location.hash===initialHash;
  function status(message,error=false){if(!current())return;const s=root?.querySelector('[data-dsl-status]');if(s){s.textContent=message;s.classList.toggle('error',error)}}
@@ -51,7 +52,7 @@ export async function renderDSL(main,api,bookId,mode='dsl',context={}){
  const observer=new MutationObserver(()=>{if(root&&!root.isConnected)cleanup();});observer.observe(main,{childList:true});
  main.innerHTML='<section class="dsl"><p class="dsl-empty">Loading the saved DSL workspace…</p></section>';root=main.firstElementChild;
  async function load(){
-  const [p,b,c,books]=await Promise.all([api('chronicles_dsl_projects?book_id=eq.'+bookId+'&select=*'),api('chronicles_dsl_branches?book_id=eq.'+bookId+'&select=*&order=updated_at.asc'),api(collection?'chronicles_chapters?story_number=eq.'+collection+'&language=eq.ar&select=id,chapter_number,title,revision,body&order=chapter_number.asc':'chronicles_book_entries?book_id=eq.'+bookId+'&kind=eq.chapter&select=id,chapter_number,title,revision,body&order=chapter_number.asc'),api('chronicles_books?id=eq.'+bookId+'&select=id,title,language')]);
+  const [p,b,c,books]=await Promise.all([api('chronicles_dsl_projects?book_id=eq.'+bookId+'&select=*'),api('chronicles_dsl_branches?book_id=eq.'+bookId+'&select=*&order=updated_at.asc'),api(collection?'chronicles_chapters?story_number=eq.'+collection+'&language=eq.'+collectionLanguage+'&select=id,chapter_number,title,revision,body&order=chapter_number.asc':'chronicles_book_entries?book_id=eq.'+bookId+'&kind=eq.chapter&select=id,chapter_number,title,revision,body&order=chapter_number.asc'),api('chronicles_books?id=eq.'+bookId+'&select=id,title,language')]);
   if(!current())return;
   project=p[0];branches=b;chapters=c;book=books[0];if(!book)throw Error('Book not found.');
   branch=b.find(x=>x.id===(params.get('dslbranch')||branch?.id))||b.find(x=>!x.archived)||b[0];
