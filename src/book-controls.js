@@ -7,7 +7,7 @@ export async function mountBookControls({params,api,esc,getWriter,say,refresh,na
  const ticket={};mounting.set(host,ticket);
  const scope=book?'book_id=eq.'+book:'story_number=eq.'+story+'&language=eq.'+language;
  const table=book?'chronicles_book_entries':'chronicles_chapters';
- const [parts,chapters]=await Promise.all([api('chronicles_book_parts?'+scope+'&select=*&order=start_chapter.asc'),api(table+'?'+scope+(book?'&kind=eq.chapter':'')+'&select=id,chapter_number,title,revision&order=chapter_number.asc')]);
+ const [parts,chapters]=await Promise.all([api('chronicles_book_parts?'+scope+'&select=id,title,start_chapter,revision,updated_by,updated_at&order=start_chapter.asc'),api(table+'?'+scope+(book?'&kind=eq.chapter':'')+'&select=id,chapter_number,title,revision&order=chapter_number.asc')]);
  if(location.hash!==hash||document.querySelector('#main')!==host||mounting.get(host)!==ticket)return;
  const root=book?'#book='+book:'#story='+story+'&lang='+language;
  const chapter=chapters.find(c=>c.chapter_number===Number(params.get('chapter')));

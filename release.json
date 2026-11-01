@@ -1,6 +1,6 @@
 {
-  "version": 156,
-  "releasedAt": "2026-11-01T21:57:53.503500+00:00",
+  "version": 157,
+  "releasedAt": "2026-11-01T22:01:20.714137+00:00",
   "timezone": "UTC",
-  "note": "Clean legacy contents and consistent full story export technical panels"
+  "note": "Load current part metadata only and defer writing metadata to opened chapters"
 }
