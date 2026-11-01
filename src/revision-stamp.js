@@ -12,5 +12,8 @@ export function revisionStamp(record={},fallback={}){
 
 export function technicalDetails(record={},fallback={},note=''){
  const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- return '<details class="technical-details" dir="ltr"><summary>Current <span aria-hidden="true">⌄</span></summary><p>'+escape(revisionStamp(record,fallback))+'</p>'+(note?'<p>'+escape(note)+'</p>':'')+'</details>';
+ return technicalPanel('<p>'+escape(revisionStamp(record,fallback))+'</p>'+(note?'<p>'+escape(note)+'</p>':''));
 }
+
+// Internal renderers pass already escaped markup; never raw stored content.
+export function technicalPanel(content){return '<details class="technical-details" dir="ltr"><summary>Current <span aria-hidden="true">⌄</span></summary>'+content+'</details>';}

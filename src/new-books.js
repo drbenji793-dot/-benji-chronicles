@@ -1,3 +1,4 @@
+import {technicalPanel} from './revision-stamp.js';
 import {revisionStamp} from './revision-stamp.js';
 import {currentPlanning} from './current-book-brief.js';
 import {bookNavigation,selectedBookTool} from './book-navigation.js';
@@ -121,7 +122,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       saved_at:new Date().toISOString()
     }));
     const status=$('#chronicles-entry-status');
-    if(status)status.textContent='محفوظ على الجهاز فقط';
+    if(status)status.textContent='Saved on this device only';
     const counter=$('.chapter-word-count');if(counter)counter.textContent=countWords($('#chronicles-entry-body').innerText)+' words';
   }
   function allowLeave(){
@@ -173,7 +174,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
        nav.classList.add('ibn-navigation');
        const back=document.createElement('nav');back.className='current-back';back.innerHTML='<a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a><a href="'+base+'&view=cover">'+esc(book.title)+'</a>';
        nav.querySelector('.story-aux-nav')?.remove();nav.prepend(back);
-       const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href='#book='+REVIEW_BOOK;entrance.innerHTML='<strong>الفصول</strong><small>النص الكامل · التعديل · المراجعة والاعتماد</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');if(view==='chapters'||(!view&&book.id===REVIEW_BOOK))nav.append(entrance);
+       const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href='#book='+REVIEW_BOOK;entrance.innerHTML='<strong>Chapters</strong><small>Full text · Editing · Review and approval</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');if(view==='chapters'||(!view&&book.id===REVIEW_BOOK))nav.append(entrance);
       }else nav.classList.remove('ibn-navigation');
     }
     if(book.id===LAST_HOUR_BOOK&&params.get('view')==='brief'){active=null;editing=false;renderLastHourBible($('#main'),{clean,esc});return;}
@@ -199,7 +200,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
 
   function partFor(number){return [...parts].reverse().find(p=>number>=p.start_chapter)||null;}
   function partChapters(p){return chapterList().filter(c=>partFor(c.chapter_number)?.id===p?.id);}
-  function partOrdinal(p){const n=parts.indexOf(p);return book.language==='ar'?'الجزء '+(['الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع','العاشر'][n]||(n+1).toLocaleString('ar-EG')):'Part '+(n+1);}
+  function partOrdinal(p){return 'Part '+(parts.indexOf(p)+1);}
   function partName(p){return partOrdinal(p)+' · '+p.title;}
   function partStyles(){return `<style>
 .book-part-list{display:grid;gap:8px;margin:20px 0;max-width:480px;width:100%;margin-inline:auto}
@@ -225,7 +226,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
 #main .book-technical{font-size:12px;margin-top:24px;color:var(--muted)}
 @media print{.book-part-list{display:none}}
 </style>`;}
-  function partsUI(){return `${partStyles()}<div class="book-parts compact-book-parts" dir="${book.language==='ar'?'rtl':'ltr'}"><div class="book-part-picker"><select id="book-part-select" aria-label="Part"><option value="">${book.language==='ar'?'اختر الجزء':'Choose part'}</option>${parts.map(p=>`<option value="${p.id}" ${selectedPart?.id===p.id?'selected':''}>${esc(partName(p))}</option>`).join('')}</select><button class="part-circle" lang="en" dir="ltr" aria-label="Edit part name" id="rename-part" ${selectedPart?'':'disabled'}>Edit</button><button class="part-circle part-add" id="add-part" aria-label="Add part" title="Add part">＋</button></div><div class="part-management">${selectedPart?`<p class="part-count" lang="en" dir="ltr">${partChapters(selectedPart).length} written chapters${selectedPart.planned_chapters?' · '+selectedPart.planned_chapters+' planned chapters':''}</p><details><summary lang="en" dir="ltr">Part revision details</summary><p>${esc(selectedPart.updated_by)} · ${date(selectedPart.updated_at)} · Revision ${selectedPart.revision}</p>${[...(selectedPart.history||[])].reverse().map(h=>`<p>${esc(h.title)} · ${esc(h.updated_by)} · ${date(h.updated_at)} · Revision ${h.revision}</p>`).join('')}</details>`:''}</div></div>`;}
+  function partsUI(){return `${partStyles()}<div class="book-parts compact-book-parts" dir="${book.language==='ar'?'rtl':'ltr'}"><div class="book-part-picker"><select id="book-part-select" aria-label="Part"><option value="">Choose part</option>${parts.map(p=>`<option value="${p.id}" ${selectedPart?.id===p.id?'selected':''}>${esc(partName(p))}</option>`).join('')}</select><button class="part-circle" lang="en" dir="ltr" aria-label="Edit part name" id="rename-part" ${selectedPart?'':'disabled'}>Edit</button><button class="part-circle part-add" id="add-part" aria-label="Add part" title="Add part">＋</button></div><div class="part-management">${selectedPart?`<p class="part-count" lang="en" dir="ltr">${partChapters(selectedPart).length} written chapters${selectedPart.planned_chapters?' · '+selectedPart.planned_chapters+' planned chapters':''}</p><details><summary lang="en" dir="ltr">Part revision details</summary><p>${esc(selectedPart.updated_by)} · ${date(selectedPart.updated_at)} · Revision ${selectedPart.revision}</p>${[...(selectedPart.history||[])].reverse().map(h=>`<p>${esc(h.title)} · ${esc(h.updated_by)} · ${date(h.updated_at)} · Revision ${h.revision}</p>`).join('')}</details>`:''}</div></div>`;}
   function bindParts(){
     $('#book-part-select').onchange=async e=>{const p=parts.find(x=>x.id===e.target.value);if(!p)return;const c=partChapters(p)[0];await navigate(c?entryLink(c):link(book.id)+'&part='+p.id);};
     $('#rename-part').onclick=()=>editPart(selectedPart);
@@ -269,7 +270,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <a href="${link(book.id)}&view=dsl&dslview=garden" class="reference-link">Story World</a>
 
       </div>
-      ${partStyles()}<nav class="book-part-list" dir="${book.language==='ar'?'rtl':'ltr'}" aria-label="Book parts"><div class="book-part-heading"><span>${book.language==='ar'?'الأجزاء':'Parts'}</span><button type="button" class="part-circle part-add" id="overview-add-part" aria-label="Add part" title="Add part">＋</button></div>${parts.map(p=>`<div class="book-part-row"><a href="${partChapters(p)[0]?entryLink(partChapters(p)[0]):link(book.id)+'&part='+p.id}"><small>${esc(partOrdinal(p))}</small><strong>${esc(p.title)}</strong></a><button type="button" class="part-circle" lang="en" dir="ltr" data-edit-overview-part="${p.id}" aria-label="Edit ${esc(p.title)}">Edit</button></div>`).join('')}</nav><button id="related-book" ${book.id===REVIEW_BOOK?'hidden':''}>Related Story</button>${book.id===REVIEW_BOOK?'':relatedLinks(book.id)}${book.id===IBN_BOOK?`<section dir="rtl"><h2>الأرشيف</h2><p>${'…'} كلمة في المخطوط الأصلي</p><a href="${link(book.id)}&view=chapters">افتح الفصول للتحرير</a><p>${'عدد الكلمات يظهر عند فتح الفصل'}</p></section>`:''}${parts.length?parts.map(p=>{const rows=partChapters(p);return rows.length?`<h2>${esc(partName(p))}</h2>`+chapterCards(rows,{esc,root:link(book.id),date,language:book.language}).replace(/<h2>.*?<\/h2>/,''):'';}).join(''):chapterCards(list,{esc,root:link(book.id),date,language:book.language})}<details class="book-technical"><summary lang="en">Technical details</summary><p dir="rtl">إجمالي النصوص: ${'…'} كلمة</p>${list.map(c=>`<p>${esc(c.title)} · ${version(c.revision)} · ${esc(c.updated_by||'')} · ${date(c.updated_at)}</p>`).join('')}</details>${book.id===REVIEW_BOOK?`<details><summary>الأرشيف</summary><a href="#book=${IBN_BOOK}&archive=1&view=originals">المخطوط السابق المحفوظ</a></details>`:''}
+      ${partStyles()}<nav class="book-part-list" dir="${book.language==='ar'?'rtl':'ltr'}" aria-label="Book parts"><div class="book-part-heading"><span>Parts</span><button type="button" class="part-circle part-add" id="overview-add-part" aria-label="Add part" title="Add part">＋</button></div>${parts.map(p=>`<div class="book-part-row"><a href="${partChapters(p)[0]?entryLink(partChapters(p)[0]):link(book.id)+'&part='+p.id}"><small>${esc(partOrdinal(p))}</small><strong>${esc(p.title)}</strong></a><button type="button" class="part-circle" lang="en" dir="ltr" data-edit-overview-part="${p.id}" aria-label="Edit ${esc(p.title)}">Edit</button></div>`).join('')}</nav><button id="related-book" ${book.id===REVIEW_BOOK?'hidden':''}>Related Story</button>${book.id===REVIEW_BOOK?'':relatedLinks(book.id)}${book.id===IBN_BOOK?`<section dir="rtl"><h2>Archive</h2><p>${'…'} words in the original manuscript</p><a href="${link(book.id)}&view=chapters">Open chapters to edit</a><p>${'Word count appears when you open a chapter'}</p></section>`:''}${parts.length?parts.map(p=>{const rows=partChapters(p);return rows.length?`<h2>${esc(partName(p))}</h2>`+chapterCards(rows,{esc,root:link(book.id),date,language:book.language}).replace(/<h2>.*?<\/h2>/,''):'';}).join(''):chapterCards(list,{esc,root:link(book.id),date,language:book.language})}<details class="book-technical"><summary lang="en">Technical details</summary><p dir="rtl">Total text: ${'…'} words</p>${list.map(c=>`<p>${esc(c.title)} · ${version(c.revision)} · ${esc(c.updated_by||'')} · ${date(c.updated_at)}</p>`).join('')}</details>${book.id===REVIEW_BOOK?`<details><summary>Archive</summary><a href="#book=${IBN_BOOK}&archive=1&view=originals">Previous manuscript</a></details>`:''}
     </section><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     $('#overview-add-part').onclick=()=>editPart(null);document.querySelectorAll('[data-edit-overview-part]').forEach(el=>el.onclick=()=>editPart(parts.find(p=>p.id===el.dataset.editOverviewPart)));
     $('#chronicles-add-chapter').onclick=showCreateChapter;$('#related-book').onclick=editRelation;
@@ -282,7 +283,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     modal('+ New chapter',`<form id="chronicles-create-chapter" class="chronicles-book-form">
       ${selectedPart?`<p>${esc(partName(selectedPart))}</p>`:''}
       <label>Chapter number<input name="number" type="number" min="1" max="999" value="${next}" required></label>
-      <label>Chapter title<input name="title" required maxlength="200" dir="auto" value="${book.language==='en'?'Chapter ':'الفصل '}${next}"></label>
+      <label>Chapter title<input name="title" required maxlength="200" dir="auto" value="${'Chapter '}${next}"></label>
       <p class="reference-note">This chapter will be added only to this book. You can start writing immediately.</p>
       <button class="primary" type="submit">Create chapter</button>
     </form>`);
@@ -323,7 +324,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(!active)return;
     const c=active,rules=c.kind==='rules';selectedPart=rules?null:partFor(c.chapter_number);const list=selectedPart?partChapters(selectedPart):chapterList();
     const selected=rules?'Book Rules':'Chapter '+c.chapter_number;
-    $('#main').innerHTML=`<nav class="crumb" style="position:relative"><strong dir="auto">${esc(book.title)}</strong><a href="${book.id===IBN_BOOK?'#book='+REVIEW_BOOK:link(book.id)}" aria-label="${esc(book.title)} · الفصول" style="position:absolute;inset:0"></a></nav><p class="collection-caption">${book.id===REVIEW_BOOK?'الفصول · مسودات للمراجعة':book.language==='ar'?'Arabic Original':'English Original'}</p><div class="workspace chronicles-workspace">
+    $('#main').innerHTML=`<nav class="crumb" style="position:relative"><strong dir="auto">${esc(book.title)}</strong><a href="${book.id===IBN_BOOK?'#book='+REVIEW_BOOK:link(book.id)}" aria-label="${esc(book.title)} · Chapters" style="position:absolute;inset:0"></a></nav><p class="collection-caption">${book.id===REVIEW_BOOK?'Chapters · Drafts for review':book.language==='ar'?'Arabic Original':'English Original'}</p><div class="workspace chronicles-workspace">
       <aside class="sidebar" dir="${book.language==='en'?'ltr':'rtl'}">
         <h2>${esc(book.title)}</h2>
         <div class="chapter-list">
@@ -336,7 +337,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ${rules?'':partsUI()}
         ${rules?'<p class="reference-note">Book Rules</p>':`<div class="chapter-picker compact-chapter-picker"><div class="book-part-picker" dir="${book.language==='ar'?'rtl':'ltr'}"><select id="extra-chapter-select" aria-label="Choose chapter" dir="${book.language==='ar'?'rtl':'ltr'}">${list.map(x=>`<option value="${x.chapter_number}" ${x.id===c.id?'selected':''}>${String(x.chapter_number).padStart(2,'0')} · ${esc(x.title)}</option>`).join('')}</select><button id="edit-chapter-name" class="part-circle" lang="en" dir="ltr" aria-label="Edit chapter name">Edit</button><button id="picker-add-chapter" class="part-circle part-add" aria-label="Add chapter" title="Add chapter">＋</button></div><div class="chapter-step-controls" dir="ltr"><button id="extra-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button><button id="extra-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button></div></div>`}
         <div class="toolbar" dir="ltr">
-          <button hidden id="chronicles-exit">Exit · الفصول</button><button hidden id="chronicles-library">Exit · المكتبة</button><button id="chronicles-edit">Edit</button>
+          <button hidden id="chronicles-exit">Exit · Chapters</button><button hidden id="chronicles-library">Exit · Library</button><button id="chronicles-edit">Edit</button>
           <button id="chronicles-save" class="primary" disabled>Save</button>
           <button id="chronicles-cancel" hidden>Cancel</button>
           <span class="protected" id="chronicles-entry-status">Protected</span>
@@ -346,13 +347,13 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
           ${rules?'':'<button id="extra-export">PDF / HTML</button><button id="extra-print-all">Print all</button><button id="extra-add-chapter">+ New Chapter</button>'}
           <button id="extra-smaller" aria-label="Smaller text">A−</button><button id="extra-larger" aria-label="Larger text">A+</button>
         </div>
-        <div id="chronicles-save-warning"></div>${book.id===REVIEW_BOOK?`<nav class="chapter-links" dir="rtl"><a href="#book=${IBN_BOOK}&view=dsl">أحداث الفصل في DSL</a> · <a href="https://benji-ink.vercel.app/#book=b81d1e63-6cae-445f-b8e4-a472ea5451d9">نسخة Ink</a>${(planningData?.storyDraft?.chapters?.find(p=>p.manuscriptEntryId===c.id)?.eventIds||[]).map(id=>`<a class="reference-link" href="#book=${IBN_BOOK}&view=dsl&dslview=map&focuskind=event&focusid=${id}">${esc(planningData.events.find(e=>e.id===id)?.title||'حدث')}</a>`).join('')}</nav>`:''}
+        <div id="chronicles-save-warning"></div>${book.id===REVIEW_BOOK?`<nav class="chapter-links" dir="rtl"><a href="#book=${IBN_BOOK}&view=dsl">Chapter events</a> · <a href="https://benji-ink.vercel.app/#book=b81d1e63-6cae-445f-b8e4-a472ea5451d9">Ink edition</a>${(planningData?.storyDraft?.chapters?.find(p=>p.manuscriptEntryId===c.id)?.eventIds||[]).map(id=>`<a class="reference-link" href="#book=${IBN_BOOK}&view=dsl&dslview=map&focuskind=event&focusid=${id}">${esc(planningData.events.find(e=>e.id===id)?.title||'Event')}</a>`).join('')}</nav>`:''}
 
         ${selectedPart?`<p class="chapter-part">${esc(partName(selectedPart))}</p>`:''}
         <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
         ${!rules&&book.id===REVIEW_BOOK?'<p class="chapter-stage" dir="ltr">'+esc(c.statusLabel||(!clean(c.body).replace(/<[^>]*>/g,'').trim()?'Planned':'Draft'))+'</p>'+planningNotes(c):''}
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
-        <div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div><div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Chapter ${version(c.revision)} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}<p>${esc(writingLabel(c.writing_meta))}</p>${c.writing_meta?.origin?`<p>${esc(c.writing_meta.origin)}</p>`:''}</div>
+        <div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div>${technicalPanel(`<div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Chapter ${version(c.revision)} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}<p>${esc(writingLabel(c.writing_meta))}</p>${c.writing_meta?.origin?`<p>${esc(c.writing_meta.origin)}</p>`:''}</div>`)}
         ${!c.body.trim()&&!rules?'<p class="notice" dir="ltr">Chapter text · Not written yet. Press Edit to begin.</p>':''}
         <article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
         <nav class="chapter-bottom-controls" aria-label="Chapter editing and navigation" dir="ltr">
@@ -362,7 +363,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         </nav>
         <details class="notes"><summary>Writing notes <span id="chronicles-note-count"></span></summary>
           <div id="chronicles-notes"></div>
-          <button id="chronicles-quote-note">ملاحظة على النص المحدد</button><p id="chronicles-note-quote" dir="auto"></p><textarea id="chronicles-note-body" rows="3" dir="auto" placeholder="A note or idea to revisit…"></textarea>
+          <button id="chronicles-quote-note">Note on selected text</button><p id="chronicles-note-quote" dir="auto"></p><textarea id="chronicles-note-body" rows="3" dir="auto" placeholder="A note or idea to revisit…"></textarea>
           <button class="primary" id="chronicles-add-note">Add note</button>
         </details>
       </section></div><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
@@ -401,7 +402,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     }
 
     $('#chronicles-add-note').onclick=addNote;
-    $('#chronicles-quote-note').onclick=()=>{const sel=window.getSelection();if(!sel?.rangeCount||!$('#chronicles-entry-body').contains(sel.anchorNode)||!$('#chronicles-entry-body').contains(sel.focusNode)||!sel.toString().trim()){say('حدد فقرة من الفصل أولًا.',true);return;}$('#chronicles-note-quote').textContent=sel.toString().slice(0,3000);$('#chronicles-note-body').focus();};
+    $('#chronicles-quote-note').onclick=()=>{const sel=window.getSelection();if(!sel?.rangeCount||!$('#chronicles-entry-body').contains(sel.anchorNode)||!$('#chronicles-entry-body').contains(sel.focusNode)||!sel.toString().trim()){say('Select a passage from the chapter first.',true);return;}$('#chronicles-note-quote').textContent=sel.toString().slice(0,3000);$('#chronicles-note-body').focus();};
     const saved=storage.get(draftKey(c.id));let d;
     try{d=saved?JSON.parse(saved):null}catch{}
     if(d&&d.title!==undefined){
@@ -422,7 +423,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       if(!['synopsis','storyline','chapters','characters','rules'].some(k=>f.has(k)))throw Error('Choose at least one section.');if(f.has('chapters')&&rows.length&&!chosen.length)throw Error('Choose at least one chapter.');
       const text=t=>handoffText(t,esc),section=(id,title,body)=>'<section id="'+id+'"><h2>'+title+'</h2>'+body+'</section>',missing='<p>Not recorded in this planning version.</p>';let out='';
       if(f.has('synopsis'))out+=section('synopsis','Story Brief',text(briefText(data)));
-      if(f.has('storyline'))out+=section('storyline','Storyline',(story.treatment?text(story.treatment):missing)+text(story.parts||[])+(story.chapters||[]).map((c,i)=>'<h3>'+esc(c.title||String(i+1))+'</h3>'+text(c.summary||'')+text(c.points||[])+(c.developmentStatus==='excluded-needs-redesign'?'<p><strong>هذا الفصل مستبعد من التنفيذ ويحتاج إعادة تصميم؛ راجع الملاحظات والقرارات الأحدث.</strong></p>':'')).join('')+'<h3>Events</h3>'+text(data.events||[]));
+      if(f.has('storyline'))out+=section('storyline','Storyline',(story.treatment?text(story.treatment):missing)+text(story.parts||[])+(story.chapters||[]).map((c,i)=>'<h3>'+esc(c.title||String(i+1))+'</h3>'+text(c.summary||'')+text(c.points||[])+(c.developmentStatus==='excluded-needs-redesign'?'<p><strong>This chapter is excluded and needs redesign. Review the current notes and decisions.</strong></p>':'')).join('')+'<h3>Events</h3>'+text(data.events||[]));
       if(f.has('characters'))out+=section('characters','Characters',text(data.characters||[])+text(data.relationships||[])+section('places','Places',text(data.places||[]))+section('decisions','Current decisions',text(data.decisions||[]))+section('work-status','Pending implementation',text(data.workStatus||{})));
       if(f.has('rules'))out+=section('rules','Writing rules',data.storyBrief?.styleGuide?text(data.storyBrief.styleGuide):(data.rules?text(data.rules):missing));
       if(f.has('chapters')&&!rows.length)out+=section('chapter-status','Chapter status','<p>No chapters drafted. Planning only.</p>');
@@ -537,7 +538,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(active?.id!==id||!$('#chronicles-notes'))return;
     $('#chronicles-note-count').textContent='('+notes.length+')';
     $('#chronicles-notes').innerHTML=notes.map(n=>`<div class="note ${n.author==='Ahmed'?'ahmed':n.author==='Guest'?'guest':n.author==='Guest 2'?'guest2':'zee'}">
-      <small><strong>${esc(n.author)}</strong> · ${date(n.created_at)}</small>${n.quote_text?`<blockquote dir="auto">${esc(n.quote_text)}</blockquote><small>نسخة الفصل وقت التعليق: ${n.source_revision||''}</small>`:''}<p dir="auto">${esc(n.body)}</p><button data-resolve-note="${n.id}">${n.resolved_at?'إعادة فتح الملاحظة':'اتعالجت'}</button>${n.resolved_at?`<small>اتعالجت بواسطة ${esc(n.resolved_by)} · ${date(n.resolved_at)}</small>`:''}
+      <small><strong>${esc(n.author)}</strong> · ${date(n.created_at)}</small>${n.quote_text?`<blockquote dir="auto">${esc(n.quote_text)}</blockquote><small>Chapter revision when noted: ${n.source_revision||''}</small>`:''}<p dir="auto">${esc(n.body)}</p><button data-resolve-note="${n.id}">${n.resolved_at?'Reopen note':'Resolved'}</button>${n.resolved_at?`<small>Resolved by ${esc(n.resolved_by)} · ${date(n.resolved_at)}</small>`:''}
     </div>`).join('');
     document.querySelectorAll('[data-resolve-note]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const n=notes.find(n=>n.id===b.dataset.resolveNote);await api('chronicles_book_notes?id=eq.'+n.id,{method:'PATCH',body:JSON.stringify({resolved_at:n.resolved_at?null:new Date().toISOString(),resolved_by:n.resolved_at?null:getWriter()})});await loadNotes(id);}catch(e){say(e.message,true);b.disabled=false;}});
   }
@@ -557,7 +558,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       const root=$('#main');root.querySelector('[data-load-error]')?.remove();
       const box=document.createElement('section');box.dataset.loadError='1';box.className='notice';box.setAttribute('role','alert');
       const text=document.createElement('p');text.textContent='Could not load this section. '+error.message;
-      const retry=document.createElement('button');retry.textContent=book?.language==='ar'?'إعادة المحاولة':'Retry';
+      const retry=document.createElement('button');retry.textContent='Retry';
       retry.onclick=()=>{retry.disabled=true;renderWithRetry(params);};box.append(text,retry);root.prepend(box);
     }
   }
