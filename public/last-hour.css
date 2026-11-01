@@ -13,3 +13,7 @@
 .lh-content .twist{display:flex;gap:14px;margin:18px 0}.lh-content .n{font-weight:bold;color:#90372d}.lh-content .rule{display:flex;gap:12px;margin:12px 0}.lh-content .q{border-left:3px solid #9b4d40;padding:12px;font-style:italic}
 .last-hour-cover{background:linear-gradient(160deg,#273a34,#1b2523 65%,#715235)!important;color:#f6e7ce!important}.last-hour-cover h2{font-family:Georgia,serif;letter-spacing:.08em}.last-hour-cover .collection-cover-title p{color:#e7bd77}.last-hour-cover .collection-cover-credit{color:#f6e7ce}
 @media(max-width:420px){.last-hour-bible{padding:12px}.lh-section-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.lh-content{padding:0 12px 12px}}
+
+/* Benji supplied cover: preserve complete artwork and its sole author credit. */
+.collection-cover.last-hour-cover{background:#090d0b url('/artwork/the-last-hour-benji-cover.jpeg') center/contain no-repeat!important;aspect-ratio:2/3}
+.last-hour-cover .collection-cover-title,.last-hour-cover .collection-cover-credit{display:none}
