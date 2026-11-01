@@ -17,3 +17,13 @@
 /* Benji supplied cover: preserve complete artwork and its sole author credit. */
 .collection-cover.last-hour-cover{background:#090d0b url('/artwork/the-last-hour-benji-cover.jpeg') center/contain no-repeat!important;aspect-ratio:2/3}
 .last-hour-cover .collection-cover-title,.last-hour-cover .collection-cover-credit{display:none}
+
+/* English novel reading: paragraph rhythm, readable measure and phone gutters. */
+.prose[lang="en"]{max-width:42rem;margin-inline:auto;line-height:1.6;text-align:left}
+.prose[lang="en"] p{margin-block:0 .5em}
+.prose[lang="en"]>p:first-child:has(>em:only-child){font-size:.82em;line-height:1.4;margin-bottom:1.35em;color:var(--muted)}
+.prose[lang="en"] p.scene-break{margin-block:1.4em;text-align:center}
+@media(max-width:760px){
+.editor-area:has(.prose[lang="en"]){padding-inline:max(28px,env(safe-area-inset-left)) max(24px,env(safe-area-inset-right))}
+.prose[lang="en"]{line-height:1.6}
+}
