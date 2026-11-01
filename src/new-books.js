@@ -1,3 +1,4 @@
+import {LAST_HOUR_BOOK,lastHourLinks,renderLastHourBible} from './last-hour.js';
 import {handoffText,handoffCSS} from './handoff-format.js';
 import {savedStoryBrief} from './story-brief.js';
 import {countWords} from './current-story.js';
@@ -42,12 +43,13 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   function isBookRoute(params){return params.has('book');}
   // Book Cover T001: one full portrait cover, sharing the Lost Files dimensions.
   const bookArtwork={
+    [LAST_HOUR_BOOK]:{subtitle:'1966 · 1996 · 2026',className:'last-hour-cover'},
     '43d580d7-a4bd-4d19-bd1c-0cad57b2e105':{image:'/artwork/angels-and-robots-cover-v1.webp',subtitle:'ANGELS & ROBOTS',title:'ملائكة وروبوتات',className:'angels-robots-cover'},
     '66739f5d-2bac-4d75-a4fd-6df93da8ac7e':{image:'/artwork/ibn-al-jabal-cover-v1.webp',subtitle:'IBN AL JABAL'}
   };
   function fullBookCover(b,extraClass=''){
     const art=bookArtwork[b.id===REVIEW_BOOK?IBN_BOOK:b.id];
-    return `<a class="collection-cover chronicles-new-card full-book-cover ${art?.className||''} ${extraClass}" href="${link(b.id)}" aria-label="Open ${esc(b.title)}" ${art?`style="background-image:url('${art.image}')"`:''}>
+    return `<a class="collection-cover chronicles-new-card full-book-cover ${art?.className||''} ${extraClass}" href="${link(b.id)}" aria-label="Open ${esc(b.title)}" ${art?.image?`style="background-image:url('${art.image}')"`:''}>
       <div class="collection-cover-title"><h2 dir="auto">${esc(art?.title||b.title)}</h2><p>${esc(art?.subtitle||'BENJI CHRONICLES')}</p></div>
       <div class="collection-cover-credit">Benji &amp; Almostasherq<small>${b.language==='en'?'English':'Arabic'} novel</small></div>
     </a>`;
@@ -166,6 +168,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
        const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href='#book='+REVIEW_BOOK;entrance.innerHTML='<strong>الفصول</strong><small>النص الكامل · التعديل · المراجعة والاعتماد</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');if(view==='chapters'||(!view&&book.id===REVIEW_BOOK))nav.append(entrance);
       }else nav.classList.remove('ibn-navigation');
     }
+    if(book.id===LAST_HOUR_BOOK&&params.get('view')==='brief'){active=null;editing=false;renderLastHourBible($('#main'),{clean,esc});return;}
     if(['export','brief'].includes(params.get('view'))){active=null;editing=false;await renderExportPage(params.get('view')==='brief');return;}
     if(params.get('view')==='cover'){active=null;editing=false;renderOverview(true);return;}
     if(params.get('view')==='contents'){active=null;editing=false;$('#main').innerHTML=storyContents(book.title,chapterList(),null,{root:link(book.id),language:book.language,parts,rulesUrl:link(book.id)+'&rules=1',notesUrl:link(book.id)+'&view=dsl',notesLabel:'Planning Notes'});return;}
@@ -245,6 +248,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       ${showCover?(book.id===illustratedBook?'<a class="bellwether-entrance" href="'+link(book.id)+'">'+illustratedCover(book)+'</a>':fullBookCover(book,'book-overview-cover')):''}
       <div class="eyebrow">BENJI CHRONICLES · ${book.id===illustratedBook?'American adaptation':'Independent book'}</div>
       <h1 dir="auto">${esc(book.title)}</h1>
+      ${lastHourLinks(book.id)}
       <p class="reference-intro" dir="auto">${esc(book.description||'A space to write a new story.')}</p>
       <p class="reference-note">Primary writer: <strong class="${book.primary_writer==='Ahmed'?'chronicles-writer-ahmed':'chronicles-writer-benji'}">${esc(book.primary_writer)}</strong>
          · ${book.collaboration==='shared'?'Shared writing workspace':'Independent book'} · ${book.language==='en'?'English':'Arabic'}</p>
@@ -404,12 +408,13 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     const briefText=savedStoryBrief;
     const form=$('#book-export-form');const showSynopsis=()=>{const data=branches[Number(form.elements.branch.value)||0]?.data||{};$('#export-synopsis-reading .synopsis-reading').textContent=briefText(data);$('#export-synopsis-reading').hidden=false;};$('#read-export-synopsis').onclick=showSynopsis;$('#copy-story-brief').onclick=async()=>{showSynopsis();try{await navigator.clipboard.writeText($('#export-synopsis-reading .synopsis-reading').textContent);$('#copy-story-brief').textContent='Copied';}catch{say('Copy unavailable. Use Full Story Package to download HTML.',true);}};form.elements.branch.onchange=()=>{if(!$('#export-synopsis-reading').hidden)showSynopsis();};form.elements.scope.onchange=()=>$('#export-chapter-selection').hidden=form.elements.scope.value==='all';
     const documentHTML=()=>{const f=new FormData(form),data=branches[Number(f.get('branch'))||0]?.data||{},story=data.storyDraft||data.currentStory||{},chosen=f.get('scope')==='all'?rows:rows.filter(r=>f.getAll('chapter').includes(r.id));
-      if(!['synopsis','storyline','chapters','characters','rules'].some(k=>f.has(k)))throw Error('Choose at least one section.');if(f.has('chapters')&&!chosen.length)throw Error('Choose at least one chapter.');
+      if(!['synopsis','storyline','chapters','characters','rules'].some(k=>f.has(k)))throw Error('Choose at least one section.');if(f.has('chapters')&&rows.length&&!chosen.length)throw Error('Choose at least one chapter.');
       const text=t=>handoffText(t,esc),section=(id,title,body)=>'<section id="'+id+'"><h2>'+title+'</h2>'+body+'</section>',missing='<p>Not recorded in this planning version.</p>';let out='';
       if(f.has('synopsis'))out+=section('synopsis','Story Brief',text(briefText(data)));
       if(f.has('storyline'))out+=section('storyline','Storyline',(story.treatment?text(story.treatment):missing)+text(story.parts||[])+(story.chapters||[]).map((c,i)=>'<h3>'+esc(c.title||String(i+1))+'</h3>'+text(c.summary||'')+text(c.points||[])+(c.developmentStatus==='excluded-needs-redesign'?'<p><strong>هذا الفصل مستبعد من التنفيذ ويحتاج إعادة تصميم؛ راجع الملاحظات والقرارات الأحدث.</strong></p>':'')).join('')+'<h3>Events</h3>'+text(data.events||[]));
       if(f.has('characters'))out+=section('characters','Characters',text(data.characters||[])+text(data.relationships||data.connections||data.links||[]));
       if(f.has('rules'))out+=section('rules','Writing rules',data.storyBrief?.styleGuide?text(data.storyBrief.styleGuide):(data.rules?text(data.rules):missing));
+      if(f.has('chapters')&&!rows.length)out+=section('chapter-status','Chapter status','<p>No chapters drafted. Planning only.</p>');
       if(f.has('chapters'))out+=section('chapters','Chapters',chosen.map(r=>'<article><h3>'+r.chapter_number+' · '+esc(r.title)+'</h3>'+clean(r.body)+'</article>').join(''));
       return '<!doctype html><html lang="'+book.language+'" dir="'+(book.language==='ar'?'rtl':'ltr')+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(book.title)+'</title><style>'+handoffCSS+'</style></head><body><h1>'+esc(book.title)+'</h1><nav>'+['synopsis','storyline','chapters','characters','rules'].filter(k=>f.has(k)).map(k=>'<a href="#'+k+'">'+k+'</a>').join('')+'</nav><p>Planning: '+esc(data.storyDraft?'Draft for review':'Saved planning')+'. Chapter text is exported separately from planning summaries.</p>'+out+'<details><summary>Technical details</summary><p>'+esc(new Date().toISOString())+'</p>'+chosen.map(r=>'<p>'+esc(r.title)+' · '+esc(r.updated_by||'')+' · '+esc(r.updated_at||'')+' · Revision '+r.revision+'</p>').join('')+'</details></body></html>';
     };

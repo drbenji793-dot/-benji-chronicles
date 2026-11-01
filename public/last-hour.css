@@ -1,0 +1,15 @@
+.last-hour-bible{max-width:900px;margin:auto;box-sizing:border-box;overflow-wrap:anywhere}
+.last-hour-bible h1{font-family:Georgia,serif;font-size:clamp(28px,7vw,48px);letter-spacing:.03em}
+.lh-section-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:18px 0}
+.lh-section-nav button{min-width:0;white-space:normal;font-size:12px;padding:9px 5px;min-height:42px}
+.lh-section{border:1px solid var(--line,#a7977d);border-radius:12px;margin:10px 0;scroll-margin-top:16px}
+.lh-section>summary{padding:15px;cursor:pointer;font-weight:650}
+.lh-content{padding:0 16px 16px;line-height:1.7}.lh-content>h2:first-child{display:none}
+.lh-content .grid,.lh-content .times{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px}
+.lh-content .card,.lh-content .time,.lh-content .end{border:1px solid var(--line,#a7977d);border-radius:12px;padding:16px;margin:8px 0;background:#ffffff18}
+.lh-content .yr,.lh-content .role,.lh-content .d{font-size:12px}.lh-content .yr{display:inline-block;border-radius:6px;padding:2px 7px;background:#ffffff40}
+.lh-content .time b{font-size:30px}.lh-content .t66,.lh-content .y66{color:#80501c}.lh-content .t96,.lh-content .y96{color:#245568}.lh-content .t26,.lh-content .y26{color:#90372d}
+.lh-content .night{border-left:3px solid #8d6b3c;padding:4px 16px;margin:15px 0}.lh-content .c96{border-color:#457285}.lh-content .c26{border-color:#9b4d40}
+.lh-content .twist{display:flex;gap:14px;margin:18px 0}.lh-content .n{font-weight:bold;color:#90372d}.lh-content .rule{display:flex;gap:12px;margin:12px 0}.lh-content .q{border-left:3px solid #9b4d40;padding:12px;font-style:italic}
+.last-hour-cover{background:linear-gradient(160deg,#273a34,#1b2523 65%,#715235)!important;color:#f6e7ce!important}.last-hour-cover h2{font-family:Georgia,serif;letter-spacing:.08em}.last-hour-cover .collection-cover-title p{color:#e7bd77}.last-hour-cover .collection-cover-credit{color:#f6e7ce}
+@media(max-width:420px){.last-hour-bible{padding:12px}.lh-section-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.lh-content{padding:0 12px 12px}}

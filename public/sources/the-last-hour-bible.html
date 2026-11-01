@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THE LAST HOUR — Story Bible v1</title>
+<style>
+  :root{--bg:#0b0b0d;--panel:#141418;--line:#26262c;--ink:#f2f2f2;--mute:#9a9aa3;--red:#ff3b30;--amber:#ffb020;--cyan:#38d6ff;--y66:#ffb020;--y96:#38d6ff;--y26:#ff3b30}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif}
+  header{padding:48px 20px 24px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  header:before{content:"";position:absolute;inset:0;background:radial-gradient(600px 200px at 20% 0%,rgba(255,59,48,.18),transparent 70%)}
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px}
+  h1{font-size:44px;letter-spacing:-.02em;margin:0 0 6px;line-height:1}
+  h1 small{display:block;font-size:14px;letter-spacing:.18em;color:var(--mute);font-weight:500;margin-bottom:12px}
+  .tag{display:inline-block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--mute);margin:4px 4px 0 0}
+  nav{position:sticky;top:0;background:rgba(11,11,13,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:9}
+  nav .wrap{display:flex;gap:4px;overflow-x:auto;padding:10px 20px;scrollbar-width:none}
+  nav a{white-space:nowrap;color:var(--mute);text-decoration:none;font-size:13px;padding:6px 10px;border-radius:8px}
+  nav a:hover{color:var(--ink);background:var(--panel)}
+  section{padding:40px 0;border-bottom:1px solid var(--line)}
+  h2{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin:0 0 18px}
+  h3{font-size:22px;margin:0 0 8px;letter-spacing:-.01em}
+  p{margin:0 0 12px;color:#d6d6dc}
+  ol,ul{margin:0 0 12px;padding-left:22px;color:#d6d6dc}
+  li{margin:6px 0}
+  .lead{font-size:20px;line-height:1.5;color:var(--ink)}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;position:relative}
+  .card h3{font-size:19px}
+  .card .role{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:10px}
+  .card ul{padding-left:18px;font-size:14.5px}
+  .card .yr{position:absolute;top:14px;right:14px;font-size:11px;letter-spacing:.1em;padding:3px 8px;border-radius:999px;font-weight:700}
+  .y66{background:rgba(255,176,32,.15);color:var(--y66)}
+  .y96{background:rgba(56,214,255,.15);color:var(--y96)}
+  .y26{background:rgba(255,59,48,.15);color:var(--y26)}
+  .one{background:linear-gradient(90deg,rgba(255,176,32,.15),rgba(56,214,255,.15),rgba(255,59,48,.15));color:#fff}
+  .times{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .time{border-radius:14px;padding:20px;border:1px solid var(--line);background:var(--panel)}
+  .time b{display:block;font-size:34px;letter-spacing:-.02em;line-height:1}
+  .time .who{font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin:8px 0 10px}
+  .t66 b,.t66 .who{color:var(--y66)}.t96 b,.t96 .who{color:var(--y96)}.t26 b,.t26 .who{color:var(--y26)}
+  .night{border-left:3px solid var(--line);padding:4px 0 4px 18px;margin:0 0 22px;position:relative}
+  .night:before{content:"";position:absolute;left:-7px;top:10px;width:11px;height:11px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 4px var(--bg)}
+  .night.c96:before{background:var(--cyan)}.night.c26:before{background:var(--red)}
+  .night .d{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+  .night h4{margin:4px 0 6px;font-size:18px}
+  .twist{display:flex;gap:16px;align-items:flex-start;padding:16px 0;border-top:1px dashed var(--line)}
+  .twist .n{flex:0 0 46px;height:46px;border-radius:12px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;font-weight:800;color:var(--red)}
+  .twist h4{margin:0 0 4px;font-size:17px}
+  .twist p{margin:0;font-size:15px}
+  .q{border-left:3px solid var(--red);padding:10px 16px;margin:14px 0;font-size:18px;color:var(--ink);font-style:italic}
+  .rule{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:8px 0;font-size:15px}
+  .rule b{color:var(--amber)}
+  .pill{display:inline-block;padding:2px 8px;border-radius:6px;background:var(--panel);border:1px solid var(--line);font-size:12.5px;color:var(--mute)}
+  .end{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:12px}
+  .end h4{margin:0 0 6px}
+  footer{padding:30px 20px 60px;color:var(--mute);font-size:13px}
+  .status{display:inline-block;background:rgba(255,59,48,.12);border:1px solid rgba(255,59,48,.4);color:#ffb3ad;padding:8px 14px;border-radius:10px;font-weight:700;letter-spacing:.06em;font-size:13px}
+  @media (max-width:520px){h1{font-size:34px}.lead{font-size:18px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1><small>STORY BIBLE · v1 · 31 OCT 2026</small>THE LAST HOUR</h1>
+    <p class="lead">A late-night radio host in 1966 Las Vegas takes a call from a woman who knows him too well. She's sitting in his studio. Thirty years later. Reading his files.</p>
+    <span class="tag">mystery</span><span class="tag">time-crossed</span><span class="tag">three timelines</span><span class="tag">all-American</span><span class="tag">real events</span><span class="tag">Gen Z friendly</span>
+    <div style="margin-top:16px"><span class="status">NOTHING BUILT · brainstorm only · awaiting "go"</span></div>
+  </div>
+</header>
+
+<nav><div class="wrap">
+  <a href="#brief">Brief</a><a href="#times">Three Times</a><a href="#phone">The Phone</a><a href="#cast">Characters</a><a href="#callers">The Callers</a><a href="#nights">Nights &amp; Events</a><a href="#twists">Twists</a><a href="#endings">Endings</a><a href="#genz">Gen Z</a><a href="#real">Real Events</a><a href="#rules">Rules</a>
+</div></nav>
+
+<main class="wrap">
+
+<section id="brief">
+  <h2>Brief</h2>
+  <p class="lead">Every night at midnight, Hal Wesley opens the phone lines and lets Las Vegas talk. Cab drivers, cocktail waitresses, a retired pit boss who can't stand being home. He plays their songs. He writes two words under every name.</p>
+  <ol>
+    <li>Then a woman calls. She doesn't want a song. She says one thing about the caller before her — and that caller's life changes.</li>
+    <li>She calls every night. She knows what's in his shirt pocket. She knows about the storage unit in Reno. She has read every legal pad he ever filled — pads that are still in his trunk.</li>
+    <li>She is Detective Nora Reyes, 1996, sitting in the dead KDUS building three weeks before it's demolished, with his boxes open and the studio phone in her hand.</li>
+    <li>And in 2026, Detective Jo Hadley has a rotary phone in an evidence bag, two cold files from the same address — a host who vanished in '66, a detective who vanished in '96 — and a phone that rings when it isn't plugged into anything.</li>
+    <li>Nobody on the line knows the future. They know the <em>files</em>. And every warning rewrites the files in front of them.</li>
+  </ol>
+</section>
+
+<section id="times">
+  <h2>Three Times · one phone line</h2>
+  <div class="times">
+    <div class="time t66"><b>1966</b><div class="who">Hal · the host</div>
+      <ol><li>Las Vegas, autumn. KDUS 1340 AM, Industrial Road. "The Last Hour," midnight–4.</li><li>Howard Hughes is about to arrive on a stretcher and buy the town. Nobody is watching a small AM station.</li><li>Hal vanishes Thanksgiving week.</li></ol></div>
+    <div class="time t96"><b>1996</b><div class="who">Nora · the detective</div>
+      <ol><li>Las Vegas is imploding the sixties — the Sands comes down 26 Nov. The KDUS building is next.</li><li>Nora has three weeks, four boxes, fifty legal pads, Sam's call sheets, reel-to-reel tapes — and the studio phone, still wired.</li><li>She dials. He answers. On the air.</li></ol></div>
+    <div class="time t26"><b>2026</b><div class="who">Jo · the one who's left</div>
+      <ol><li>Cold-case unit reopened after bodies surfaced in barrels at Lake Mead (2022).</li><li>Two files, one address, thirty years apart. Building's a parking structure now. The boxes survived.</li><li>In one box: a black rotary phone. It rings.</li></ol></div>
+  </div>
+</section>
+
+<section id="phone">
+  <h2>How the phone works · the triangle</h2>
+  <ol>
+    <li><b>Nora (1996) → Hal (1966).</b> She dials the old on-air number out of habit — a cop tries every number in a file. He picks up live. Night one she thinks it's a prank. Night three she knows.</li>
+    <li><b>Jo (2026) ← Nora (1996).</b> Jo's evidence-bag phone rings, plugged into nothing. "Is this the station?" It's Nora, dialing the same handset thirty years earlier. Jo says yes because she doesn't know what else to say.</li>
+    <li><b>Hal hears Nora — and some nights Jo.</b> Two women. Hal and the reader hear one. Jo knows things Nora can't — she's read Nora's notes <em>on</em> Hal.</li>
+    <li><b>Nobody hears everyone.</b> Each woman thinks she is the only future.</li>
+    <li><b>The rule.</b> Nobody knows the future. They know the files. Change a life → change what's left → the box changes. Nora is reading a book that rewrites itself every time she speaks.</li>
+  </ol>
+  <div class="q">"You've read my pads." — "Every one." — "They're in my car." — "They're in a box."</div>
+</section>
+
+<section id="cast">
+  <h2>Characters</h2>
+  <div class="grid">
+
+    <div class="card"><span class="yr y66">1966</span><div class="role">the host</div><h3>Hal Wesley, 34</h3>
+      <ul><li>Host, "The Last Hour," KDUS 1340 AM, midnight–4, six nights.</li><li>From Bakersfield. Came in '61 after a divorce he never mentions.</li><li>Black coffee in a paper cup until a skin forms. Yellow legal pad: name, two words.</li><li>Helps strangers at 2 AM; lets his sister's storage unit in Reno sit a year.</li><li>Keeps every pad. Fifty of them, in the trunk of a '59 Impala.</li><li>Sign-on: <em>"If you're still working, God bless you. If you're done and can't shut it off — stay a while."</em></li><li><b>Fate:</b> vanishes at Lake Mead, 23 Nov 1966. By choice. (Reader learns "by choice" last.)</li></ul></div>
+
+    <div class="card"><span class="yr y66">1966</span><div class="role">producer · screener</div><h3>Sam Pruitt, 41</h3>
+      <ul><li>Ex-Army radio operator, Korea. Knows what a lying voice sounds like.</li><li>Two fingers through the glass. Crosses out callers he doesn't like — twice if he really doesn't.</li><li>Wants the show on the clock. Hal always runs long.</li><li><b>Secret:</b> he hears what the woman is before Hal does. Lets her through anyway. Last sheet in the box: <em>"It's her again. Let her through."</em></li><li>Dies 1994, Henderson. His widow Dot gives the county four boxes from the garage.</li></ul></div>
+
+    <div class="card"><span class="yr y96">1996</span><div class="role">detective · the voice</div><h3>Nora Reyes, 30</h3>
+      <ul><li>LVMPD cold case, two years in. Patrol before that.</li><li>Officially: close the Industrial Road file before demolition. Really: find her mother.</li><li>Dials every number in every file. Can't leave a phone unrung.</li><li>Objects: county flashlight, the black studio phone, her mother's missing-person flyer folded in her badge wallet.</li><li>Voice: clipped, cop-flat — until night three, when it isn't.</li><li><b>Secret:</b> daughter of Carol Mendez (missing Dec 1966) and Tony Reyes, Stardust dealer. Born 1966. She is in the files she's reading.</li><li><b>Fate:</b> last seen entering 2201 Industrial Road, 18 Dec 1996. Demolished 19 Dec.</li></ul></div>
+
+    <div class="card"><span class="yr y26">2026</span><div class="role">detective · the reader's eyes</div><h3>Jo Hadley, 26</h3>
+      <ul><li>LVMPD cold case, Lake Mead unit. Youngest in the room. Records everything as voice memos because she doesn't trust her own handwriting.</li><li>Granddaughter of Danny Hadley — the electrician who went to the lake in 1966 and <em>came back</em>. Her great-grandmother Ruth's voice is the first tape she plays.</li><li>Believes paper. Has to unlearn it.</li><li>Objects: rotary phone in an evidence bag; a charger she keeps reaching for on a phone with no port.</li><li>Voice: dry, tired, says "okay" a lot. The only person in the book who sounds like now.</li><li><b>Secret:</b> she exists because Hal went to the lake. Warn him off, unmake her grandfather. She figures it out before she tells him. Tells him anyway.</li></ul></div>
+
+    <div class="card"><span class="yr y66">1966</span><div class="role">caller · the mother</div><h3>Ruth Hadley, 58</h3>
+      <ul><li>Cocktail waitress, the Fremont, graveyard.</li><li>Calls 2 Nov 1966, 1:40 AM, from the payphone at the end of the bar. Slot machines behind her. A roll of dimes.</li><li>"Twenty-seven days." Two calls home from her son: <em>I'm here.</em> Then: <em>the site changed, we're closer to the water now.</em> She didn't catch the name. She was asking if he'd eaten.</li><li>"I don't want anyone in trouble. I want him to call me."</li><li><b>Fate:</b> Danny comes home in December. She never knows why. Listens to the show for years after it's gone, to static.</li></ul></div>
+
+    <div class="card"><span class="yr y66">1966</span><div class="role">the missing son</div><h3>Danny Hadley, 26</h3>
+      <ul><li>Electrician. Navy, two years, Subic Bay.</li><li>Hired off Boulder Highway: "resort maintenance at the lake." Cash. No paperwork.</li><li><b>Fate:</b> comes back. Never talks about it. Raises a family in Henderson. Dies 2019. His granddaughter is Jo.</li></ul></div>
+
+    <div class="card"><span class="yr y66">1966</span><div class="role">regular caller</div><h3>Lenny Kostas, 44</h3>
+      <ul><li>Cab driver, Yellow-Checker, nights. Wife Dolores sews with the radio on.</li><li>Anniversary call: "Tell her I remembered." — "Tell her yourself, she's listening." — "Honey. One o'clock. Don't wait up."</li><li><b>Fate:</b> the woman's first warning sends him down Fremont instead of Boulder Highway. He lives. Never knows why he changed routes. Calls every anniversary until the station goes dark in '79.</li></ul></div>
+
+    <div class="card"><span class="yr y66">1966</span><div class="role">regular caller · Nora's mother</div><h3>Carol Mendez, 24</h3>
+      <ul><li>Cocktail waitress, the Mint. Offered a dealer job at the Stardust — graveyard, better money. Father says no "because I said."</li><li>Hal catches himself siding with the father. Corrects it on air.</li><li><b>Fate:</b> takes the job. Meets Tony Reyes. Pregnant by spring. Vanishes 14 Dec 1966, Stardust employee lot.</li></ul></div>
+
+    <div class="card"><span class="yr y66">1966</span><div class="role">regular caller · the untouched life</div><h3>Earl Vance, 63</h3>
+      <ul><li>Retired pit boss, Golden Nugget, one month out. Wife can't stand him home.</li><li>"What are you in a hurry for at 6 AM?" — "That's the thing I can't answer."</li><li>Dedicates "Unforgettable."</li><li><b>Fate:</b> nothing happens to him. The line never touches him. The reader needs one of those.</li></ul></div>
+
+    <div class="card"><span class="yr y66">1966</span><div class="role">the front</div><h3>Sal Kessler, 50</h3>
+      <ul><li>Runs the day-labor office on Boulder Highway. Cash jobs. Men nobody files a report for.</li><li>Takes money and instructions from a man in a brown coat who leaves no number.</li><li>Doesn't ask where the men go. That's the crime.</li></ul></div>
+
+    <div class="card"><span class="yr one">1966 · 2026</span><div class="role">the cop who closed it</div><h3>Deputy Wade Brandt, 28 → 88</h3>
+      <ul><li>1966: took Ruth's report. Closed it "voluntary departure" in nine days.</li><li>2026: Boulder City, oxygen tank, sharp. Tells Jo the one thing nobody wrote down: <em>"There was a woman calling that station every night. We traced it. The number didn't exist."</em></li></ul></div>
+
+    <div class="card"><span class="yr y96">1994</span><div class="role">the widow</div><h3>Dot Pruitt</h3>
+      <ul><li>Gives the county four boxes from Sam's garage. "He said somebody would come for them. He didn't say when."</li></ul></div>
+
+  </div>
+</section>
+
+<section id="callers">
+  <h2>The callers · why we love them first</h2>
+  <ol>
+    <li>Chapters 1–3 are <b>only</b> normal calls. No woman yet. The reader has to want Lenny to get home, want Carol to take the job, want Earl to figure out his mornings.</li>
+    <li>Every regular gets a <span class="pill">song</span> a <span class="pill">problem</span> and a <span class="pill">line Hal gives back</span>. That's the whole formula. Delilah, 1966.</li>
+    <li>By chapter 4 the reader knows the callers' voices well enough that when the woman comments on one of them, it lands like someone talking about your friend.</li>
+    <li>The regulars keep calling after the woman appears. Their lives are the scoreboard: who's still calling, who stopped.</li>
+  </ol>
+</section>
+
+<section id="nights">
+  <h2>Nights &amp; events · the spine</h2>
+
+  <div class="night"><div class="d">Las Vegas · 28 Oct 1966 · ch 1</div><h4>Earl, Carol, Lenny, the recipe lady — and a man crossed out twice</h4>
+    <ol><li>Four warm calls. The formula lands.</li><li>Fifth caller won't give his name, asked for Hal by a middle name he never uses on air. One sentence: <em>"Don't go to the lake, Hal."</em> Dial tone. Hal laughs. Sam doesn't.</li><li>Close: note from Sam — <em>your sister called, Reno, storage unit</em>. Hal writes a time on the back, crosses it out. <em>Ask her first.</em></li></ol></div>
+
+  <div class="night"><div class="d">Las Vegas · 2 Nov 1966 · ch 2</div><h4>Ruth Hadley — "Twenty-seven days"</h4>
+    <ol><li>Office name and address off-air. "We don't pull people out of their homes on an accusation we know nothing about."</li><li>A later caller recognizes the Boulder Highway office: "the destination was always going to change."</li><li>Hal doesn't go home after.</li></ol></div>
+
+  <div class="night"><div class="d">Las Vegas · 4 Nov 1966 · ch 3</div><h4>The woman — night one</h4>
+    <ol><li>Lenny hangs up. New caller, a woman. No song. "Tell him not to take Boulder Highway tonight."</li><li>Hal relays it as a joke. Lenny takes Fremont.</li><li>1:10 AM: a cab is hit head-on on Boulder Highway. Driver Ray Dunning, 38, dead. Lenny is alive. Somebody else isn't. <b>Nobody's hands are clean after night one.</b></li></ol></div>
+
+  <div class="night c96"><div class="d">Las Vegas · 27 Nov 1996 · ch 4</div><h4>Nora opens the boxes</h4>
+    <ol><li>The Sands came down last night; the whole town smells like concrete dust. Demolition order for 2201 Industrial Road: 19 Dec.</li><li>Four boxes. Fifty legal pads. Reel-to-reel. Sam's call sheets with crossings-out.</li><li>She plays the first tape. Ruth Hadley's voice. Slot machines.</li><li>The studio phone is still on the desk. She lifts it. There's a tone.</li></ol></div>
+
+  <div class="night"><div class="d">Las Vegas · 7 Nov 1966 · ch 5</div><h4>Night four — Carol</h4>
+    <ol><li>Carol calls: she's taking the Stardust job Monday.</li><li>The woman, after: "Carol shouldn't take that job." Hal doesn't relay it. Felt like meddling.</li><li>Sam, through the glass, writes a word on the sheet and underlines it.</li></ol></div>
+
+  <div class="night c96"><div class="d">Las Vegas · 28 Nov 1996 · ch 6</div><h4>The file that wasn't there</h4>
+    <ol><li>Nora pulls a new folder from box two: <em>Mendez, Carol, 24, missing 14 Dec 1966, Stardust employee lot.</em></li><li>It was not in the box last night. She inventoried the box last night.</li><li>She takes the flyer out of her badge wallet and lays it next to the folder. Same face.</li></ol></div>
+
+  <div class="night c26"><div class="d">Las Vegas · 9 Mar 2026 · ch 7</div><h4>Jo gets two files and a phone</h4>
+    <ol><li>Lake Mead unit. Two cold cases, same address, thirty years apart. Supervisor: "Probably nothing. Clear it."</li><li>Evidence bag: black rotary phone. No cord.</li><li>She plays tape one on a borrowed deck. Ruth Hadley. Jo has heard that voice on a VHS at Christmas. It's her great-grandmother.</li></ol></div>
+
+  <div class="night"><div class="d">Las Vegas · 12 Nov 1966 · ch 8</div><h4>Night nine — "Don't go looking"</h4>
+    <ol><li>Hal has been to Boulder Highway. Met Gabe. Met a man who went to the lake and came back and won't say what he saw.</li><li>The woman: "Her son is already gone. Don't go looking. Please."</li><li>Hal: "You keep saying please like you know me." — "I know what you wrote on the back of your sister's note."</li></ol></div>
+
+  <div class="night c26"><div class="d">Las Vegas · 11 Mar 2026 · ch 9</div><h4>The phone rings</h4>
+    <ol><li>Jo, alone in the evidence room, 1:50 AM. The bagged phone rings.</li><li>She picks up. A woman: "Is this the station?"</li><li>Jo: "…Yeah. This is the station."</li></ol></div>
+
+  <div class="night c96"><div class="d">Las Vegas · 3 Dec 1996 · ch 10</div><h4>"Where are you calling from?"</h4>
+    <ol><li>Nora dials the on-air number for the ninth night. Hal: "Where are you calling from?" — "Las Vegas." — "What year?"</li><li>She tells him. He believes her faster than she expected. "You've been reading my pads." — "Every one."</li><li>Somewhere else on the line, faintly, a third breath. Neither of them mentions it.</li></ol></div>
+
+  <div class="night"><div class="d">Las Vegas · 23 Nov 1966 · the last night</div><h4>Thanksgiving week</h4>
+    <ol><li>Howard Hughes is carried into the Desert Inn on a stretcher. Every reporter in town is at the Desert Inn.</li><li>Hal signs off early. Writes two words under his own name on the pad: <em>the lake.</em></li><li>Leaves the pad on the desk. Takes the coffee.</li></ol></div>
+</section>
+
+<section id="twists">
+  <h2>Plot twists · in reading order</h2>
+  <div class="twist"><div class="n">1</div><div><h4>The warning costs</h4><p>The woman's first comment saves Lenny and kills Ray Dunning. She didn't know. Hal didn't know. The reader learns the line isn't free.</p></div></div>
+  <div class="twist"><div class="n">2</div><div><h4>The files change</h4><p>Carol's folder appears in Nora's box overnight. Nora isn't reading history. She's reading consequences — of what she said last night.</p></div></div>
+  <div class="twist"><div class="n">3</div><div><h4>"They're in a box."</h4><p>Hal realizes the woman has read things nobody saw him write. He asks where his pads are. She tells him.</p></div></div>
+  <div class="twist"><div class="n">4</div><div><h4>Two women</h4><p>One night "she" contradicts herself. Nora has never heard of a Lake Mead barrel. The other voice has. Reader splits the voice in two for the first time.</p></div></div>
+  <div class="twist"><div class="n">5</div><div><h4>Hal dials forward</h4><p>Jo's phone rings and it isn't Nora. It's Hal. He's figured out the triangle before either woman and he's calling the far end to ask the only question: <em>"Did I go to the lake?"</em></p></div></div>
+  <div class="twist"><div class="n">6</div><div><h4>Nora's own file</h4><p>Box three, bottom: <em>Reyes, N., Det., 30, missing 19 Dec 1996, last seen entering 2201 Industrial Road.</em> She is sitting at 2201 Industrial Road. It is 18 Dec.</p></div></div>
+  <div class="twist"><div class="n">7</div><div><h4>The bloodline</h4><p>Nora asked Hal to stop Carol taking the Stardust job — to save her mother. Hal stayed quiet. Carol took the job, met Tony Reyes, had Nora. Nora exists because Hal ignored her.</p></div></div>
+  <div class="twist"><div class="n">8</div><div><h4>Jo tells the truth</h4><p>"Yes. You went. Danny Hadley came home. His mother got him back. I'm his granddaughter." Hal chooses the trade. He vanishes while the whole city watches a billionaire on a stretcher.</p></div></div>
+  <div class="twist"><div class="n">9</div><div><h4>Sam knew</h4><p>Last call sheet in the box, Sam's pencil: <em>"It's her again. Let her through."</em> The screener recognized what she was on night one and opened the door every night after.</p></div></div>
+</section>
+
+<section id="endings">
+  <h2>Endings · pick one</h2>
+  <div class="end"><h4>A · The last call</h4><ol><li>Nora stays past the 18th for one more call. Dials. Hal answers. She tells him everything she knows — which is now everything.</li><li>Wrecking ball, 19 Dec. The file was right.</li><li>2026: Jo plugs the phone in one last time. It rings. A man: <em>"If you're still working, God bless you…"</em> A woman laughs in the background. Jo knows the laugh. It's hers.</li></ol></div>
+  <div class="end"><h4>B · The quiet one</h4><ol><li>Jo closes both cases "undetermined," takes the phone home, keeps it on the nightstand.</li><li>It never rings.</li><li>Last line: she sleeps better than she has in years — which is how she knows he's done calling.</li></ol></div>
+  <div class="end"><h4>C · The trade undone</h4><ol><li>Jo warns Hal off the lake. He stays. Danny Hadley never comes home. Ruth listens to static.</li><li>Jo's phone goes dead mid-sentence. The evidence bag is empty. Her supervisor doesn't remember assigning her the case.</li><li>She drives to Henderson. The house her grandfather built isn't there.</li></ol></div>
+</section>
+
+<section id="genz">
+  <h2>Why Gen Z reads it · and how the page stays readable</h2>
+  <ol>
+    <li><b>Jo is the way in.</b> 26, voice memos, "okay," a charger reaching for a phone with no port. Every 2026 chapter opens with a voice-memo transcript — timestamped, lowercase, the way she actually talks. That's the PATTERN group-chat trick, rebuilt for one person alone in an evidence room.</li>
+    <li><b>Analog is the horror.</b> No caller ID. No screenshots. No way to prove any of it. The three of them have to believe each other or hang up.</li>
+    <li><b>Every chapter is one night.</b> 12–18 minutes read aloud. Each one ends on a line, not a scene. Built for audio chapters on YouTube like PATTERN.</li>
+    <li><b>No villain.</b> A cop who closed a file to protect a mother. A host who traded himself for a stranger's son. A screener who let the impossible call through. Everyone's complicated. Nobody's evil. Gen Z doesn't trust villains anyway.</li>
+    <li><b>The love story is the warning.</b> Nobody kisses anybody. Nora and Hal talk for nine nights across thirty years and the most intimate thing in the book is a man saying "they're in my car" and a woman saying "they're in a box."</li>
+    <li><b>Real and Googleable.</b> Hughes's stretcher. The Sands implosion. The barrels. St. Thomas under the lake. A reader can check every anchor on their phone and find it's true — which makes the one thing that isn't feel true too.</li>
+    <li><b>The voice stays adult.</b> Short declaratives, no adverbs, dialogue does the work. Gen Z friendly is about the entry point and the pacing — not slang. PATTERN is the slang one; this is the quiet one.</li>
+  </ol>
+</section>
+
+<section id="real">
+  <h2>Real events used as furniture</h2>
+  <ol>
+    <li><b>11 Jun 1938</b> — Hugh Lord, last resident of St. Thomas, Nevada, rows away as Lake Mead reaches his house. The town goes under. (The lake is where the men are sent. The town is what's down there.)</li>
+    <li><b>1960s</b> — Nevada Test Site underground shots 65 miles north; Vegas hotels sway. Callers mention the shaking.</li>
+    <li><b>Thanksgiving 1966</b> — Howard Hughes arrives by train, carried into the Desert Inn on a stretcher, starts buying the Strip. Hal vanishes the same week.</li>
+    <li><b>26 Nov 1996</b> — the Sands is imploded. Vegas is tearing down the sixties. Nora's building is next.</li>
+    <li><b>May 2022</b> — human remains in a barrel surface at Hemenway Harbor as Lake Mead drops; more follow. Cold cases reopen. Jo gets hired.</li>
+    <li><b>2022–2026</b> — record lows; St. Thomas fully walkable. <span class="pill">verify at research pass</span></li>
+  </ol>
+  <p style="color:var(--mute);font-size:14px">Rule: real events are mentioned by callers, on a bar TV, in a headline. Never explained. Never the plot.</p>
+</section>
+
+<section id="rules">
+  <h2>Writing rules</h2>
+  <div class="rule"><b>01</b><div>Every chapter opens with place + date. Three times, three dates, never blurred.</div></div>
+  <div class="rule"><b>02</b><div>One object per time: paper cup with a skin (1966) · county flashlight (1996) · evidence bag (2026). Objects don't cross timelines until a twist needs them to.</div></div>
+  <div class="rule"><b>03</b><div>One light per time: studio red + fluorescent · a flashlight in a dead building · evidence-room white.</div></div>
+  <div class="rule"><b>04</b><div>Chapters 1–3: callers only. The woman does not appear until the reader loves at least two of them.</div></div>
+  <div class="rule"><b>05</b><div>The woman is never described by voice until twist 4 — only by her words. The reader has to be able to merge two women into one.</div></div>
+  <div class="rule"><b>06</b><div>Nobody knows the future. They know files. If a character predicts something that isn't in a file, that's a mistake.</div></div>
+  <div class="rule"><b>07</b><div>Short declaratives. No adverbs. Dialogue does the work. Kent Haruf, Denis Johnson — not a podcast.</div></div>
+  <div class="rule"><b>08</b><div>Don't invent a date for an unknown day. Leave it unknown.</div></div>
+  <div class="rule"><b>09</b><div>Written chapters and proposed events are two different states. This page is 100% proposed.</div></div>
+</section>
+
+</main>
+
+<footer><div class="wrap">THE LAST HOUR · story bible v1 · built 31 Oct 2026 · self-contained HTML · Project: قصة شعبية بس من الثقافة الأمريكية · <b style="color:#ffb3ad">NOTHING BUILT. Awaiting "go".</b></div></footer>
+</body>
+</html>
