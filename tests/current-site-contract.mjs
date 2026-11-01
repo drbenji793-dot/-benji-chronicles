@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {JSDOM} from 'jsdom';
+import {renderDSL} from '../src/dsl.js';
+import {recordState,currentBookBrief} from '../src/current-book-brief.js';
+const decisions=[{id:'approved',status:'approved',text:'Established choice'},{id:'review',status:'implemented-for-review',text:'Review only'},{id:'explicit',status:'approved',recordStatus:'proposed',text:'Explicit proposal'},{id:'unknown',text:'Unknown'}];
+const source=JSON.stringify(decisions);
+const brief=currentBookBrief({book:{id:'b'},branch:{id:'br',revision:1,data:{decisions}},chapters:[]});
+assert.equal(recordState(decisions[0]),'current');
+assert.deepEqual(brief.unresolved.unclassified.map(x=>x.id),['unknown']);
+assert.deepEqual(brief.proposals.records.map(x=>x.record.id),['review','explicit']);
+assert.equal(JSON.stringify(decisions),source);
+for(const language of ['ar','en']){
+ const dom=new JSDOM('<main></main>',{url:'https://example.test/#book=b&view=dsl&dslview=workbook'});
+ for(const k of ['window','document','location','MutationObserver','localStorage','FormData'])globalThis[k]=dom.window[k];
+ globalThis.requestAnimationFrame=f=>f();
+ let writes=0;
+ const data={summary:'حافيين',events:[],links:[],objects:[],characters:[],sourceDocument:{version:'009'},workshop:{questions:[{id:'done',title:'Old answered choice',status:'answered',answer:'Done'},{id:'new',title:'New question',status:'open',options:[]}]}};
+ const before=JSON.stringify(data);
+ const api=async(p,o)=>{if(o){writes++;return [];}if(p.startsWith('chronicles_books'))return [{id:'b',title:'ابن الجبل',language}];if(p.startsWith('chronicles_dsl_projects'))return [{revision:1}];if(p.startsWith('chronicles_dsl_branches'))return [{id:'br',revision:1,name:'Current',data}];return [];};
+ await renderDSL(document.querySelector('main'),api,'b');
+ assert.equal(document.querySelector('iframe'),null);
+ assert(document.body.textContent.includes('New question'));
+ assert(!document.body.textContent.includes('Old answered choice'));
+ assert.equal(document.querySelector('.dsl-tabs [aria-current]').textContent,'Questions & Decisions');
+ assert([...document.querySelectorAll('.technical-details')].every(e=>!e.open));
+ assert.equal(writes,0);assert.equal(JSON.stringify(data),before);
+ dom.window.close();
+}
+console.log('PASS legacy bookmarks use current questions in both languages, no iframe or data writes, approved decisions recognized, proposals preserved');
+process.exit(0);

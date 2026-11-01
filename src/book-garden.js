@@ -1,6 +1,6 @@
 import {eventChangeFields,eventParticipants,sharedEvents,eventImpact,relationshipState} from './story-connections.js';
 import {technicalDetails} from './revision-stamp.js';
-import {activeRecord} from './current-book-brief.js';
+import {activeRecord,recordState} from './current-book-brief.js';
 import {gardenExchange} from './garden-exchange.js';
 import {appearsIn} from './dsl-master.js';
 const h=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -24,9 +24,9 @@ export function bookGarden(ctx){
  const t=(en,arabic)=>en;
  const people=()=> (model().characters||[]).filter(activeRecord);
  const rels=()=> (model().relationships||[]).filter(activeRecord);
- const stamp=r=>technicalDetails(r,branch(),(r.recordStatus==='proposed'?'Details for review':r.recordStatus||'Unclassified')+(r.nameUseStatus==='existing'?' · Existing name':'')+(r.nameUseStatus==='approved'?' · Name approved':''));
+ const stamp=r=>technicalDetails(r,branch(),(recordState(r)==='proposed'?'Details for review':recordState(r)==='current'?'Approved current':'Unclassified')+(r.nameUseStatus==='existing'?' · Existing name':'')+(r.nameUseStatus==='approved'?' · Name approved':''));
  const end=()=>'<p class="dsl-form-status" role="status"></p><button type="submit">'+t('Save current record','حفظ المعلومات الحالية')+'</button>';
- const stateField=r=>select('recordStatus',t('Approval status','حالة الاعتماد'),{unclassified:t('Unclassified','لم يصنف'),proposed:t('Proposed','اقتراح'),current:t('Approved current','الحالي المعتمد')},r.recordStatus||'unclassified');
+ const stateField=r=>select('recordStatus',t('Approval status','حالة الاعتماد'),{unclassified:t('Unclassified','لم يصنف'),proposed:t('Proposed','اقتراح'),current:t('Approved current','الحالي المعتمد')},recordState(r));
  function editLife(c){const old=c;c=c||{id:crypto.randomUUID(),name:''};const fields=[['role','Role','الدور'],['biography','Background, home and work','حياته وبيته وشغله'],['ageNote','Age and time','العمر والزمن'],['appearance','Appearance','الشكل'],['voice','Voice','الصوت وطريقة الكلام'],['desire','Goal','هدفه'],['fear','Fear and conflict','الخوف والصراع'],['past','Past','الماضي'],['beliefs','Beliefs','الأفكار'],['secret','Secrets','الأسرار'],['arc','Story development','مساره في الحكاية'],['knowledge','What they know and when','معرفته وتوقيتها'],['firstAppearance','First appearance','أول ظهور'],['continuityNotes','Current continuity guidance','تعليمات الاستمرارية الحالية']];
  const m=modal(t('Character','الشخصية'),'<form>'+field('name',t('Approved name','الاسم'),c.name)+stateField(c)+fields.map(([k,en,arabic])=>area(k,t(en,arabic),c[k]||'',3)).join('')+area('relationships',t('Existing relationship notes; review when creating shared relationships','ملاحظات العلاقات الحالية؛ تراجع عند إنشاء العلاقة المشتركة'),c.relationships||'',3)+area('changeNote',t('What changed?','ما الذي تغير؟'),'',2)+end()+'</form>');if(!m)return;const f=m.querySelector('form');f.elements.name.required=true;
  submit(f,values=>{const n={...c};for(const k of ['name','recordStatus','relationships','changeNote',...fields.map(x=>x[0])])n[k]=String(values.get(k)||'').trim();n.updatedAt=new Date().toISOString();return updateLife(model(),n);},old?'Update current character':'Create character');
