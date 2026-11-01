@@ -2,9 +2,21 @@ export const activeRecord=r=>r&&!r.archived&&!['superseded','archived'].includes
 const active=activeRecord;
 export const CURRENT_FIELDS=['schema','template','garden','title','summary','hypothesis','rules','characters','relationships','places','decisions','events','links','objects','world','currentStory','storyDraft','workStatus','currentUpdate','recordStamps','storyBrief','structureDecision','editorialResolution','escapeDecision','escapeMechanics','trustLedger','plotRepair','historicalResearch'];
 const fields=CURRENT_FIELDS;
+// The saved source is an internal comparison snapshot, not current writing guidance.
+// Project a copy so stale-draft checks and recovery data remain intact in storage.
+function reviewStory(story){
+ if(!story||typeof story!=='object')return story;
+ const copy=structuredClone(story);
+ for(const key of ['source','decisionUpdate','reviewCheckpoint'])delete copy[key];
+ if(Array.isArray(copy.chapters))copy.chapters=copy.chapters.filter(active).map(chapter=>{
+  const current={...chapter};delete current.draftHistory;return current;
+ });
+ return copy;
+}
 // A writing brief is a deliberate projection, never a dump of snapshots and old workbooks.
 export function currentPlanning(data={}){
  const out={};for(const key of fields){if(data[key]!==undefined)out[key]=Array.isArray(data[key])?data[key].filter(active).map(r=>structuredClone(r)):structuredClone(data[key]);}
+ for(const key of ['currentStory','storyDraft'])if(out[key])out[key]=reviewStory(out[key]);
  out.workshop={questions:(data.workshop?.questions||[]).filter(active).map(r=>structuredClone(r)),reviewEventIds:data.workshop?.reviewEventIds||[],synopsisNeedsReview:!!data.workshop?.synopsisNeedsReview};
  return out;
 }

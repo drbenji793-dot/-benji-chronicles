@@ -10,3 +10,27 @@ console.log('PASS export completeness, identity and revision checks, field allow
 const {JSDOM}=await import('jsdom');const {gardenExchange}=await import('../src/garden-exchange.js');const dom=new JSDOM('<main></main>');let saved=null,downloaded=null,closed=false;const ui=gardenExchange({book:()=>ctx.book,branch:()=>ctx.branch,chapters:()=>ctx.chapters,modal:(title,html)=>{const m=dom.window.document.createElement('dialog');m.innerHTML=html;dom.window.document.body.append(m);return m},download:text=>{const exportDom=new JSDOM(text);assert.equal(exportDom.window.document.characterSet,'UTF-8');downloaded=JSON.parse(exportDom.window.document.querySelector('#review-data').textContent);exportDom.window.close()},save:async d=>{saved=d},close:()=>{closed=true},render:()=>{}});
 ui.exportForGPT();dom.window.document.querySelector('[data-request]').value='Check continuity';dom.window.document.querySelector('[data-download]').click();await new Promise(r=>setTimeout(r,0));assert.equal(downloaded.request,'Check continuity');
 ui.importForReview();let dialog=dom.window.document.querySelectorAll('dialog')[1],input=dialog.querySelector('[data-file]');Object.defineProperty(input,'files',{value:[{size:100,text:async()=>JSON.stringify(proposal)}],configurable:true});await input.onchange({target:input});assert.equal(saved,null);assert(dialog.querySelector('[data-approve]').disabled);assert.equal(dialog.querySelectorAll('[data-change]:checked').length,0);dialog.querySelector('[data-change="0"]').checked=true;dialog.querySelector('[data-review]').onchange();assert(!dialog.querySelector('[data-approve]').disabled);await dialog.querySelector('[data-approve]').onclick();assert.equal(saved.characters[0].name,'Amina');assert.equal(saved.summary,'Old story');assert(closed);dom.window.close();console.log('PASS export request UI, import preview without writes, unchecked defaults and selected approval');
+// Old source snapshots must not leak through any current review package surface.
+const oldMarker='OBSOLETE_SNAPSHOT_DO_NOT_REINTRODUCE';
+const sourceData={summary:'Current',characters:[],events:[],links:[],workshop:{questions:[]}};
+const {storySource}=await import('../src/current-story.js');
+const sourceBefore=storySource(sourceData);
+const currentDraft={id:'draft',source:sourceBefore,sourceRevision:41,status:'draft',synopsis:'Current synopsis',treatment:'Current treatment',decisionUpdate:{decisions:[{text:oldMarker}]},reviewCheckpoint:{text:oldMarker},chapters:[{id:'chapter',draftText:'نص حالي',draftRevision:3,draftHistory:[{text:oldMarker}]},{id:'retired',archived:true,draftText:oldMarker}]};
+const snapshotContext={book:ctx.book,branch:{...ctx.branch,data:{...sourceData,storyDraft:currentDraft,currentStory:{...currentDraft,status:'approved'},sourceDocument:{text:oldMarker}}},chapters:ctx.chapters};
+const snapshotBefore=structuredClone(snapshotContext);
+const clean=reviewPackage(snapshotContext,'Review current information');
+assert(!JSON.stringify(clean).includes(oldMarker));
+for(const planning of [clean.planning,clean.currentBookBrief.planning])for(const key of ['storyDraft','currentStory']){
+ assert.equal(planning[key].source,undefined);
+ assert.equal(planning[key].sourceRevision,41);
+ assert.equal(planning[key].chapters[0].draftText,'نص حالي');
+ assert.equal(planning[key].chapters[0].draftRevision,3);
+ assert.equal(planning[key].chapters.length,1);
+}
+assert.equal(clean.currentBookBrief.proposals.story.status,'draft');
+assert.equal(clean.responseTemplate.baseRevision,7);
+assert.deepEqual(snapshotContext,snapshotBefore);
+assert.equal(snapshotContext.branch.data.storyDraft.source,sourceBefore);
+assert.equal(sourceBefore,storySource(sourceData));
+assert.notEqual(sourceBefore,storySource({...sourceData,summary:'Changed since draft'}));
+console.log('PASS current review projection excludes nested snapshots and histories without changing stored sources or stale comparison');

@@ -1,6 +1,6 @@
 {
-  "version": 152,
-  "releasedAt": "2026-11-01T20:45:44.038929+00:00",
+  "version": 153,
+  "releasedAt": "2026-11-01T21:42:52.190640+00:00",
   "timezone": "UTC",
-  "note": "On-demand resource history and English legacy planning controls"
+  "note": "Exclude old embedded story snapshots from current review exports"
 }
