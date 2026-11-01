@@ -2,7 +2,7 @@
 export function createNavigation({ render, allowLeave, leave, onError }) {
  const key='chroniclesNavigation';
  let active=history.state?.[key]||{index:0,id:crypto.randomUUID(),x:0,y:0,hash:location.hash};
- let loading=false,repairing=false,scrollTimer;
+ let loading=false,repairing=false,scrollTimer,pending=null;
  const state=()=>history.state?.[key];
  const replace=entry=>history.replaceState({...history.state,[key]:entry},'');
  replace(active);history.scrollRestoration='manual';
@@ -19,11 +19,21 @@ export function createNavigation({ render, allowLeave, leave, onError }) {
    await document.fonts.ready;
    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
    if(state()?.id===entry.id)window.scrollTo(entry.x||0,entry.y||0);
-  }catch(e){onError(e)}finally{loading=false;document.querySelector('#main')?.setAttribute('aria-busy','false');}
+  }catch(e){onError(e)}finally{
+   loading=false;document.querySelector('#main')?.setAttribute('aria-busy','false');
+   const next=pending;pending=null;
+   if(next){try{await navigate(next.hash);}finally{next.resolve();}}
+  }
  }
  async function navigate(hash){
   hash=hash==='#'?'':hash;
-  if(loading||repairing||hash===location.hash)return;
+  if(repairing)return;
+  if(loading){
+   // Keep the latest tap while rendering/scroll restoration finishes.
+   pending?.resolve();
+   return new Promise(resolve=>{pending={hash,resolve};});
+  }
+  if(hash===location.hash)return;
   if(!allowLeave())return;
   remember();leave();
   const next={index:active.index+1,id:crypto.randomUUID(),hash,x:0,y:0};
@@ -54,7 +64,7 @@ export function createNavigation({ render, allowLeave, leave, onError }) {
   const url=new URL(a.href,location.href);
   if(url.origin!==location.origin||url.pathname!==location.pathname||url.search!==location.search)return;
   if(url.hash==='#main')return;
-  if(url.hash&&!/^#(?:references|storyline|characters|writing-rules|lang=(?:ar|en)&chapter=\d+|book=[0-9a-f-]{36}(?:&(chapter=\d+|rules=1))?)$/i.test(url.hash))return;
+  if(url.hash&&!/^#(?:references|storyline|characters|writing-rules|lang=(?:ar|en)&chapter=\d+|book=[0-9a-f-]{36}(?:&[^#]*)?)$/i.test(url.hash))return;
   e.preventDefault();navigate(url.hash);
  });
  // Leave edge gestures to iOS/Safari so a native swipe never causes two traversals.

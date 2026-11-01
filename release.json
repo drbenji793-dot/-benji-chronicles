@@ -1,6 +1,6 @@
 {
-  "version": 161,
-  "releasedAt": "2026-11-01T23:18:25.332684+00:00",
+  "version": 162,
+  "releasedAt": "2026-11-01T23:28:32.002443+00:00",
   "timezone": "UTC",
-  "note": "Use current questions for old workbook routes; consistent approval states and compact publication metadata"
+  "note": "Keep the latest navigation tap while a page finishes loading; preserve unsaved content guards"
 }
