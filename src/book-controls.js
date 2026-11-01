@@ -25,7 +25,7 @@ export async function mountBookControls({params,api,esc,getWriter,say,refresh,na
  if(chapter)host.querySelector('.chapter-picker')?.setAttribute('hidden','');
  const box=document.createElement('section');box.id='universal-book-controls';box.className='universal-book-controls';box.dir='ltr';box.lang='en';
  const arabic=(language||siteLanguage)==='ar';
- const ordinal=p=>(arabic?'الجزء '+(['الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع','العاشر'][parts.indexOf(p)]||parts.indexOf(p)+1):'Part '+(parts.indexOf(p)+1));
+ const ordinal=p=>'Part '+(parts.indexOf(p)+1);
  const partName=p=>/^(الجزء|Part\s)/i.test(p.title)?p.title:ordinal(p)+' · '+p.title;
  function paint(){const list=rowsFor(selected);const dir=arabic?'rtl':'ltr';
  if(!chapter){box.innerHTML=`<div class="benji-parts-heading"><button id="universal-add-part" aria-label="Add part">+</button><span>Parts</span></div>${parts.map(p=>`<div class="benji-part-row"><button data-benji-edit="${p.id}" aria-label="Rename part ${esc(p.title)}">Edit</button><a dir="${dir}" href="${rowsFor(p)[0]?root+'&chapter='+rowsFor(p)[0].chapter_number:root+'&view=chapters&part='+p.id}"><small>${/^(الجزء|Part\s)/i.test(p.title)?'':esc(ordinal(p))}</small><strong>${esc(p.title)}</strong></a></div>`).join('')}`;

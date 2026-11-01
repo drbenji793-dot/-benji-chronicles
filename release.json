@@ -1,6 +1,6 @@
 {
-  "version": 154,
-  "releasedAt": "2026-11-01T21:48:38.617603+00:00",
+  "version": 155,
+  "releasedAt": "2026-11-01T21:54:29.721512+00:00",
   "timezone": "UTC",
-  "note": "English current story controls and clean story build export"
+  "note": "Compact draft technical details and English generated part labels"
 }
