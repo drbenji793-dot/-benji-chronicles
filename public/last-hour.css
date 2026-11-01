@@ -51,3 +51,31 @@ body .edition-bridge{padding:8px 16px;margin:12px auto;max-width:900px;font-size
 
 .technical-details .save-meta{font:inherit;padding:6px 10px;margin:0;border:0}.technical-details .chapter-writing-settings{font:inherit;margin:8px 0}.technical-details .chapter-writing-settings label,.technical-details .chapter-writing-settings p{font:inherit}.technical-details .chapter-writing-settings input,.technical-details .chapter-writing-settings select{font-size:14px;max-width:100%}
 body .editor-area .technical-details.reading-details{font-size:12px;padding:0 10px;border:1px solid rgba(100,100,100,.2);border-radius:6px;background:rgba(100,100,100,.07);margin:8px 0}body .editor-area .technical-details.reading-details>summary{font-size:12px;line-height:1.5;padding:7px 0}body .editor-area .technical-details.reading-details .save-meta{font-size:12px;padding:6px 0}
+
+/* Benji's compact English reader controls, shared by all English books. */
+html[lang="en"] body .topbar{padding-block:12px}
+html[lang="en"] body .brand{gap:9px;min-width:0}
+html[lang="en"] body .brand img{width:34px;height:34px}
+html[lang="en"] body .brand strong{font:600 14px/1.35 system-ui,sans-serif;color:#2879a8;letter-spacing:0}
+html[lang="en"] body .brand .collaboration{font:11px/1.4 system-ui,sans-serif;letter-spacing:0;margin-top:3px}
+html[lang="en"] body .theme-picker{gap:6px;padding-block:6px}
+html[lang="en"] body .theme-picker button{font:11px/1.3 system-ui,sans-serif;min-height:30px;padding:5px 9px;border-radius:6px}
+html[lang="en"] body .theme-picker [data-color="coffee"]{background:#d9c4ab}
+html[lang="en"] body .theme-picker [data-color="parchment"]{background:#e5d3ae}
+html[lang="en"] body .theme-picker [data-color="sage"]{background:#cfd3bf}
+html[lang="en"] body .author-controls{padding-block:6px 10px}
+html[lang="en"] body .author-help{display:none}
+html[lang="en"] body .author-row{display:flex;flex-wrap:nowrap;gap:6px!important}
+html[lang="en"] body .author-row .writer-buttons{display:flex;gap:6px!important;flex:0 1 auto}
+html[lang="en"] body .author-row .writer-buttons button,
+html[lang="en"] body .author-row #author-colors{font:11px/1.3 system-ui,sans-serif!important;min-height:30px!important;min-width:0;padding:5px 8px!important;border-radius:6px;white-space:nowrap}
+html[lang="en"] body #main .universal-control-row{grid-template-columns:32px 42px minmax(0,1fr);gap:6px;margin:6px 0;padding:0 0 6px}
+html[lang="en"] body #main .universal-control-row button{min-height:32px;height:32px;padding:4px;font:12px/1.3 system-ui,sans-serif;border-radius:6px}
+html[lang="en"] body #main .universal-control-row select{height:32px;min-height:32px;font:12px/1.3 system-ui,sans-serif;padding:4px 6px;margin:0;border-radius:6px}
+html[lang="en"] body #main .universal-steps{gap:6px}
+html[lang="en"] body #main .universal-steps button{min-height:30px;padding:4px 12px;font:14px/1.3 system-ui,sans-serif;border-radius:6px}
+html[lang="en"] body #main .editor-area .toolbar{display:flex;flex-wrap:nowrap;gap:4px;align-items:center;justify-content:center;padding:8px 0;min-width:0}
+html[lang="en"] body #main .editor-area .toolbar>*{flex:0 1 auto;min-width:0;margin:0;grid-column:auto;white-space:nowrap;font:11px/1.3 system-ui,sans-serif}
+html[lang="en"] body #main .editor-area .toolbar button{min-height:32px;padding:5px 7px;border-radius:6px}
+html[lang="en"] body #main .editor-area .toolbar .protected{padding:0 2px;font-size:10px}
+html[lang="en"] body #main .benji-chapters-back{font:12px/1.3 system-ui,sans-serif;min-height:30px;padding:6px 12px;border-radius:6px}
