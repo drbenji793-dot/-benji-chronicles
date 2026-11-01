@@ -54,6 +54,7 @@ export function focusedReview(context,request,scope={kind:'book'}){
  d.events=(d.events||[]).filter(e=>ids.has(e.id));d.characters=(d.characters||[]).filter(c=>c.id===scope.id||d.events.some(e=>appearsIn(e,c.name,c.aliases))||(scope.kind==='page'&&scope.tab==='characters'));
  d.links=(d.links||[]).filter(l=>ids.has(l.from)&&ids.has(l.to));const people=new Set(d.characters.map(c=>c.id));d.relationships=(d.relationships||[]).filter(r=>people.has(r.from)||people.has(r.to));
  const chapters=new Set(d.events.map(e=>Number(e.sourceChapter)).filter(Number.isFinite));p.chapters=p.chapters.filter(c=>chapters.has(Number(c.chapter_number)));delete d.storyDraft;
+ p.currentBookBrief=currentBookBrief({book:context.book,branch:{...context.branch,data:d},chapters:p.chapters});
  p.instructions+=' Focus on the selected scope. Review linked causes and consequences, changes in knowledge and relationships, and later chapters. Identify affected records and explain why. Context outside this export may be missing: flag it and do not claim a complete review of the whole story.';
  return p;
 }
