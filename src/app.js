@@ -1,3 +1,4 @@
+import {savedStoryBrief} from './story-brief.js';
 import {bookNavigation,selectedBookTool} from './book-navigation.js';
 import {mountBookControls} from './book-controls.js';
 import {SITE_LANGUAGE,createEditionBridge} from './edition-bridge.js';
@@ -82,7 +83,7 @@ async function renderCollectionTool(params){
  if(view==='brief'){const branches=await api('chronicles_dsl_branches?book_id=eq.'+planningId(story,lang)+'&archived=eq.false&select=data&order=updated_at.desc');
  const d=branches[0]?.data||{},draft=d.storyDraft||d.currentStory||{};
  const resources=await api('chronicles_story_resources?story_number=eq.'+story+'&language=eq.'+lang+'&kind=eq.storyboard&select=body');
- const brief=d.storyBrief?.text||draft.treatment||draft.synopsis||d.summary||resources[0]?.body||'';
+ const brief=savedStoryBrief({...d,summary:d.summary||resources[0]?.body||''});
  $('#main').innerHTML='<section class="reference-page"><h1>Story Brief</h1><h2 dir="auto">'+esc(storyTitle(story,lang))+'</h2><div dir="auto" style="white-space:pre-wrap;line-height:1.9">'+esc(brief||'No story brief saved yet.')+'</div><nav class="reference-nav"><a href="#story='+story+'&lang='+lang+'&view=dsl&dslview=synopsis">Open story planning</a><a href="#story='+story+'&lang='+lang+'&view=characters">Characters</a><a href="#story='+story+'&lang='+lang+'&view=references">References</a><a href="#story='+story+'&lang='+lang+'&view=story-notes">Saved story notes</a></nav></section>';return;}
  $('#main').innerHTML='<section class="reference-page"><h1>Export</h1><h2 dir="auto">'+esc(storyTitle(story,lang))+'</h2><p>Export the latest saved chapters as PDF or HTML.</p><button id="collection-export" class="primary">PDF / HTML</button></section>';$('#collection-export').onclick=openExport;
 }
