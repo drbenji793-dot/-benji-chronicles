@@ -1,3 +1,4 @@
+import {mountChapterHistory} from './chapter-history.js';
 import {technicalPanel,formatTime} from './revision-stamp.js';
 import {revisionStamp} from './revision-stamp.js';
 import {currentPlanning} from './current-book-brief.js';
@@ -509,30 +510,17 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   }
   async function showHistory(){
     if(!active)return;
-    const id=active.id;
-    modal('Revision history','<div class="loading">Loading revision history…</div>');
-    const versions=await api('chronicles_book_versions?entry_id=eq.'+id+'&select=id,entry_id,title,revision,saved_at,saved_by,writing_meta&order=revision.desc&limit=1000');
-    if(active?.id!==id)return;
-    $('#modal-content').innerHTML='<p class="reference-note">History keeps each revision with its writer and time. Restoring an older revision opens a draft and preserves newer versions.</p>'
-      +versions.map((v,i)=>`<div class="version">
-        <strong>Chapter ${version(v.revision)} ${i===0?'· Current':''}</strong>
-        <small class="${writerLabel({updated_by:v.saved_by})}">${esc(v.saved_by)} · ${date(v.saved_at)} · ${esc(writingLabel(v.writing_meta))}</small>
-        <button data-new-version="${i}">Read</button>
-        ${i>0?`<button data-new-restore="${i}">Use as draft</button>`:''}
-      </div>`).join('')+'<div id="chronicles-version-preview"></div>';
-    const getVersion=async i=>{const rows=await api('chronicles_book_versions?entry_id=eq.'+id+'&id=eq.'+versions[i].id+'&select=*&limit=1');if(!rows[0])throw Error('Version unavailable.');return rows[0];};
-    document.querySelectorAll('[data-new-version]').forEach(b=>b.onclick=async()=>{try{
-      const v=await getVersion(Number(b.dataset.newVersion));
-      $('#chronicles-version-preview').innerHTML=`<div class="preview" dir="${book.language==='en'?'ltr':'rtl'}"><h2 dir="auto">${esc(v.title)}</h2><article class="prose">${clean(v.body)}</article></div>`;
-    }catch(e){say(e.message,true);}});
-    document.querySelectorAll('[data-new-restore]').forEach(b=>b.onclick=async()=>{try{
-      if(editing&&hasChanges()&&!confirm('Replace the current draft?'))return;
-      if(editing){editing=false;renderEntry();}
-      $('#modal').close();
-      beginEdit(await getVersion(Number(b.dataset.newRestore)));
-      backup();
-      say('Restored as a draft. Save to create a new revision.');
-    }catch(e){say(e.message,true);}});
+    const id=active.id,currentRevision=active.revision,language=book.language;
+    modal('Revision History','<div data-chapter-history></div>');
+    const root=$('[data-chapter-history]'),dialog=$('#modal');
+    await mountChapterHistory({root,api,entryId:id,currentRevision,esc,clean,language,
+      isCurrent:()=>active?.id===id&&dialog.open&&dialog.contains(root),
+      onRestore:async saved=>{
+        if(editing&&hasChanges()&&!confirm('Replace the current draft?'))return;
+        if(editing){editing=false;renderEntry();}
+        dialog.close();beginEdit(saved);backup();
+        say('Restored as a draft. Save to create a new revision.');
+      }});
   }
   async function loadNotes(id){
     const notes=await api('chronicles_book_notes?entry_id=eq.'+id+'&select=*&order=created_at.asc');

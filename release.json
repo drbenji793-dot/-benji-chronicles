@@ -1,6 +1,6 @@
 {
-  "version": 157,
-  "releasedAt": "2026-11-01T22:01:20.714137+00:00",
+  "version": 158,
+  "releasedAt": "2026-11-01T22:04:22.289013+00:00",
   "timezone": "UTC",
-  "note": "Load current part metadata only and defer writing metadata to opened chapters"
+  "note": "Paged chapter recovery with scoped reads and stale restore protection"
 }
