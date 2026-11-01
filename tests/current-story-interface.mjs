@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
-import {currentStoryUI,storySource} from '../src/current-story.js';
+import {currentStoryUI,storySource,initialStory,storyPages} from '../src/current-story.js';
 const dom=new JSDOM('<main></main>',{url:'https://example.test/'});globalThis.location=dom.window.location;
 const data={title:'ابن الجبل',summary:'الملخص الحالي',events:[],characters:[],links:[],workshop:{questions:[]},sourceDocument:{fields:{old:'OBSOLETE_WORKBOOK'}}};
 const source=storySource(data);
@@ -21,3 +21,5 @@ root.querySelector('[data-machine=build]').click();assert.equal(dialog.querySele
 root.querySelector('[data-machine=review]').click();let check=dialog.querySelector('[data-story-checked]');check.checked=true;check.onchange({target:check});assert.equal(dialog.querySelector('[data-story-approve]').disabled,false);
 data.summary='Updated planning';root.querySelector('[data-machine=review]').click();check=dialog.querySelector('[data-story-checked]');check.checked=true;check.onchange({target:check});assert.equal(dialog.querySelector('[data-story-approve]').disabled,true);assert.equal(approved,0);data.summary='الملخص الحالي';assert.equal(JSON.stringify(data),before);
 dom.window.close();console.log('PASS English planning navigation, content direction, collapsed timestamp, filtered build export and stale approval guard');
+
+const incomplete={title:'ابن الجبل',sourceDocument:{unified:[{id:'empty',title:'عنوان عربي'}]}};const snapshot=JSON.stringify(incomplete);const generated=initialStory(incomplete);assert.equal(generated.chapters[0].summary,'Not yet recorded.');assert.equal(generated.synopsis,'Synopsis not yet recorded.');assert.equal(generated.chapters[0].title,'عنوان عربي');assert(!generated.treatment.includes('undefined'));assert.deepEqual(storyPages({}),['Not yet recorded.']);assert.equal(JSON.stringify(incomplete),snapshot);

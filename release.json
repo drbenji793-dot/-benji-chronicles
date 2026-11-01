@@ -1,6 +1,6 @@
 {
-  "version": 158,
-  "releasedAt": "2026-11-01T22:04:22.289013+00:00",
+  "version": 159,
+  "releasedAt": "2026-11-01T22:14:38.760744+00:00",
   "timezone": "UTC",
-  "note": "Paged chapter recovery with scoped reads and stale restore protection"
+  "note": "English planning fallback messages and safe incomplete chapter plans"
 }
