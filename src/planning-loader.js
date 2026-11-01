@@ -1,0 +1,18 @@
+// Lists contain metadata only. Historical payloads are fetched by explicit selection.
+export const BRANCH_META='id,book_id,name,archived,revision,updated_by,updated_at,change_note,parent_id,parent_revision';
+export async function loadPlanning(api,{bookId,branchId,collection,language='ar',full=false,chapterBodies=false}){
+ const scope='book_id=eq.'+encodeURIComponent(bookId);
+ const chapterPath=collection?'chronicles_chapters?story_number=eq.'+collection+'&language=eq.'+language:'chronicles_book_entries?book_id=eq.'+(bookId==='66739f5d-2bac-4d75-a4fd-6df93da8ac7e'?'c911584d-bd5b-42fe-b41c-a2a456c64d41':encodeURIComponent(bookId))+'&kind=eq.chapter';
+ const results=await Promise.allSettled([
+  api('chronicles_dsl_projects?'+scope+'&select='+(full?'*':'book_id,revision')),
+  api('chronicles_dsl_branches?'+scope+'&select='+BRANCH_META+'&order=updated_at.asc'),
+  api(chapterPath+'&select=id,chapter_number,title,revision'+(chapterBodies?',body':'')+'&order=chapter_number.asc'),
+  api('chronicles_books?id=eq.'+encodeURIComponent(bookId)+'&select=id,title,language')
+ ]);
+ for(const i of [0,1,3])if(results[i].status==='rejected')throw results[i].reason;
+ const [projects,branches,,books]=results.map(r=>r.status==='fulfilled'?r.value:[]);
+ const selected=branches.find(b=>b.id===branchId)||branches.find(b=>!b.archived);
+ let branch=null;
+ if(selected){const rows=await api('chronicles_dsl_branches?'+scope+'&id=eq.'+encodeURIComponent(selected.id)+'&select='+BRANCH_META+',data'+(full?',base_snapshot':'')+'&limit=1');branch=rows[0];if(!branch)throw Error('Selected planning revision is unavailable. Retry.');}
+ return {project:projects[0],branches:branches.map(b=>b.id===branch?.id?branch:b),branch,chapters:results[2].status==='fulfilled'?results[2].value:[],book:books[0],chapterError:results[2].status==='rejected'?String(results[2].reason.message||results[2].reason):null};
+}

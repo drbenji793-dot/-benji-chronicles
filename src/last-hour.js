@@ -1,4 +1,4 @@
-import bible from './last-hour-bible.json';
+import bible from './last-hour-bible.json' with {type:'json'};
 export const LAST_HOUR_BOOK=bible.id;
 export function lastHourLinks(id){return id===LAST_HOUR_BOOK?'<nav class="reference-nav" aria-label="Story planning"><a href="#book='+id+'&view=brief">Story Bible</a><a href="/the-last-hour-101.html">101 Planning Guide</a><a href="/sources/the-last-hour-bible.html" download>Claude Original HTML</a></nav>':'';}
 export function renderLastHourBible(main,{clean,esc}){
