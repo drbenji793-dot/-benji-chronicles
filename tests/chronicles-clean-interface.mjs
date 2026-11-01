@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {JSDOM} from 'jsdom';
+import {bookGarden} from '../src/book-garden.js';
+import {workshopUI} from '../src/dsl-workshop.js';
+import {focusedReview,readableReview} from '../src/garden-exchange.js';
+const data={characters:[{id:'c',name:'سالم',recordStatus:'current'}],events:[{id:'e',title:'لقاء',characters:'سالم',sourceChapter:1},{id:'later',title:'Later'},{id:'unrelated',title:'Other'}],links:[{from:'e',to:'later'}],workshop:{questions:[{id:'old',title:'Answered long ago',status:'answered',answer:'Ibrahim'},{id:'open',title:'Needs answer',status:'open',options:[]}]}};
+const book={id:'b',title:'ابن الجبل',language:'ar'},branch={id:'br',revision:5,updated_at:'2026-11-01T12:00:00Z',data};
+const ctx={book:()=>book,branch:()=>branch,model:()=>data,chapters:()=>[],route:()=> '#book=b',render:()=>{}};
+const dom=new JSDOM(bookGarden(ctx).html());const doc=dom.window.document;
+assert.equal(doc.querySelector('.goe').dir,'ltr');assert.equal(doc.querySelector('h1').textContent,'Story World');assert(doc.querySelector('[data-life]').textContent.includes('سالم'));assert(doc.querySelector('.technical-details'));assert(!doc.querySelector('.technical-details').open);assert(doc.querySelector('[data-export-page]'));
+const questions=new JSDOM(workshopUI(ctx).questionsHTML());assert(!questions.window.document.body.textContent.includes('Answered long ago'));assert(questions.window.document.body.textContent.includes('Needs answer'));assert.equal(questions.window.document.querySelector('.question-count').textContent,'1');assert.equal(data.workshop.questions.length,2);
+const pack=focusedReview({book,branch,chapters:[{chapter_number:1,body:'حافيين'},{chapter_number:2,body:'Untouched'}]},'Check consequence',{kind:'event',id:'e'});assert.deepEqual(pack.planning.events.map(e=>e.id),['e','later']);assert.equal(pack.chapters.length,1);const html=readableReview(pack);const exported=new JSDOM(html);assert.equal(exported.window.document.characterSet,'UTF-8');assert.equal(JSON.parse(exported.window.document.querySelector('#review-data').textContent).chapters[0].body,'حافيين');assert.equal(data.events.length,3);
+for(const d of [dom,questions,exported])d.window.close();console.log('PASS English controls, Arabic content, collapsed stamps, unanswered-only display without deletion, focused context and Arabic HTML round trip');

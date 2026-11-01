@@ -38,7 +38,7 @@ renderWriters();
 let showAuthors=storage.get('chronicles-author-colors')!=='false';
 function enableAuthorColors(){showAuthors=true;storage.set('chronicles-author-colors','true');renderAuthorColors()}
 function trackAuthors(...args){enableAuthorColors();return trackAuthorEdits(...args)}
-function renderAuthorColors(){document.documentElement.classList.toggle('show-author-colors',showAuthors);$('#author-colors').setAttribute('aria-pressed',String(showAuthors));$('#author-colors').textContent='Author colors '+(showAuthors?'ON':'OFF')}
+function renderAuthorColors(){document.documentElement.classList.toggle('show-author-colors',showAuthors);$('#author-colors').setAttribute('aria-pressed',String(showAuthors));$('#author-colors').textContent=(showAuthors?'ON':'OFF')}
 $('#author-colors').onclick=()=>{showAuthors=!showAuthors;storage.set('chronicles-author-colors',String(showAuthors));renderAuthorColors()};renderAuthorColors();
 document.documentElement.style.setProperty('--read',size+'px');
 const t=(en,ar)=>en;
@@ -76,7 +76,7 @@ function applySharedBookNavigation(){
  if(!tabs||nav.hidden||p.has('library')||p.has('collection'))return;
  const root=p.has('book')?'#book='+p.get('book'):'#story='+story+'&lang='+lang;
  const chaptersURL=p.has('book')?[...tabs.querySelectorAll('a')].find(a=>a.textContent==='Chapters')?.getAttribute('href')||root:root;
- tabs.innerHTML=bookNavigation(root,selectedBookTool(p),chaptersURL,p.get('book')==='66739f5d-2bac-4d75-a4fd-6df93da8ac7e'?'workbook':'decisions');
+ tabs.innerHTML=bookNavigation(root,selectedBookTool(p),chaptersURL,p.get('book')==='66739f5d-2bac-4d75-a4fd-6df93da8ac7e'?'decisions':'decisions');
  nav.classList.add('shared-book-navigation');nav.querySelectorAll('.harsh-critique').forEach(a=>a.remove());
 }
 async function renderCollectionTool(params){

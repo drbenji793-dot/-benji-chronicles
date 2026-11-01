@@ -1,6 +1,6 @@
 {
-  "version": 143,
-  "releasedAt": "2026-11-01T14:04:31.801594+00:00",
+  "version": 144,
+  "releasedAt": "2026-11-01T18:09:45.872355+00:00",
   "timezone": "UTC",
-  "note": "Current records, loading, retry controls and revision stamps"
+  "note": "Compact book navigation, English Story World controls, collapsed technical details, open questions and readable focused review exports"
 }

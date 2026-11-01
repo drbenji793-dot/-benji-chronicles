@@ -9,3 +9,8 @@ export function revisionStamp(record={},fallback={}){
  const time=record.updatedAt||record.updated_at||fallback.updated_at;
  return (revision==null?(sourceRevision==null?'Revision not recorded':'Source r'+sourceRevision):'r'+revision)+' · '+formatTime(time)+(record.updatedAt||record.updated_at?'':' · source snapshot');
 }
+
+export function technicalDetails(record={},fallback={},note=''){
+ const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ return '<details class="technical-details" dir="ltr"><summary>Current <span aria-hidden="true">⌄</span></summary><p>'+escape(revisionStamp(record,fallback))+'</p>'+(note?'<p>'+escape(note)+'</p>':'')+'</details>';
+}

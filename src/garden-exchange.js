@@ -42,11 +42,30 @@ export function applyProposal(p,context,indices){
  return d;
 }
 const h=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+export function focusedReview(context,request,scope={kind:'book'}){
+ const p=reviewPackage(context,request);p.scope=scope;
+ if(scope.kind==='book')return p;
+ const d=p.planning;let ids=new Set();
+ if(scope.kind==='event')ids.add(scope.id);
+ if(scope.kind==='character'){const c=(d.characters||[]).find(c=>c.id===scope.id);if(!c)throw Error('Character no longer available.');(d.events||[]).filter(e=>appearsIn(e,c.name,c.aliases)).forEach(e=>ids.add(e.id));}
+ if(scope.kind==='page'){p.scope={...scope,note:'Current saved page, including its relevant context'};if(scope.tab==='storyline')(d.events||[]).forEach(e=>ids.add(e.id));else if(scope.tab==='characters')(d.events||[]).forEach(e=>ids.add(e.id));}
+ const selected=[...ids];for(const l of d.links||[])if(selected.includes(l.from)||selected.includes(l.to)){ids.add(l.from);ids.add(l.to);}
+ d.events=(d.events||[]).filter(e=>ids.has(e.id));d.characters=(d.characters||[]).filter(c=>c.id===scope.id||d.events.some(e=>appearsIn(e,c.name,c.aliases))||(scope.kind==='page'&&scope.tab==='characters'));
+ d.links=(d.links||[]).filter(l=>ids.has(l.from)&&ids.has(l.to));const people=new Set(d.characters.map(c=>c.id));d.relationships=(d.relationships||[]).filter(r=>people.has(r.from)||people.has(r.to));
+ const chapters=new Set(d.events.map(e=>Number(e.sourceChapter)).filter(Number.isFinite));p.chapters=p.chapters.filter(c=>chapters.has(Number(c.chapter_number)));delete d.storyDraft;
+ p.instructions+=' Focus on the selected scope. Review linked causes and consequences, changes in knowledge and relationships, and later chapters. Identify affected records and explain why. Context outside this export may be missing: flag it and do not claim a complete review of the whole story.';
+ return p;
+}
+export function readableReview(p){
+ const section=(title,rows)=>'<section><h2>'+h(title)+'</h2>'+rows.map(r=>'<article><h3 dir="auto">'+h(r.name||r.title||r.id)+'</h3>'+Object.entries(r).filter(([k,v])=>typeof v==='string'&&!['id','name','title'].includes(k)).map(([k,v])=>'<p><b>'+h(k)+':</b> <span dir="auto">'+h(v)+'</span></p>').join('')+'</article>').join('')+'</section>';
+ return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Story Review</title><style>body{max-width:820px;margin:auto;padding:20px;background:#f5eee2;color:#263f34;font:16px/1.65 system-ui}article{border-top:1px solid #c6b79f;padding:12px 0}p{white-space:pre-wrap;overflow-wrap:anywhere}details{font-size:12px;background:#ddd8;padding:8px;border-radius:6px}</style><h1 dir="auto">'+h(p.book.title)+'</h1><details><summary>Current</summary><p>Revision '+h(p.branch.revision)+' · '+h(p.exportedAt)+' · UTC</p></details><h2>Review instructions</h2><p>'+h(p.request)+'</p><p>'+h(p.instructions)+'</p><h2>Story brief</h2><p dir="auto">'+h(p.planning.summary||'')+'</p>'+section('Characters',p.planning.characters||[])+section('Events',p.planning.events||[])+'<h2>Machine readable review package</h2><p>The embedded JSON contains source revisions, current guidance and the proposal format. Return a proposal JSON for Import for Review.</p><script id="review-data" type="application/json">'+JSON.stringify(p).replace(/</g,'\\u003c')+'</script></html>';
+}
 export function gardenExchange(ctx){
  const context=()=>({book:ctx.book(),branch:ctx.branch(),chapters:ctx.chapters?.()||[]});
- function exportForGPT(){
-  const m=ctx.modal('Export for GPT','<p>Download this book’s saved Life Cards, events, connections, planning story and available chapter text. Upload the JSON file to ChatGPT.</p><label>What would you like GPT to work on?<textarea data-request rows="4" placeholder="Review my changes and suggest how they affect the story."></textarea></label><p>The file includes private author notes and secrets recorded in this book.</p><button data-download>Download Review Package</button><p data-result role="status"></p>');if(!m)return;
-  m.querySelector('[data-download]').onclick=async()=>{try{await ctx.loadPlanning?.();await ctx.loadChapters?.();const p=reviewPackage(context(),m.querySelector('[data-request]').value);ctx.download(JSON.stringify(p,null,2),'Benji-Garden-'+p.book.id+'-r'+p.branch.revision+'.json','application/json');m.querySelector('[data-result]').textContent='Package prepared. Upload it to GPT and ask for a proposal JSON to bring back through Import for Review.';}catch(e){m.querySelector('[data-result]').textContent=e.message;}};
+ function exportForGPT(scope={kind:'book'}){
+  if(scope?.type)scope={kind:'book'};
+  const m=ctx.modal('Export for GPT','<p>Download a readable HTML review file to open or share with GPT.</p><label>What would you like GPT to work on?<textarea data-request rows="3" placeholder="Revise the selected material. Check causes, consequences and later chapters. List affected records and missing context; preserve unrelated text."></textarea></label><p>The file includes private author notes and secrets recorded in this book.</p><button data-download>Download Review Package</button><p data-result role="status"></p>');if(!m)return;
+  m.querySelector('[data-download]').onclick=async()=>{try{await ctx.loadPlanning?.();await ctx.loadChapters?.();const p=focusedReview(context(),m.querySelector('[data-request]').value,scope);ctx.download(readableReview(p),'Story_Review_v'+p.branch.revision+'.html','text/html;charset=utf-8');m.querySelector('[data-result]').textContent='HTML prepared. Share it with GPT, then import its proposal JSON for review.';}catch(e){m.querySelector('[data-result]').textContent=e.message;}};
  }
  function importForReview(){
   const m=ctx.modal('Import for Review','<p>Choose the proposal JSON returned by GPT. Reading a file makes no changes to the book.</p><input data-file type="file" accept=".json,application/json"><p data-result role="status"></p><div data-review></div>');if(!m)return;
