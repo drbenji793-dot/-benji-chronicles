@@ -1,6 +1,6 @@
 {
-  "version": 146,
-  "releasedAt": "2026-11-01T18:13:04.196802+00:00",
+  "version": 147,
+  "releasedAt": "2026-11-01T20:27:49.140732+00:00",
   "timezone": "UTC",
-  "note": "Compact book navigation, English Story World controls, collapsed technical details, open questions and readable focused review exports"
+  "note": "Connected character shared events, event before and after, explained impact review and focused context"
 }
