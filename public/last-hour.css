@@ -29,10 +29,10 @@
 }
 
 /* Shared compact interface. Book text keeps its own direction and type scale. */
-body .book-navigation .ink-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;direction:ltr}
-body .book-navigation .ink-tabs a{display:flex!important;align-items:center;justify-content:center;min-width:0!important;width:auto!important;margin:0!important;white-space:normal!important;text-align:center;font-size:13px!important;line-height:1.25;min-height:44px;box-sizing:border-box;padding:8px 5px!important;border-radius:10px;order:initial!important;background:rgba(95,126,112,.09)}
-body .book-navigation .ink-tabs a.selected{background:#304f43;color:#fff}
-body .book-navigation .ink-tabs a.garden-entrance{background:#ead2c8;color:#74352f}
+body .book-navigation.shared-book-navigation .ink-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;direction:ltr}
+body .book-navigation.shared-book-navigation .ink-tabs a{display:flex!important;align-items:center;justify-content:center;min-width:0!important;width:auto!important;margin:0!important;white-space:normal!important;text-align:center;font-size:13px!important;line-height:1.25;min-height:44px;box-sizing:border-box;padding:8px 5px!important;border-radius:10px;order:initial!important;background:rgba(95,126,112,.09)}
+body .book-navigation.shared-book-navigation .ink-tabs a.selected{background:#304f43;color:#fff}
+body .book-navigation.shared-book-navigation .ink-tabs a.garden-entrance{background:#ead2c8;color:#74352f}
 .technical-details{background:rgba(100,100,100,.07);border:1px solid rgba(100,100,100,.2);border-radius:6px;font:12px/1.5 system-ui,sans-serif;color:inherit;margin:8px 0;max-width:100%;overflow-wrap:anywhere;text-align:left}
 .technical-details summary{display:flex;align-items:center;justify-content:space-between;list-style:none;padding:7px 10px;cursor:pointer;font:inherit!important;min-height:28px;box-sizing:border-box}
 .technical-details summary::-webkit-details-marker{display:none}.technical-details[open] summary span{transform:rotate(180deg)}.technical-details p,.technical-details>span{display:block;margin:6px 10px;font:inherit!important}
