@@ -1,6 +1,6 @@
 {
-  "version": 153,
-  "releasedAt": "2026-11-01T21:42:52.190640+00:00",
+  "version": 154,
+  "releasedAt": "2026-11-01T21:48:38.617603+00:00",
   "timezone": "UTC",
-  "note": "Exclude old embedded story snapshots from current review exports"
+  "note": "English current story controls and clean story build export"
 }
