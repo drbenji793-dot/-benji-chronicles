@@ -1,3 +1,4 @@
+import {formatTime} from './revision-stamp.js';
 import {savedStoryBrief} from './story-brief.js';
 import {bookNavigation,selectedBookTool} from './book-navigation.js';
 import {mountBookControls} from './book-controls.js';
@@ -41,7 +42,7 @@ function renderAuthorColors(){document.documentElement.classList.toggle('show-au
 $('#author-colors').onclick=()=>{showAuthors=!showAuthors;storage.set('chronicles-author-colors',String(showAuthors));renderAuthorColors()};renderAuthorColors();
 document.documentElement.style.setProperty('--read',size+'px');
 const t=(en,ar)=>en;
-const date=s=>new Intl.DateTimeFormat('en-US',{dateStyle:'medium',timeStyle:'short',timeZone:'America/New_York'}).format(new Date(s))+' · New York';
+const date=formatTime;
 const draftKey=id=>'chronicles-draft-'+id;
 const say=(msg,error=false)=>{clearTimeout(toastTimer);const el=$('#status');el.textContent=msg;el.className='status show'+(error?' error':'');toastTimer=setTimeout(()=>el.className='status',6000)};
 async function api(path,options={}){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),20000);try{const r=await fetch(BASE+path,{...options,signal:controller.signal,headers:{apikey:KEY,'Content-Type':'application/json',...options.headers}});const data=await r.json().catch(()=>null);if(!r.ok)throw Error(data?.message||'Connection failed');return data}catch(e){if(e.name==='AbortError')throw Error(t('The connection timed out. Your draft is still here.','الاتصال أخد وقت طويل. المسودة لسه محفوظة هنا.'));throw e}finally{clearTimeout(timer)}}

@@ -1,0 +1,1 @@
+module.exports=require('esbuild').buildSync({entryPoints:[require('path').resolve(__dirname,'../src/app.js')],bundle:true,write:false,format:'iife',logLevel:'silent',define:{__CHRONICLES_EDITION__:'\"ar\"','import.meta.url':'\"https://benji-chronicles.vercel.app/app.js\"'}}).outputFiles[0].text;

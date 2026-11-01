@@ -1,3 +1,4 @@
+const GARDEN_FIELDS=['schema','template','garden','title','summary','hypothesis','rules','characters','relationships','places','decisions','events','links','objects','world','workStatus','currentUpdate','recordStamps'];
 // Lists contain metadata only. Historical payloads are fetched by explicit selection.
 export const BRANCH_META='id,book_id,name,archived,revision,updated_by,updated_at,change_note,parent_id,parent_revision';
 export async function loadPlanning(api,{bookId,branchId,collection,language='ar',full=false,chapterBodies=false}){
@@ -13,6 +14,13 @@ export async function loadPlanning(api,{bookId,branchId,collection,language='ar'
  const [projects,branches,,books]=results.map(r=>r.status==='fulfilled'?r.value:[]);
  const selected=branches.find(b=>b.id===branchId)||branches.find(b=>!b.archived);
  let branch=null;
- if(selected){const rows=await api('chronicles_dsl_branches?'+scope+'&id=eq.'+encodeURIComponent(selected.id)+'&select='+BRANCH_META+',data'+(full?',base_snapshot':'')+'&limit=1');branch=rows[0];if(!branch)throw Error('Selected planning revision is unavailable. Retry.');}
+ if(selected){const projection=[...GARDEN_FIELDS,'workshop'].map(k=>k+':data->'+k).join(',');const rows=await api('chronicles_dsl_branches?'+scope+'&id=eq.'+encodeURIComponent(selected.id)+'&select='+BRANCH_META+','+(full?'data,base_snapshot':projection)+'&limit=1');branch=rows[0];if(!branch)throw Error('Selected planning revision is unavailable. Retry.');
+ if(!full&&!branch.data){const data={};for(const k of [...GARDEN_FIELDS,'workshop']){if(branch[k]!=null)data[k]=branch[k];delete branch[k];}branch={...branch,data,partialData:true};}}
  return {project:projects[0],branches:branches.map(b=>b.id===branch?.id?branch:b),branch,chapters:results[2].status==='fulfilled'?results[2].value:[],book:books[0],chapterError:results[2].status==='rejected'?String(results[2].reason.message||results[2].reason):null};
+}
+export async function completePlanningForSave(api,branch,data){
+ if(!branch.partialData)return data;
+ const rows=await api('chronicles_dsl_branches?id=eq.'+encodeURIComponent(branch.id)+'&book_id=eq.'+encodeURIComponent(branch.book_id)+'&revision=eq.'+branch.revision+'&select=data,revision&limit=1');
+ if(!rows[0]||rows[0].revision!==branch.revision)throw Error('Planning changed on another device. Reopen before saving.');
+ return {...rows[0].data,...data};
 }

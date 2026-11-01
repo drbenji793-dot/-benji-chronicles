@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {formatTime,revisionStamp} from '../src/revision-stamp.js';
+import {stampPlanningChanges,currentPlanning} from '../src/current-book-brief.js';
+import {completePlanningForSave,loadPlanning} from '../src/planning-loader.js';
+const before={characters:[{id:'a',name:'Ada',revision:3,updatedAt:'2026-10-31T12:00:00Z'},{id:'b',name:'Ben',revision:8}],rules:'Original'};
+const after=structuredClone(before);after.characters[0].name='Ada revised';after.rules='Current';
+const saved=stampPlanningChanges(before,after,{revision:12,writer:'Benji',note:'Author correction'});
+assert.equal(saved.characters[0].revision,4);assert.equal(saved.characters[0].supersedesRevision,3);assert.equal(saved.characters[0].sourceRevision,13);assert.deepEqual(saved.characters[1],before.characters[1]);assert.equal(saved.recordStamps.rules.revision,1);assert.equal(saved.currentUpdate.revision,13);
+assert(formatTime('2026-11-01T13:00:00Z').includes('EST'));assert(formatTime('2026-10-31T13:00:00Z').includes('EDT'));assert.equal(formatTime(null),'Time not recorded');assert(revisionStamp({}, {revision:12,updated_at:'2026-11-01T13:00:00Z'}).includes('source snapshot'));
+const branch={id:'b',book_id:'book',revision:12,partialData:true};
+const merged=await completePlanningForSave(async()=>[{revision:12,data:{...before,sourceDocument:{untouched:true},storyDraft:{text:'Preserve'}}}],branch,saved);
+assert.deepEqual(merged.sourceDocument,{untouched:true});assert.equal(merged.storyDraft.text,'Preserve');assert.equal(merged.characters[0].name,'Ada revised');
+await assert.rejects(()=>completePlanningForSave(async()=>[],branch,saved),/changed/);
+const projected=await loadPlanning(async path=>path.startsWith('chronicles_books')?[{id:'book'}]:path.startsWith('chronicles_dsl_projects')?[{revision:1}]:path.includes('id=eq.b')?[{id:'b',book_id:'book',revision:12,title:'Current',characters:before.characters}]:path.startsWith('chronicles_dsl_branches')?[{id:'b',book_id:'book',revision:12}]:[],{bookId:'book'});
+assert.equal(projected.branch.partialData,true);assert.equal(projected.branch.data.characters.length,2);assert(!projected.branch.data.storyDraft);
+assert.equal(currentPlanning({workshop:{questions:[{id:'old',recordStatus:'superseded'},{id:'new',status:'open'}]}}).workshop.questions.length,1);
+console.log('PASS record revisions, unchanged timestamps, DST zones, partial-load preservation, stale-save rejection and retired-source filtering');

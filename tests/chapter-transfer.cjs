@@ -1,7 +1,7 @@
 const {JSDOM}=require('jsdom'),fs=require('fs'),assert=require('assert/strict');
 const dom=new JSDOM('<main id="main"><div class="editor-area"><div class="toolbar"></div></div></main><dialog id="modal"><h2 id="modal-title"></h2><div id="modal-content"></div></dialog>',{runScripts:'outside-only'}),w=dom.window,d=w.document;
 w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
-w.eval(fs.readFileSync('src/workflow.js','utf8').replace('export function','function'));
+w.eval(require('esbuild').buildSync({entryPoints:['src/workflow.js'],bundle:true,write:false,format:'iife',globalName:'workflowModule'}).outputFiles[0].text+';window.createWorkflow=workflowModule.createWorkflow;');
 let record,fail=false,calls=[];const c={id:'ar1',language:'ar',chapter_number:1,revision:5,title:'Chapter',body:'<p>new</p>',source_entry_id:'ink1',updated_by:'Benji'};
 const api=async(path,opts)=>{if(path==='rpc/chronicles_approve'){record={approved_revision:5,approved_by:'Benji'};return;}if(path==='rpc/chronicles_transfer'){calls.push(JSON.parse(opts.body));if(fail)throw Error('CONFLICT: Ink changed');record.transferred_revision=5;record.transferred_at='2026-10-23T17:00:00Z';return;}if(path.startsWith('chronicles_workflow?'))return record?[record]:[];if(path.startsWith('chronicles_chapters?'))return [c];if(path.startsWith('ink_entries?'))return [{id:'ink1',revision:4,title:'Old',body:'<p>old</p>'}];return [];};
 const wf=w.createWorkflow({api,esc:x=>String(x||''),clean:x=>x,storage:{},say:()=>{},date:x=>x||'',getWriter:()=> 'Benji',getIndex:()=>[],refresh:()=>{},diffHTML:(a,b)=>a+' '+b,supplements:()=>{throw Error('Must not request supporting material')}});

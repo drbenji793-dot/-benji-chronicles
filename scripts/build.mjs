@@ -1,5 +1,6 @@
 import {build} from 'esbuild';
 import {readFile,writeFile} from 'node:fs/promises';
+const release=JSON.parse(await readFile('release.json','utf8'));
 const language=process.env.SITE_LANGUAGE||'ar';
 if(!['ar','en'].includes(language))throw Error('SITE_LANGUAGE must be ar or en');
 await build({entryPoints:['src/app.js'],bundle:true,minify:true,format:'esm',outfile:'public/app.js',define:{__CHRONICLES_EDITION__:JSON.stringify(language)}});
@@ -9,6 +10,7 @@ html=html.replace(/<html lang="(?:ar|en)"/,'<html lang="'+language+'"');
 html=html.replace(/<title>.*?<\/title>/,'<title>Benji Chronicles'+(language==='en'?' English':' Arabic')+' · Benji &amp; Almostasherq</title>');
 html=html.replace(/<strong>Benji Chronicles(?: English)?<\/strong>/,'<strong>Benji Chronicles'+(language==='en'?' English':'')+'</strong>');
 html=html.replace(/(name="apple-mobile-web-app-title" content=")[^"]*/, '$1Chronicles'+(language==='en'?' English':''));
+html=html.replace(/Benji Chronicles · [^<]*Reader v[^<]*/, 'Benji Chronicles · Reader v'+release.version+' · '+release.releasedAt+' · UTC').replace(/app\.js\?v=\d+/, 'app.js?v='+release.version);
 await writeFile(path,html);
 const manifest=JSON.parse(await readFile('public/manifest.webmanifest','utf8'));
 manifest.name='Benji Chronicles'+(language==='en'?' English':' Arabic');
