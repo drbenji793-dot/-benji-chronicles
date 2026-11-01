@@ -11,7 +11,7 @@ export function createNavigation({ render, allowLeave, leave, onError }) {
   active={...active,x:scrollX,y:scrollY,guideOpen:!!document.querySelector('#guide-content:not([hidden])'),details:[...document.querySelectorAll('#main details')].map(el=>el.open)};replace(active);
  }
  async function display(entry){
-  loading=true;active=entry;
+  loading=true;active=entry;document.querySelector('#main')?.setAttribute('aria-busy','true');
   try{await render();
    if(state()?.id===entry.id){active={...entry,hash:location.hash};replace(active);}
    if(entry.guideOpen){const gate=document.querySelector('.guide-gate'),guide=document.querySelector('#guide-content');if(gate&&guide){gate.hidden=true;guide.hidden=false;}}
@@ -19,7 +19,7 @@ export function createNavigation({ render, allowLeave, leave, onError }) {
    await document.fonts.ready;
    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
    if(state()?.id===entry.id)window.scrollTo(entry.x||0,entry.y||0);
-  }catch(e){onError(e)}finally{loading=false;}
+  }catch(e){onError(e)}finally{loading=false;document.querySelector('#main')?.setAttribute('aria-busy','false');}
  }
  async function navigate(hash){
   hash=hash==='#'?'':hash;
