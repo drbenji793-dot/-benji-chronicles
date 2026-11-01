@@ -4,7 +4,8 @@ export function formatTime(value){
  return new Intl.DateTimeFormat('en-US',{year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'America/New_York',timeZoneName:'short'}).format(new Date(value))+' · America/New_York';
 }
 export function revisionStamp(record={},fallback={}){
- const revision=record.revision??record.sourceRevision??fallback.revision;
+ const revision=record.revision;
+ const sourceRevision=record.sourceRevision??fallback.revision;
  const time=record.updatedAt||record.updated_at||fallback.updated_at;
- return (revision==null?'Revision not recorded':'r'+revision)+' · '+formatTime(time)+(record.updatedAt||record.updated_at?'':' · source snapshot');
+ return (revision==null?(sourceRevision==null?'Revision not recorded':'Source r'+sourceRevision):'r'+revision)+' · '+formatTime(time)+(record.updatedAt||record.updated_at?'':' · source snapshot');
 }
