@@ -1,4 +1,5 @@
 import {JSDOM} from 'jsdom';
+import {build} from 'esbuild';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {COLLECTION_PLANNING,ENGLISH_PLANNING,collectionRoute} from '../src/collection-workspace.js';
@@ -10,8 +11,8 @@ const books=titles.map((title,i)=>({id:(language==='en'?ENGLISH_PLANNING:COLLECT
 const extraBook={id:'11111111-1111-4111-8111-111111111111',title:'Future Book',language,primary_writer:'Benji',collaboration:'shared'};
 books.push(extraBook,{...extraBook,id:'ff9fed20-1254-45b6-82f4-9f7b9fe7c3ba',title:'Outside Time'});
 const branches=books.map((b,i)=>({id:'branch-'+(i+1),book_id:b.id,revision:1,name:'Main Path',updated_by:'Benji',data:{...makeMasterStory(b.title),events:[{id:'event-'+(i+1),title:'Event '+(i+1),summary:'Story '+(i+1),order:1,status:'draft',type:'event',year:null,sourceId:chapters[i]?.id,sourceChapter:1,sourceRevision:7}]}}));
-const dom=new JSDOM(readFileSync('public/index.html','utf8').replace(/<script[\s\S]*?<\/script>/g,''),{url:'https://benji-chronicles.vercel.app/#book=ff9fed20-1254-45b6-82f4-9f7b9fe7c3ba&view=brief',runScripts:'outside-only',pretendToBeVisual:true});
-const w=dom.window;w.matchMedia=()=>({matches:false});w.scrollTo=()=>{};w.document.fonts={ready:Promise.resolve()};w.confirm=()=>true;w.HTMLElement.prototype.scrollIntoView=()=>{};w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
+const dom=new JSDOM(readFileSync('public/index.html','utf8').replace(/<script[\s\S]*?<\/script>/g,''),{url:(language==='en'?'https://benji-chronicles-english.vercel.app/':'https://benji-chronicles.vercel.app/')+'#book=ff9fed20-1254-45b6-82f4-9f7b9fe7c3ba&view=brief',runScripts:'outside-only',pretendToBeVisual:true});
+const w=dom.window;w.structuredClone=structuredClone;w.matchMedia=()=>({matches:false});w.scrollTo=()=>{};w.document.fonts={ready:Promise.resolve()};w.confirm=()=>true;w.HTMLElement.prototype.scrollIntoView=()=>{};w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
 const writes=[],reads=[];
 w.fetch=async(url,o={})=>{const u=new URL(url),table=u.pathname.split('/').at(-1),p=u.searchParams;reads.push([table,p.toString()]);let rows=[];
  if(o.method&&o.method!=='GET'){
@@ -28,14 +29,14 @@ w.fetch=async(url,o={})=>{const u=new URL(url),table=u.pathname.split('/').at(-1
 branches.at(-1).data={summary:'Saved Outside Time synopsis',events:[{title:'Written scene',status:'written',summary:'Saved written scene',order:1},{title:'Possible ending',status:'proposal',summary:'Proposed ending only',order:2}]};
 const blobs=[],downloads=[];w.URL.createObjectURL=blob=>{blobs.push(blob);return 'blob:test-'+blobs.length};w.URL.revokeObjectURL=()=>{};
 const originalClick=w.HTMLAnchorElement.prototype.click;w.HTMLAnchorElement.prototype.click=function(){if(this.hasAttribute('download'))downloads.push(this.download);else originalClick.call(this)};
-w.eval(readFileSync(process.env.TEST_BUNDLE||'public/app.js','utf8').replaceAll('import.meta.url',JSON.stringify('https://benji-chronicles.vercel.app/app.js')));const q=s=>w.document.querySelector(s);const wait=()=>new Promise(r=>setTimeout(r,180));
+const bundle=await build({entryPoints:['src/app.js'],bundle:true,write:false,format:'iife',logLevel:'silent',define:{__CHRONICLES_EDITION__:JSON.stringify(language),'import.meta.url':JSON.stringify('https://example.com/app.js')}});w.eval(bundle.outputFiles[0].text);const q=s=>w.document.querySelector(s);const wait=()=>new Promise(r=>setTimeout(r,180));
 try {
  await wait();
  assert(q('.synopsis-reading').textContent.includes('Saved Outside Time synopsis'));
  assert(q('.synopsis-reading').textContent.includes('Saved written scene'));
  assert(q('.synopsis-reading').textContent.includes('Not approved'));
  q('#full-story-package').click();
- assert.equal(downloads.length,1,'Full Story Package starts a download directly');
+ assert.equal(downloads.length,1,'Full Story Package starts a download directly: '+q('#export-message').textContent);
  assert.equal(blobs.length,1);
  assert.equal(q('#book-export-form').hidden,true);
  assert.equal(q('#export-file-links a[download]').textContent,'Download HTML');
@@ -44,6 +45,7 @@ try {
  assert(html.includes('Exact saved manuscript text'));
  assert(html.includes('Saved Outside Time synopsis'));
  assert(html.includes('Proposed ending only'));
+ const exported=new JSDOM(html),doc=exported.window.document;assert.equal(doc.documentElement.lang,'en');assert.equal(doc.documentElement.dir,'ltr');assert.equal(doc.querySelector('#chapters article').dir,language==='ar'?'rtl':'ltr');assert([...doc.querySelectorAll('.technical-details')].every(x=>!x.open));const stamp=[...doc.querySelectorAll('.technical-details')].find(x=>x.textContent.includes('Exported '));assert(stamp);assert(stamp.textContent.includes('r4'));assert(stamp.textContent.includes('America/New_York'));assert.equal((html.match(/Exported /g)||[]).length,1);assert.equal(doc.querySelector('nav').textContent,'Story BriefStorylineChaptersCharactersWriting Rules');exported.window.close();
  assert.equal(writes.length,0);
  console.log('PASS saved synopsis and events appear; one click creates HTML containing exact chapters; persistent iPhone links; no data writes');
 }finally{w.close()}
