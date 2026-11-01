@@ -36,7 +36,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   const chapterList=()=>entries.filter(e=>e.kind==='chapter').sort((a,b)=>a.chapter_number-b.chapter_number);
   const link=id=>'#book='+id+(id===IBN_BOOK&&new URLSearchParams(location.hash.slice(1)).get('archive')==='1'?'&archive=1':'');
   const entryLink=entry=>link(entry.book_id)+(entry.kind==='rules'?'&rules=1':'&chapter='+entry.chapter_number);
-  const writerLabel=e=>e.updated_by==='Ahmed'?'author-ahmed':e.updated_by==='Guest'?'author-guest':'author-benji';
+  const writerLabel=e=>e.updated_by==='Ahmed'?'author-ahmed':e.updated_by==='Guest'?'author-guest':e.updated_by==='Guest 2'?'author-guest2':'author-benji';
 
   const illustratedBook='824a4e1d-dc55-5876-88e4-4da32082c55b';
   let illustratedCount=0;
@@ -536,7 +536,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     const notes=await api('chronicles_book_notes?entry_id=eq.'+id+'&select=*&order=created_at.asc');
     if(active?.id!==id||!$('#chronicles-notes'))return;
     $('#chronicles-note-count').textContent='('+notes.length+')';
-    $('#chronicles-notes').innerHTML=notes.map(n=>`<div class="note ${n.author==='Ahmed'?'ahmed':'zee'}">
+    $('#chronicles-notes').innerHTML=notes.map(n=>`<div class="note ${n.author==='Ahmed'?'ahmed':n.author==='Guest'?'guest':n.author==='Guest 2'?'guest2':'zee'}">
       <small><strong>${esc(n.author)}</strong> · ${date(n.created_at)}</small>${n.quote_text?`<blockquote dir="auto">${esc(n.quote_text)}</blockquote><small>نسخة الفصل وقت التعليق: ${n.source_revision||''}</small>`:''}<p dir="auto">${esc(n.body)}</p><button data-resolve-note="${n.id}">${n.resolved_at?'إعادة فتح الملاحظة':'اتعالجت'}</button>${n.resolved_at?`<small>اتعالجت بواسطة ${esc(n.resolved_by)} · ${date(n.resolved_at)}</small>`:''}
     </div>`).join('');
     document.querySelectorAll('[data-resolve-note]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const n=notes.find(n=>n.id===b.dataset.resolveNote);await api('chronicles_book_notes?id=eq.'+n.id,{method:'PATCH',body:JSON.stringify({resolved_at:n.resolved_at?null:new Date().toISOString(),resolved_by:n.resolved_at?null:getWriter()})});await loadNotes(id);}catch(e){say(e.message,true);b.disabled=false;}});

@@ -45,3 +45,6 @@ body .author-help{font-size:12px;margin:6px 0}.author-row{gap:6px!important}.wri
 body .edition-bridge{padding:8px 16px;margin:12px auto;max-width:900px;font-size:12px}body .edition-bridge a,body .edition-bridge summary{font-size:12px;padding:6px 10px;min-height:32px}body .edition-bridge[hidden]{display:none!important}
 
 .connection-chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.connection-chips button,.connection-chip{border:1px solid var(--line,#b7a58c);border-radius:7px;padding:8px 10px;min-height:44px;max-width:100%;white-space:normal;overflow-wrap:anywhere;font-size:14px}.dsl-dialog-body p[dir=auto]{white-space:pre-wrap}.dsl-dialog-body .technical-details{font-size:12px}
+
+/* Four writer choices and the colors toggle share one compact phone row. */
+@media(max-width:600px){body .author-row{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:6px!important}.author-row .writer-buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));min-width:0}.author-row .writer-buttons button{font-size:12px!important;padding:8px 2px!important;min-width:0;white-space:nowrap}body #author-colors{min-height:44px;padding:6px 2px}}

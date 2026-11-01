@@ -18,3 +18,5 @@
 @media print{.dsl-tools,.dsl-tabs,.dsl-bar,.dsl-foot,.dsl-connectors,.dsl-event button,.dsl-dialog{display:none!important}.dsl-lanes,.dsl-grid{display:block}.dsl-event,.dsl-readable article{break-inside:avoid}.dsl{max-width:none}.dsl-summary{break-inside:avoid}}
 
 .dsl-lane[data-era=unknown]{grid-column:1/-1}.dsl-lane[data-era=unknown] .dsl-cards{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}.dsl-review-item pre{font:12px/1.7 monospace;white-space:pre-wrap;overflow-wrap:anywhere;direction:ltr;text-align:left}.dsl-connectors path{opacity:.4}.book-navigation .ink-tabs{flex-wrap:wrap}
+
+.dsl-author[data-author="Guest 2"]{color:#75449b;background:#eee2f5}.dsl-author[data-author=Guest]{color:#246b43;background:#e0ecdf}

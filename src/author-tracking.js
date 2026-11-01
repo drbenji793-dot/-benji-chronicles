@@ -1,4 +1,4 @@
-const authorClass=el=>['author-ahmed','author-benji','author-guest'].find(c=>el?.classList?.contains(c));
+const authorClass=el=>['author-ahmed','author-benji','author-guest','author-guest2'].find(c=>el?.classList?.contains(c));
 export function normalizeAuthorSpans(root){
  // One inline run per author preserves Arabic shaping and avoids per-letter nesting.
  for(const span of [...root.querySelectorAll('span')].reverse()){
@@ -23,7 +23,7 @@ export function trackAuthors(el,getWriter,onChange){
  let oldEnd=previous.length,end=now.length;while(oldEnd>start&&end>start&&previous[oldEnd-1]===now[end-1]){oldEnd--;end--}
  if(end>start){const sel=window.getSelection();let anchor,focus;if(sel.rangeCount&&el.contains(sel.anchorNode)&&el.contains(sel.focusNode)){anchor=offset(sel.anchorNode,sel.anchorOffset);focus=offset(sel.focusNode,sel.focusOffset)}
  const walk=document.createTreeWalker(el,NodeFilter.SHOW_TEXT),parts=[];let node,pos=0;while(node=walk.nextNode()){const next=pos+node.length;if(next>start&&pos<end)parts.push([node,Math.max(0,start-pos),Math.min(node.length,end-pos)]);pos=next}
- for(const [text,a,b] of parts){const r=document.createRange();r.setStart(text,a);r.setEnd(text,b);const span=document.createElement('span');span.className=getWriter()==='Ahmed'?'author-ahmed':getWriter()==='Guest'?'author-guest':'author-benji';r.surroundContents(span)}
+ for(const [text,a,b] of parts){const r=document.createRange();r.setStart(text,a);r.setEnd(text,b);const span=document.createElement('span');span.className=getWriter()==='Ahmed'?'author-ahmed':getWriter()==='Guest'?'author-guest':getWriter()==='Guest 2'?'author-guest2':'author-benji';r.surroundContents(span)}
  normalizeAuthorSpans(el);
  if(anchor!==undefined){const [an,ao]=point(anchor),[fn,fo]=point(focus);sel.setBaseAndExtent(an,ao,fn,fo)}
  }
