@@ -1,6 +1,6 @@
 {
-  "version": 164,
-  "releasedAt": "2026-11-02T00:49:10.035822+00:00",
+  "version": 165,
+  "releasedAt": "2026-11-02T00:58:15.163409+00:00",
   "timezone": "UTC",
-  "note": "One bottom Technical details panel; remove HQ footer button"
+  "note": "Inset technical panel; shelf resume and trash inside; remove edition home link"
 }
