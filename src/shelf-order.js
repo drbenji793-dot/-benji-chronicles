@@ -20,7 +20,7 @@ export async function mountShelfOrder(shelf,api){
  if(items.length<2)return;
  const bar=document.createElement('div');bar.className='shelf-arrange';bar.dir='ltr';
  bar.innerHTML='<button type="button" data-arrange aria-pressed="false">Arrange books</button><span role="status" aria-live="polite">Loading saved order…</span><button type="button" data-undo hidden>Undo</button>';
- grid.before(bar);const status=bar.querySelector('[role=status]'),toggle=bar.querySelector('[data-arrange]'),undo=bar.querySelector('[data-undo]');
+ shelf.append(bar);const status=bar.querySelector('[role=status]'),toggle=bar.querySelector('[data-arrange]'),undo=bar.querySelector('[data-undo]');
  let record,prior=null,busy=false,arranging=false,drag=null,pending=null,timer,frame,suppressUntil=0;
  const keys=()=>[...grid.children].map(x=>x.dataset.shelfKey).filter(Boolean);
  const apply=order=>{const all=new Map(items.map(x=>[x.dataset.shelfKey,x]));for(const key of [...order,...keys()]){const el=all.get(key);if(el){grid.append(el);all.delete(key);}}buttons();};

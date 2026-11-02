@@ -85,3 +85,7 @@ html body .shelf-arrange{display:flex;align-items:center;flex-wrap:nowrap;gap:6p
 html body .shelf-arrange button{flex:0 0 auto;min-height:24px;margin:0;padding:2px 4px;border:0;border-radius:3px;background:transparent;font:inherit;color:inherit;white-space:nowrap}
 html body .shelf-arrange [role="status"]{flex:0 1 auto;min-width:0;font:inherit;overflow-wrap:anywhere}
 html body .shelf-arrange button[aria-pressed="true"]{background:rgba(100,100,100,.15)}
+
+/* Compact arrangement strip beneath the bookshelf. */
+html body .shelf-arrange{font:9px/1.25 system-ui,sans-serif;margin:10px 0 4px;padding:1px 5px;gap:4px;border-radius:4px}
+html body .shelf-arrange button{font:inherit;min-height:20px;padding:1px 3px}
