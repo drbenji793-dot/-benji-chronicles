@@ -1,6 +1,6 @@
 {
-  "version": 187,
-  "releasedAt": "2026-11-02T09:24:45.340725+00:00",
+  "version": 188,
+  "releasedAt": "2026-11-02T09:38:27.284143+00:00",
   "timezone": "UTC",
-  "note": "Reject stale chapter note resolution updates"
+  "note": "Guard book metadata and note revisions, preserve recovery history, stamp critique reports"
 }

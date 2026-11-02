@@ -25,6 +25,10 @@ The latest planning update appears inside the existing collapsed bottom Technica
 
 `public/update-reference.json` is generated during build. It declares edition, release, mechanism schema, source locations and the build commit when Vercel supplies it. Missing deployment/database metadata is explicitly unknown, never invented. Vercel deployment records remain authoritative for live state.
 
+## v188 extension
+
+Book controls, book connection edits and writing note resolution now use record revision guards. Additive database triggers stamp changed rows and retain private recovery snapshots. Critique reports now enter the shared planning update record. See `save-path-audit.md` for the precise coverage and administrative helper. Existing rows use revision zero as initialization and keep unknown modification times unknown.
+
 ## Remaining work
 
 This is shared planning integration, not full server-wide enforcement. Direct SQL maintenance, chapter/rule save paths outside DSL, externally created records and migration-version discovery still require a further audit. Existing conflicting story decisions remain unresolved. The mechanism cannot automatically decide which contradictory narrative statement is correct. Actual iPhone acceptance remains outstanding.

@@ -3,16 +3,17 @@
   "version": 1,
   "edition": "ar",
   "release": {
-    "version": 187,
-    "releasedAt": "2026-11-02T09:24:45.340725+00:00",
+    "version": 188,
+    "releasedAt": "2026-11-02T09:38:27.284143+00:00",
     "timezone": "UTC",
-    "note": "Reject stale chapter note resolution updates"
+    "note": "Guard book metadata and note revisions, preserve recovery history, stamp critique reports"
   },
   "mechanismVersion": 1,
   "commit": null,
   "deployment": null,
   "databaseMigrationVersion": null,
-  "scope": "Chronicles shared planning writes; other write paths require audit",
+  "requiredDatabaseMigration": "20261102093913",
+  "scope": "Chronicles planning, critique, book metadata and note resolution; see docs/save-path-audit.md",
   "sources": {
     "planning": "chronicles_dsl_branches: book_id + id + revision",
     "publication": "chronicles_dsl_projects",
@@ -22,7 +23,7 @@
   "verification": "Release checks required by vercel.json; live deployment state is recorded by Vercel",
   "pending": [
     "Actual iPhone acceptance",
-    "Direct database and non-DSL write path enforcement",
+    "Remaining RPC and recovery audit; raw SQL requires explicit source checks",
     "Unrecorded editorial consequences"
   ]
 }

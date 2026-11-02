@@ -1,0 +1,77 @@
+# Chronicles save path audit
+
+Scope: Arabic and English Chronicles. Starting live release v187, commit
+03706aad333d5a9902f2af8954c0cd1cc847c0e0. HQ and SCP are excluded.
+
+## Checked paths
+
+| Path | Concurrency protection | Record and recovery | Result |
+| --- | --- | --- | --- |
+| Original chapter text | ID + source revision PATCH | Database revision and history triggers | Existing guard confirmed |
+| Independent chapter text and book rules | ID + source revision PATCH | Database entry stamp and archive | Existing guard confirmed |
+| Chapter rename | ID + source revision PATCH | Same chapter history | Existing guard confirmed |
+| Part rename | ID + source revision PATCH | Database part stamp | Guard confirmed; separate part recovery history remains to audit |
+| Chapter insertion | RPC expected chapter count | Existing RPC | RPC integration tests pass; broader server audit remains |
+| Shelf order | RPC expected revision | Existing shelf order record | Existing guard confirmed |
+| Name bank | ID + revision PATCH | Database stamp and archive | Existing guard confirmed |
+| Story resource | RPC expected revision | Resource history | Existing guard confirmed |
+| Planning and Story World | Book + branch + revision PATCH | Shared update record, database history | Implemented in v186 |
+| Critique report | Book + branch + revision PATCH | Now uses shared update record and branch history | Fixed in v188 |
+| Book rename, Trash, Restore | Book key + revision PATCH; plain INSERT for first record | New database stamps and private previous/current snapshots | Fixed in v188 |
+| Related work | Book ID + revision PATCH | New database stamps and private recovery | Fixed in v188; retired UI stays retired |
+| Note Resolve and Reopen | Entry + note ID + revision + prior resolution state | New database stamps and private recovery | Upgraded in v188; catches resolve/reopen cycles |
+| New notes | INSERT; original source revision retained where supplied | Original created time; new notes get metadata via trigger | No overwrite operation |
+| Approval and transfer | RPC explicit chapter/target revision | Existing workflow record | Existing tests pass; not a claim of exhaustive SQL audit |
+| Adaptation title/setting | Story + revision PATCH | Existing revision update | Guard present; separate recovery remains to audit |
+
+## Database change
+
+`db/update-record-guards.sql` adds metadata to book controls, books and book notes.
+Existing rows have revision 0 and unknown updated_at. The change does not invent
+past timestamps. The first actual change is revision 1. No-op writes preserve the
+revision and timestamp. Previous and current JSON records are retained in the
+private `chronicles_internal.record_history` table. Browser roles cannot change
+or read that recovery table. Recovery is currently an administrative operation,
+not a new website history button.
+
+The private trigger function uses SECURITY DEFINER only to append recovery
+records without granting browser write access to history. It is not an exposed
+RPC and has an empty search path. Existing public table policies are unchanged.
+The selected writer is attribution, not verified authentication.
+
+## Administrative maintenance
+
+Use `chronicles_internal.update_record(table,id,expected_revision,patch,writer,note)`
+for maintenance of the three new guarded paths. It checks the source revision
+atomically and rejects unrelated fields. Run within a transaction, inspect the
+returned record, verify preservation, then commit. Read the current revision
+first. Never update recovery history to conceal a previous record.
+
+Raw SQL can still bypass the compare-before-write helper. The triggers record
+changes but cannot infer which revision an administrator intended to edit.
+This limitation is explicit, rather than a claim of universal server enforcement.
+Other tables must retain their existing guarded maintenance procedures until
+individually audited. No direct content maintenance is part of v188.
+
+## Verification
+
+Database migration and guard tests run inside a rolled-back transaction first.
+Tests check anonymous role writes, incremented revisions, stale rejection,
+no-op preservation, private recovery history and administrative helper conflicts.
+Client tests check a first-create race, stale rename/Trash/Restore, book scoping,
+related work, note resolve/reopen cycles and critique draft recovery.
+
+Actual iPhone Safari acceptance, unknown narrative dependencies and the remaining
+server RPC/history audit are still open. These cannot be closed by desktop tests.
+
+Migration applied: `20261102093913`, `chronicles_record_revision_recovery`.
+Before/after content fingerprints match for 5 book controls, 31 books and 34
+writing notes. The database tests were repeated after migration and rolled back.
+Security review has no new exposed access: the recovery table intentionally has
+RLS with no browser policies and no schema access. The advisor's informational
+no-policy notice is expected for this private table:
+https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy
+
+Recovery checkpoint: application commit 03706aad333d5a9902f2af8954c0cd1cc847c0e0.
+An application rollback can retain these additive columns and triggers. Do not
+remove recorded history as part of an application rollback.
