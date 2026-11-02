@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {JSDOM} from 'jsdom';
+import {pendingWork,pendingWorkHTML,loadPendingWork} from '../src/pending-work.js';
+const data={workshop:{questions:[{id:'q',title:'سؤال',status:'open'},{id:'q',status:'open'},{id:'a',status:'approved',answer:'Yes'},{id:'d',status:'deferred'},{id:'done',status:'applied'},{id:'old',recordStatus:'superseded',status:'open'}],reviewEventIds:['e','e','missing'],synopsisNeedsReview:true},events:[{id:'e',title:'Event'}],editorialFindings:[{id:'f',bookId:'b',branchId:'r',chapterId:'c',chapterRevision:2,title:'<script>alert(1)</script>',status:'accepted',repairs:[{status:'approved'}]},{id:'foreign',bookId:'elsewhere',branchId:'r',status:'proposed'}]};
+const before=JSON.stringify(data),scope={bookId:'b',branchId:'r',chapters:[{id:'c',revision:2}]};
+const rows=pendingWork(data,scope);assert.equal(rows.length,6);assert.equal(rows.find(x=>x.id==='f').state,'Approved repair awaiting verification');assert.equal(rows.find(x=>x.id==='missing').state,'Source unavailable');assert.equal(rows.find(x=>x.id==='a').group,'Answers awaiting application');
+assert.equal(pendingWork(data,{...scope,chapters:[]}).find(x=>x.id==='f').state,'Source changed');
+const repaired=structuredClone(data);repaired.editorialFindings[0].repairs=[{status:'verified',verification:{chapterId:'c',chapterRevision:3}}];assert.equal(pendingWork(repaired,{...scope,chapters:[{id:'c',revision:3}]}).find(x=>x.id==='f').state,'Continuity check needed');
+const html=pendingWorkHTML(data,{...scope,route:(view,params)=>'#'+new URLSearchParams({book:'b',dslbranch:'r',view,...params})});
+const doc=new JSDOM(html).window.document;assert.equal(doc.querySelector('details').open,false);assert.equal(doc.querySelectorAll('[data-pending-key]').length,6);assert.equal(doc.querySelectorAll('script').length,0);assert.match(doc.querySelector('[data-pending-key="finding:f"] a').href,/focusid=f/);assert.match(doc.querySelector('[data-pending-key="event:e"] a').href,/reviewevent=e/);assert.equal(JSON.stringify(data),before);
+let path;assert.deepEqual(await loadPendingWork(async p=>{path=p;return [data]},'b',{id:'r',revision:7}),data);assert.match(path,/book_id=eq.b&id=eq.r&revision=eq.7/);assert.doesNotMatch(path,/select=\*|history|body/);await assert.rejects(loadPendingWork(async()=>[],'b',{id:'r',revision:7}),/Planning changed/);
+console.log('PASS shared pending work: deduplication, scoped sources, stale evidence, truthful states, safe links and no data mutation');
