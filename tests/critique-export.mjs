@@ -16,7 +16,12 @@ for(const language of ['ar','en']){
  assert(doc.body.textContent.includes('No saved text supplied'));
  assert.equal(doc.body.textContent.includes('English 2'),language==='en');
  assert.equal(doc.body.textContent.includes('zk5'),language==='ar');
- assert([...doc.querySelectorAll('.technical-details')].every(d=>!d.open));
+ assert.equal(doc.querySelectorAll('.technical-details').length,1);
+ assert(doc.body.lastElementChild.matches('.technical-details'));
+ assert.equal(doc.body.lastElementChild.open,false);
+ assert(doc.body.lastElementChild.textContent.includes('Source r4'));
+ assert(doc.body.lastElementChild.textContent.includes('Source r2'));
+ assert.equal(doc.querySelectorAll('section .technical-details').length,0);
  await renderCritique(document.querySelector('main'),async p=>p==='chapters'?chapters:[],context);
  assert(!document.querySelector('main').textContent.includes('نقد صارم'));
  assert.equal(document.querySelector('.critique-page').dir,'ltr');
@@ -25,7 +30,7 @@ for(const language of ['ar','en']){
  dom.window.HTMLAnchorElement.prototype.click=function(){filename=this.download;};
  const originalTimer=globalThis.setTimeout;globalThis.setTimeout=()=>0;
  document.querySelector('[data-brief]').click();globalThis.setTimeout=originalTimer;
- assert.equal(filename,'Review_Brief_v002.html');assert.equal(blob.type,'text/html;charset=utf-8');
+ assert.equal(filename,'Review_Brief_v003.html');assert.equal(blob.type,'text/html;charset=utf-8');
  assert((await blob.text()).startsWith('<!doctype html>'));
  assert.equal(JSON.stringify(chapters),before);
  dom.window.close();
