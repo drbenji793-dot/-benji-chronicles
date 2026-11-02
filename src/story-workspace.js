@@ -1,3 +1,4 @@
+import {pendingWorkHTML} from './pending-work.js';
 import {questionLabel} from './question-lifecycle.js';
 import {questionGroups} from './decision-state.js';
 import {escapeHTML as h} from './dsl-engine.js';
@@ -5,7 +6,7 @@ import {activeRecord,stampPlanningChanges} from './current-book-brief.js';
 import {savedStoryBrief} from './story-brief.js';
 import {technicalPanel,revisionStamp} from './revision-stamp.js';
 import {handoffCSS} from './handoff-format.js';
-const fields=['summary','hypothesis','storyBrief','currentStory','storyDraft','characters','events','workshop'];
+const fields=['summary','hypothesis','storyBrief','currentStory','storyDraft','characters','events','workshop','editorialFindings'];
 export function storySections(data={}){
  const groups=questionGroups(data);
  return {summary:typeof data.summary==='string'?data.summary:'',full:savedStoryBrief(data),
@@ -48,7 +49,7 @@ export async function renderStoryWorkspace(main,api,{bookId,title,language='ar',
  '<details data-full-planning><summary>Full synopsis and planning notes</summary><div class="story-text" dir="auto">'+h(s.full)+'</div><a href="'+route('dsl','&dslview=synopsis')+'">Review synopsis</a></details>'+
  '<details data-chapter-planning><summary>Chapter plan ('+s.chapters.length+')</summary>'+s.chapters.map((c,i)=>'<details><summary dir="auto">'+h(c.title||'Chapter '+(i+1))+'</summary><div class="story-text" dir="auto">'+h([c.summary,...(c.points||[])].filter(Boolean).join('\n'))+'</div></details>').join('')+(!s.chapters.length?'<p>No chapter outline recorded.</p>':'')+'<p>Planning summaries are separate from saved chapter text.</p></details>'+
  '<details><summary>Characters ('+s.characters.length+')</summary><div class="story-actions">'+s.characters.map(c=>'<a dir="auto" href="'+route('dsl','&dslview=characters&focuskind=character&focusid='+encodeURIComponent(c.id))+'">'+h(c.name)+'</a>').join('')+'</div></details>'+
- '<details><summary>Pending decisions ('+(s.open.length+s.pending.length)+')</summary>'+[...s.open,...s.pending].map(q=>'<p><a dir="auto" href="'+route('dsl','&dslview=decisions&focuskind=question&focusid='+encodeURIComponent(q.id))+'">'+h(q.title||q.prompt||'Open question')+'</a> · '+h(questionLabel(q))+'</p>').join('')+(!s.open.length&&!s.pending.length?'<p>No pending question recorded.</p>':'')+'<a href="'+route('dsl','&dslview=decisions')+'">All decisions'+(s.deferred.length?' · '+s.deferred.length+' deferred':'')+'</a></details>'+
+ pendingWorkHTML(data,{bookId,branchId:branch?.id,route:(view,params={})=>route(view,'&'+new URLSearchParams(params))})+
  '<details><summary>Help and resources</summary><p>Edit updates the concise story summary only. Full planning, chapter text and author decisions remain separate. Export uses the version displayed here.</p>'+extraLinks+'<a href="'+route('dsl','&dslview=history')+'">History</a></details><p data-status role="status"></p>'+technicalPanel('<p>'+h(revisionStamp(branch||{}))+'</p>');
  const q=x=>host.querySelector(x),text=()=>selectedStoryText(data,selectedView);
  const chooseView=()=>{q('[data-story-view]').value=selectedView;q('[data-summary]').textContent=text();q('[data-edit]').disabled=!branch||selectedView!=='short';q('[data-full-planning]').hidden=selectedView==='full';q('[data-chapter-planning]').hidden=selectedView==='chapters';};chooseView();

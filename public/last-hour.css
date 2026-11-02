@@ -186,3 +186,10 @@ html body #main .editor-area>[data-page-technical]{font-size:11px}
 .finding-workflow .story-text,.review-exchange p{white-space:pre-wrap;overflow-wrap:anywhere}
 .finding-workflow button,.review-exchange button{max-width:100%;white-space:normal}
 .story-workspace [data-story-view]{font:12px/1.5 system-ui;max-width:100%;padding:6px 10px;min-width:0}
+
+/* Shared pending work projection: compact, current records only. */
+.pending-work{margin:12px 0;padding:6px 10px;background:rgba(90,90,90,.06);border:1px solid rgba(70,70,70,.22);border-radius:6px;direction:ltr;text-align:start;font:12px/1.45 system-ui,sans-serif}
+.pending-work>summary{cursor:pointer;font:inherit;font-weight:600;padding:3px 0}
+.pending-work section{margin:10px 0}.pending-work h4{font:600 12px/1.4 system-ui,sans-serif;margin:4px 0}
+.pending-work ul{list-style:none;padding:0;margin:0}.pending-work li{padding:6px 0;border-top:1px solid rgba(70,70,70,.12);overflow-wrap:anywhere}
+.pending-work li a{font:inherit}.pending-work small{display:block;font:11px/1.4 system-ui,sans-serif;opacity:.8}.pending-work p{font:11px/1.4 system-ui,sans-serif;margin:6px 0}
