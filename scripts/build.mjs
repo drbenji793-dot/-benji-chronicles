@@ -19,3 +19,13 @@ manifest.short_name=language==='en'?'Chronicles EN':'Chronicles';
 manifest.background_color='#d9c4ab';
 await writeFile('public/manifest.webmanifest',JSON.stringify(manifest,null,2)+'\n');
 console.log('Built Chronicles '+language);
+
+await writeFile('public/update-reference.json',JSON.stringify({
+ format:'chronicles-update-reference',version:1,edition:language,
+ release,mechanismVersion:1,commit:process.env.VERCEL_GIT_COMMIT_SHA||null,
+ deployment:process.env.VERCEL_URL||null,databaseMigrationVersion:null,
+ scope:'Chronicles shared planning writes; other write paths require audit',
+ sources:{planning:'chronicles_dsl_branches: book_id + id + revision',publication:'chronicles_dsl_projects',history:'chronicles_dsl_history',chapters:'chronicles_book_entries or chronicles_chapters by book and language'},
+ verification:'Release checks required by vercel.json; live deployment state is recorded by Vercel',
+ pending:['Actual iPhone acceptance','Direct database and non-DSL write path enforcement','Unrecorded editorial consequences']
+},null,2)+'\n');

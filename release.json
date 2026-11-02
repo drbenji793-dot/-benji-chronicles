@@ -1,6 +1,6 @@
 {
-  "version": 185,
-  "releasedAt": "2026-11-02T03:26:54.976205+00:00",
+  "version": 186,
+  "releasedAt": "2026-11-02T03:51:55.010889+00:00",
   "timezone": "UTC",
-  "note": "Stack chapter footer panels together without the empty technical details gap"
+  "note": "Shared planning update records, dependency flags, complete stamps and enforced release checks"
 }

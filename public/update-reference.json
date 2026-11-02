@@ -1,0 +1,28 @@
+{
+  "format": "chronicles-update-reference",
+  "version": 1,
+  "edition": "ar",
+  "release": {
+    "version": 186,
+    "releasedAt": "2026-11-02T03:51:55.010889+00:00",
+    "timezone": "UTC",
+    "note": "Shared planning update records, dependency flags, complete stamps and enforced release checks"
+  },
+  "mechanismVersion": 1,
+  "commit": null,
+  "deployment": null,
+  "databaseMigrationVersion": null,
+  "scope": "Chronicles shared planning writes; other write paths require audit",
+  "sources": {
+    "planning": "chronicles_dsl_branches: book_id + id + revision",
+    "publication": "chronicles_dsl_projects",
+    "history": "chronicles_dsl_history",
+    "chapters": "chronicles_book_entries or chronicles_chapters by book and language"
+  },
+  "verification": "Release checks required by vercel.json; live deployment state is recorded by Vercel",
+  "pending": [
+    "Actual iPhone acceptance",
+    "Direct database and non-DSL write path enforcement",
+    "Unrecorded editorial consequences"
+  ]
+}

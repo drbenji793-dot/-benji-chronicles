@@ -1,11 +1,11 @@
 {
   "id": "/",
-  "name": "Benji Chronicles",
+  "name": "Benji Chronicles Arabic",
   "short_name": "Chronicles",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f6f3ec",
+  "background_color": "#d9c4ab",
   "theme_color": "#304c40",
   "icons": [
     {
