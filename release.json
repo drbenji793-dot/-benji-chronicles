@@ -1,6 +1,6 @@
 {
-  "version": 179,
-  "releasedAt": "2026-11-02T02:35:36.417704+00:00",
+  "version": 180,
+  "releasedAt": "2026-11-02T02:39:45.468041+00:00",
   "timezone": "UTC",
-  "note": "Review Brief v003 consolidates source and export stamps in one collapsed bottom panel"
+  "note": "Legacy full book HTML exports use one collapsed bottom technical panel and English export controls"
 }
