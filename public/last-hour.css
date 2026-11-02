@@ -180,3 +180,9 @@ html body #main .editor-area>[data-page-technical]{font-size:11px}
 .review-findings button{justify-self:start;padding:5px 9px;min-height:28px;min-width:0;max-width:100%;white-space:normal}
 .review-findings p,.review-findings summary{overflow-wrap:anywhere}
 .review-findings [data-passage-text]{max-height:360px;overflow-y:auto;min-width:0}
+/* Review exchange and repairs share the compact finding controls. */
+.review-exchange input[type="checkbox"]{width:auto;min-width:0;display:inline-block;margin-inline-end:6px}
+.review-exchange input[type="file"]{width:100%;max-width:100%;min-width:0;font-size:12px}
+.finding-workflow .story-text,.review-exchange p{white-space:pre-wrap;overflow-wrap:anywhere}
+.finding-workflow button,.review-exchange button{max-width:100%;white-space:normal}
+.story-workspace [data-story-view]{font:12px/1.5 system-ui;max-width:100%;padding:6px 10px;min-width:0}

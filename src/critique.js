@@ -1,4 +1,4 @@
-import {findingWorkspace,bindFindings} from './critique-findings-ui.js';
+import {findingWorkspace,bindFindings,findingContent} from './critique-findings-ui.js';
 import {reviewMetadata,reviewBranch,reviewBodies,reviewFingerprint} from './critique-loader.js';
 import {stampPlanningChanges} from './current-book-brief.js';
 import createDOMPurify from 'dompurify';
@@ -11,9 +11,9 @@ export function critiqueCriteria(language){
  return CRITIQUE_CRITERIA.map((c,i)=>i===3?(language==='ar'?'Dialogue and Egyptian Arabic voice (zk5)':'Dialogue and English 2 voice'):i===4?(language==='ar'?'Originality and cultural setting':'Originality and cultural adaptation'):c);
 }
 export const REVIEW_INSTRUCTIONS='Critique the work, not the author. Cite chapter evidence for each issue, explain its effect and suggest a concrete repair. Separate facts from interpretation. Flag research gaps without inventing evidence. Do not rewrite chapters automatically.';
-export function reviewBriefHTML({context,chapters,fingerprint,generatedAt=new Date().toISOString()},clean){
+export function reviewBriefHTML({context,chapters,fingerprint,findings=[],generatedAt=new Date().toISOString()},clean){
  const language=context.language==='ar'?'ar':'en';
- return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Review Brief · '+h(context.title)+'</title><style>'+handoffCSS+'</style></head><body><h1>Review Brief</h1><h2 dir="auto">'+h(context.title)+'</h2>'+'<h3>Review instructions</h3><p>'+h(REVIEW_INSTRUCTIONS)+'</p><ol>'+critiqueCriteria(language).map(c=>'<li>'+h(c)+'</li>').join('')+'</ol><p>Review only the supplied text. Identify missing or empty chapters. Return proposed repairs separately from the manuscript.</p><h3>Saved chapter text</h3>'+chapters.map(c=>'<section><h3>Chapter '+h(c.chapter_number)+'</h3><h4 dir="auto">'+h(c.title||'')+'</h4>'+(String(c.body||'').trim()?'<div lang="'+language+'" dir="'+(language==='ar'?'rtl':'ltr')+'">'+clean(c.body)+'</div>':'<p>No saved text supplied for this chapter.</p>')+'</section>').join('')+technicalPanel('<p>Template v3 · Exported '+h(formatTime(generatedAt))+'</p><p>Book: '+h(context.bookId)+' · Story language: '+language+'</p><p>Saved source snapshot. Unsaved edits are excluded.</p><pre>'+h(fingerprint)+'</pre>'+chapters.map(c=>'<p>Chapter '+h(c.chapter_number)+' · <bdi>'+h(c.title||'')+'</bdi> · Source r'+h(c.revision)+' · '+h(c.id)+' · Last modified '+h(formatTime(c.updated_at))+'</p>').join(''))+'</body></html>';
+ return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Review Brief · '+h(context.title)+'</title><style>'+handoffCSS+'</style></head><body><h1>Review Brief</h1><h2 dir="auto">'+h(context.title)+'</h2>'+'<h3>Review instructions</h3><p>'+h(REVIEW_INSTRUCTIONS)+'</p><ol>'+critiqueCriteria(language).map(c=>'<li>'+h(c)+'</li>').join('')+'</ol><p>Review only the supplied text. Identify missing or empty chapters. Return proposed repairs separately from the manuscript.</p><h3>Saved chapter text</h3>'+chapters.map(c=>'<section><h3>Chapter '+h(c.chapter_number)+'</h3><h4 dir="auto">'+h(c.title||'')+'</h4>'+(String(c.body||'').trim()?'<div lang="'+language+'" dir="'+(language==='ar'?'rtl':'ltr')+'">'+clean(c.body)+'</div>':'<p>No saved text supplied for this chapter.</p>')+'</section>').join('')+(findings.length?'<h3>Saved findings and repair proposals</h3>'+findings.map(f=>'<section><h4 dir="auto">'+h(f.title)+'</h4><p>'+h(f.status)+'</p>'+findingContent(f)+'</section>').join(''):'')+technicalPanel('<p>Template v4 · Exported '+h(formatTime(generatedAt))+'</p><p>Book: '+h(context.bookId)+' · Story language: '+language+'</p><p>Saved source snapshot. Unsaved edits are excluded.</p><pre>'+h(fingerprint)+'</pre>'+chapters.map(c=>'<p>Chapter '+h(c.chapter_number)+' · <bdi>'+h(c.title||'')+'</bdi> · Source r'+h(c.revision)+' · '+h(c.id)+' · Last modified '+h(formatTime(c.updated_at))+'</p>').join('')+findings.map(f=>'<p>Finding '+h(f.id)+' r'+h(f.revision??'unavailable')+' · Chapter source r'+h(f.chapterRevision)+' · Planning source '+h(f.branchId)+' r'+h(f.planningRevision)+' · Last modified '+h(formatTime(f.savedAt||f.createdAt))+'</p>').join(''))+'</body></html>';
 }
 const loads=new WeakMap();
 export async function renderCritique(main,api,context){
@@ -41,10 +41,10 @@ export async function renderCritique(main,api,context){
  q('[data-brief]').onclick=async()=>{
   const button=q('[data-brief]');if(button.disabled)return;button.disabled=true;q('[data-state]').textContent='Preparing saved chapter text…';
   try{const full=await reviewBodies(api,context.sourcePath,chapters,current);if(!current())return;
-   const purify=createDOMPurify(window),html=reviewBriefHTML({context,chapters:full,fingerprint},body=>purify.sanitize(body,{USE_PROFILES:{html:true}}));
+   const purify=createDOMPurify(window),html=reviewBriefHTML({context,chapters:full,fingerprint,findings:branch?.data?.editorialFindings||[]},body=>purify.sanitize(body,{USE_PROFILES:{html:true}}));
    if(reviewURL)URL.revokeObjectURL(reviewURL);const url=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));reviewURL=url;
    q('[data-review-file]')?.remove();const links=document.createElement('div');links.dataset.reviewFile='';links.className='toolbar';
-   const a=document.createElement('a');a.href=url;a.download='Review_Brief_v003.html';a.textContent='Download HTML';
+   const a=document.createElement('a');a.href=url;a.download='Review_Brief_v004.html';a.textContent='Download HTML';
    const open=document.createElement('a');open.href=url;open.target='_blank';open.rel='noopener';open.textContent='Open file';links.append(a,open);button.after(links);a.click();
    q('[data-state]').textContent='File ready. On iPhone, open the file and use Share to save it.';
   }catch(error){if(current())q('[data-state]').textContent=error.message;}finally{if(current())button.disabled=false;}

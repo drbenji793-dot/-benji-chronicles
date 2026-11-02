@@ -1,0 +1,52 @@
+import assert from 'node:assert/strict';
+import {JSDOM} from 'jsdom';
+import {reviewPacket,parseReviewPacket,importReview,linkFinding,proposeRepair,decideRepair,verifyRepair} from '../src/critique-workflow.js';
+import {decideFinding} from '../src/critique-findings.js';
+import {findingWorkspace,bindFindings,findingsHTML} from '../src/critique-findings-ui.js';
+for(const language of ['ar','en']){
+ const para=language==='ar'?'سالم رجع الورشة.':'Salem returned to the workshop.';
+ const data={summary:'Current',events:[{id:'e',title:'Return'}],workshop:{questions:[{id:'q',title:'Why return?',status:'open'}]}};
+ const chapter={id:'ch',revision:3,chapter_number:1,title:'Return',body:'<p>'+para+'</p>',paragraphs:[para]};
+ const context={bookId:'book',branchId:'br',revision:4,writer:'Benji',language,chapters:[chapter]};
+ const packet=await reviewPacket(data,context,[chapter]);packet.findings=[{chapterId:'ch',chapterRevision:3,paragraph:1,quote:para,title:'Return',issue:'Check motive',impact:'Clarity',repair:'Show motive',kind:'Interpretation',severity:'Minor',confidence:'Medium',recommendation:'Rewrite'}];
+ assert.equal(parseReviewPacket(JSON.stringify(packet)).origin,'Claude review');
+ await assert.rejects(()=>importReview(data,packet,[],context,[chapter]),/Select/);
+ await assert.rejects(()=>importReview(data,{...packet,bookId:'other'},[0],context,[chapter]),/another book/);
+ await assert.rejects(()=>importReview({...data,summary:'New'},packet,[0],context,[chapter]),/Planning source changed/);
+ await assert.rejects(()=>importReview(data,packet,[0],context,[{...chapter,revision:4}]),/Chapter source changed/);
+ let next=await importReview(data,packet,[0],context,[chapter]),id=next.editorialFindings[0].id;
+ assert.equal(next.editorialFindings[0].status,'proposed');assert.equal(next.editorialFindings[0].origin,'Claude review');
+ await assert.rejects(()=>importReview(next,packet,[0],context,[chapter]),/already exists/);
+ next=await linkFinding(next,id,{kind:'question',targetId:'q',note:'Same decision'},context);
+ assert.deepEqual(next.workshop,data.workshop);assert.equal(next.editorialFindings[0].links.length,1);
+ await assert.rejects(()=>linkFinding(next,id,{kind:'question',targetId:'q',note:'Again'},context),/already linked/);
+ await assert.rejects(()=>linkFinding(next,id,{kind:'event',targetId:'missing',note:'Unknown'},context),/existing current/);
+ const repair={before:para,after:para+' Changed.',reason:'Explain motive'};
+ await assert.rejects(()=>proposeRepair(next,id,repair,context),/Accept the finding/);
+ next=await decideFinding(next,id,{...context,status:'accepted',note:'Prepare proposal'});
+ await assert.rejects(()=>proposeRepair(next,id,{...repair,before:'Invented'},context),/complete saved paragraph/);
+ next=await proposeRepair(next,id,repair,context);const rid=next.editorialFindings[0].repairs[0].id;
+ await assert.rejects(()=>proposeRepair(next,id,repair,context),/existing pending/);
+ await assert.rejects(()=>verifyRepair(next,id,rid,context),/approved repair/);
+ next=await decideRepair(next,id,rid,{status:'approved',note:'Approve exact proposed paragraph'},context);
+ assert.equal(next.editorialFindings[0].repairs[0].status,'approved');assert.equal(chapter.paragraphs[0],para);
+ await assert.rejects(()=>verifyRepair(next,id,rid,context),/not uniquely present/);
+ await assert.rejects(()=>verifyRepair(next,id,rid,{...context,chapters:[{...chapter,revision:4,paragraphs:[repair.after,repair.after]}]}),/not uniquely present/);
+ const verified=await verifyRepair(next,id,rid,{...context,chapters:[{...chapter,revision:4,paragraphs:[repair.after]}]});assert.equal(verified.editorialFindings[0].repairs[0].status,'verified');assert.deepEqual(verified.events,data.events);
+ const doc=new JSDOM(findingsHTML(verified.editorialFindings,{...context,title:'Book'})).window.document;assert(doc.body.textContent.includes(repair.after));assert(doc.body.textContent.includes('r4'));assert.equal(doc.querySelectorAll('.technical-details').length,1);
+ // Exercise actual form handlers, retained local drafts and scoped writes without chapter mutation.
+ const dom=new JSDOM('<main></main>',{url:'https://test.invalid/#view=critique'});for(const k of ['window','document','localStorage','FormData','MutationObserver'])globalThis[k]=dom.window[k];
+ let branch={id:'br',revision:4,data:null},busy=false,writes=0;
+ branch.data=await importReview(data,packet,[0],context,[chapter]);id=branch.data.editorialFindings[0].id;branch.data=await decideFinding(branch.data,id,{...context,status:'accepted',note:'Prepare'});
+ const api=async(path,opts)=>{if(opts){assert(path.startsWith('chronicles_dsl_branches?'));assert(path.includes('revision=eq.'+branch.revision));writes++;return [{...branch,revision:branch.revision+1,data:JSON.parse(opts.body).data}];}return path.startsWith('chapters')?[chapter]:[{data:branch.data,revision:branch.revision}];};
+ const main=document.querySelector('main');main.innerHTML=findingWorkspace([chapter],true);const dispose=bindFindings(main,api,{...context,sourcePath:'chapters?book_id=eq.book'},[chapter],{getBranch:()=>branch,setBranch:b=>branch=b,current:()=>true,isBusy:()=>busy,setBusy:b=>busy=b,onDirty:()=>{}});
+ const form=main.querySelector('[data-repair]');for(const [k,v]of Object.entries(repair))form.elements[k].value=v;form.dispatchEvent(new window.Event('input',{bubbles:true}));assert(localStorage.getItem('chronicles-review-workflow:book:br').includes('Explain motive'));form.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));for(let i=0;i<100&&busy;i++)await new Promise(r=>setTimeout(r,5));assert.equal(writes,1);assert.equal(branch.data.editorialFindings[0].repairs.length,1);
+ const decision=main.querySelector('[data-repair-decision]');decision.elements.status.value='approved';decision.elements.note.value='Explicit repair approval';decision.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));for(let i=0;i<100&&busy;i++)await new Promise(r=>setTimeout(r,5));assert.equal(writes,2);assert.equal(branch.data.editorialFindings[0].repairs[0].status,'approved');assert.deepEqual(branch.data.events,data.events);assert.equal(main.querySelector('[data-verify-repair]').textContent,'Verify saved repair');
+ // Import preview never preselects returned findings; actual handler writes only chosen proposals.
+ const returned=structuredClone(packet);returned.findings.push({...returned.findings[0],title:'Second',issue:'Another issue'});
+ const upload=main.querySelector('[data-review-import]');Object.defineProperty(upload,'files',{value:[{size:JSON.stringify(returned).length,text:async()=>JSON.stringify(returned)}]});await upload.onchange({target:upload});
+ assert.equal(main.querySelectorAll('[data-import-index]:checked').length,0);main.querySelector('[data-import-index="1"]').checked=true;
+ const importButton=main.querySelector('[data-import-selected]');await importButton.onclick({target:importButton});assert.equal(writes,3);assert.equal(branch.data.editorialFindings.length,2);assert.equal(branch.data.editorialFindings[1].status,'proposed');assert.equal(branch.data.editorialFindings[1].issue,'Another issue');assert.equal(main.querySelector('[data-import-preview]').textContent,'');
+ dispose();dom.window.close();
+}
+console.log('PASS review workflow: selective attributed import, stale/duplicate guards, linked records, exact before/after, explicit repair decisions, verification and actual Arabic/English handlers');
