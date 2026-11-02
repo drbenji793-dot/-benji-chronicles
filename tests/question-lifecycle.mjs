@@ -7,7 +7,7 @@ const original=structuredClone(data);
 let result=saveQuestionAnswer(data,'q',{answer:'Deferred',writer:'Benji'});
 assert.equal(result.workshop.questions[0].answer,'Keep this answer');assert.equal(result.workshop.questions[0].answerNotes,'Keep notes');assert.equal(result.workshop.questions[0].status,'deferred');assert.equal(questionGroups(result).deferred.length,2);
 result=editQuestion(result,'q',{status:'open',title:'New title'},{writer:'Benji'});assert.equal(result.workshop.questions.length,4);assert.deepEqual(result.workshop.questions[1],data.workshop.questions[1]);assert.equal(questionGroups(result).pending.length,1);
-assert.throws(()=>saveQuestionAnswer(data,'done',{answer:'Overwrite',writer:'Benji'}),/approved or applied/);assert.throws(()=>editQuestion(data,'done',{status:'open'}),/cannot be reopened/);assert.throws(()=>editQuestion(data,'q',{status:'applied'}),/reviewed change/);assert.throws(()=>saveQuestionAnswer(data,'old',{answer:'Revive'}),/retired/);assert.throws(()=>saveQuestionAnswer(data,'missing',{answer:'Missing'}),/no longer/);
+assert.throws(()=>saveQuestionAnswer(data,'done',{answer:'Overwrite',writer:'Benji'}),/approved or applied/);assert.throws(()=>editQuestion(data,'done',{status:'open'}),/protected/);assert.throws(()=>editQuestion(data,'q',{status:'applied'}),/reviewed change/);assert.throws(()=>saveQuestionAnswer(data,'old',{answer:'Revive'}),/retired/);assert.throws(()=>saveQuestionAnswer(data,'missing',{answer:'Missing'}),/no longer/);
 result=saveQuestionAnswer(data,'legacy',{answer:'Fresh answer',notes:'Reason',parts:{selected:[],written:'Fresh answer'},writer:'Benji'});assert.equal(result.workshop.questions[3].status,'answered');assert.equal(questionLabel({status:'approved'}),'Approved · pending application');assert.equal(questionGroups({workshop:{questions:[{id:'c',status:'conflict',answer:'Disputed'}]}}).open.length,1);
 const context={bookId:'b',branchId:'r',baseRevision:7,writer:'Benji',questionId:'q'};
 const proposal={...context,request:'Answer',answer:'Answer',summary:'Summary',changes:[]};assert.throws(()=>applyProposal(data,proposal,context),/No planning changes/);
@@ -22,3 +22,34 @@ assert.throws(()=>completeEventReview(queueData,{id:'e',note:'Checked',sourceRev
 const checked=completeEventReview(queueData,{id:'e',note:'Checked linked consequence',sourceRevision:7,eventSnapshot:data.events[0],writer:'Benji'});
 assert.deepEqual(checked.workshop.reviewEventIds,['missing']);assert.deepEqual(checked.events,data.events);assert.equal(checked.workshop.eventReviews[0].scope,'Planning event only; no chapter approval');assert.equal(queueData.workshop.reviewEventIds.length,3);
 console.log('PASS connected review evidence, missing references, stale event guard and unchanged prose');
+
+const {reviseQuestion,questionState}=await import('../src/question-lifecycle.js');
+assert.equal(questionState({status:'open',answer:'أؤجل القرار'}),'deferred');
+assert.equal(questionState({status:'conflict',answer:'Deferred'}),'conflict');
+const revised=reviseQuestion(data,'done',{reason:'New evidence',writer:'Benji',sourceRevision:7});
+assert.deepEqual(revised.workshop.questions[2],data.workshop.questions[2]);
+const revisionQuestion=revised.workshop.questions.at(-1);
+assert.equal(revisionQuestion.revisesQuestionId,'done');assert.equal(revisionQuestion.answer,'');assert.equal(revisionQuestion.previousAnswer,'Approved fact');
+assert.throws(()=>reviseQuestion(revised,'done',{reason:'Again',sourceRevision:7}),/already exists/);
+assert.throws(()=>editQuestion(data,'done',{status:'applied',answer:'Silent overwrite'}),/protected/);
+const afterAnswer=saveQuestionAnswer(data,'q',{answer:'New answer',writer:'Benji'});
+assert.equal(afterAnswer.workshop.questions[0].answerHistory.at(-1).answer,'Keep this answer');
+assert.deepEqual(data,original);
+console.log('PASS legacy deferrals, immutable decisions, linked revision proposals and answer recovery');
+
+const revisionContext={...context,questionId:revisionQuestion.id};
+const revisionProposal={...proposal,...revisionContext,changes:[{id:'e',fields:{summary:'Revised event'}}]};
+const revisionApplied=applyProposal(revised,revisionProposal,revisionContext);
+assert.equal(revisionApplied.workshop.questions[2].recordStatus,'superseded');
+assert.equal(revisionApplied.workshop.questions[2].answer,'Approved fact');
+assert.equal(revisionApplied.workshop.questions[2].replacedBy,revisionQuestion.id);
+assert.equal(revisionApplied.workshop.questions.at(-1).status,'applied');
+assert.throws(()=>applyProposal(revised,{...revisionProposal,questionId:'q'},revisionContext),/another question/);
+const staleOriginal=structuredClone(revised);staleOriginal.workshop.questions[2].answer='Newer approved fact';
+assert.throws(()=>applyProposal(staleOriginal,revisionProposal,revisionContext),/original decision changed/);
+console.log('PASS scoped revision application, historical decision retention and stale original rejection');
+
+const approved=structuredClone(data);approved.workshop.questions[0].status='approved';
+assert.throws(()=>applyProposal(approved,{...proposal,changes:[{id:'e',fields:{summary:'After'}}]},context),/approved answer cannot/);
+assert.equal(applyProposal(approved,{...proposal,answer:'Keep this answer',changes:[{id:'e',fields:{summary:'After'}}]},context).workshop.questions[0].status,'applied');
+console.log('PASS approved answer application preserves its exact decision');
