@@ -1,6 +1,6 @@
 {
-  "version": 174,
-  "releasedAt": "2026-11-02T01:59:26.693Z",
+  "version": 175,
+  "releasedAt": "2026-11-02T02:02:03.704Z",
   "timezone": "UTC",
-  "note": "Gold leaf serif site title with subtle highlights and centered larger logo in both editions"
+  "note": "Remove redundant orange Chapters banner; preserve chapter navigation tab"
 }

@@ -175,7 +175,6 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
        nav.classList.add('ibn-navigation');
        const back=document.createElement('nav');back.className='current-back';back.innerHTML='<a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a><a href="'+base+'&view=cover">'+esc(book.title)+'</a>';
        nav.querySelector('.story-aux-nav')?.remove();nav.prepend(back);
-       const entrance=document.createElement('a');entrance.className='current-story-entrance';entrance.href='#book='+REVIEW_BOOK;entrance.innerHTML='<strong>Chapters</strong><small>Full text · Editing · Review and approval</small>';entrance.setAttribute('aria-current',view==='storyline'?'page':'false');if(view==='chapters'||(!view&&book.id===REVIEW_BOOK))nav.append(entrance);
       }else nav.classList.remove('ibn-navigation');
     }
     if(book.id===LAST_HOUR_BOOK&&params.get('view')==='brief'){active=null;editing=false;renderLastHourBible($('#main'),{clean,esc});return;}
