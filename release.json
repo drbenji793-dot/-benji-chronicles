@@ -1,6 +1,6 @@
 {
-  "version": 171,
-  "releasedAt": "2026-11-02T01:28:12.570Z",
+  "version": 172,
+  "releasedAt": "2026-11-02T01:31:07.567Z",
   "timezone": "UTC",
-  "note": "Cover-width grey book disclosure matching Technical details with compact Edit and Delete"
+  "note": "Fix overlapping book Edit/Delete controls and match Arrange books disclosure height"
 }
