@@ -141,6 +141,12 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     const id=params.get('book');
     if(id===IBN_BOOK&&params.get('archive')!=='1'){
       const view=params.get('view');
+      // Review and export must use the same current manuscript as Chapters.
+      // The original nine chapters remain reachable only through explicit archive links.
+      if(['critique','export'].includes(view)){
+        const target=new URLSearchParams(params);target.set('book',REVIEW_BOOK);
+        history.replaceState(history.state,'',location.pathname+location.search+'#'+target.toString());await render(target);return;
+      }
       if(!view||['chapters','originals','contents','cover'].includes(view)||params.get('storytab')==='manuscript'){
         const draft=params.get('draftchapter'),number=draft?.match(/ch-(\d+)$/)?.[1];
         const target='#book='+REVIEW_BOOK+(number?'&chapter='+number:view==='contents'?'&view=contents':view==='cover'?'&view=cover':'');history.replaceState(history.state,'',location.pathname+location.search+target);await render(new URLSearchParams(target.slice(1)));return;
@@ -185,7 +191,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(['export','brief'].includes(params.get('view'))){active=null;editing=false;await renderExportPage(params.get('view')==='brief');return;}
     if(params.get('view')==='cover'){active=null;editing=false;renderOverview(true);return;}
     if(params.get('view')==='contents'){active=null;editing=false;$('#main').innerHTML=storyContents(book.title,chapterList(),null,{root:link(book.id),language:book.language,parts,rulesUrl:link(book.id)+'&rules=1',notesUrl:link(book.id)+'&view=dsl',notesLabel:'Planning Notes'});return;}
-    if(params.get('view')==='critique'){active=null;editing=false;await renderCritique($('#main'),api,{bookId:book.id===REVIEW_BOOK?IBN_BOOK:book.id,language:book.language,title:book.title,sourcePath:'chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=id,chapter_number,title,body,revision,updated_at&order=chapter_number.asc'});return;}
+    if(params.get('view')==='critique'){active=null;editing=false;await renderCritique($('#main'),api,{bookId:book.id===REVIEW_BOOK?IBN_BOOK:book.id,language:book.language,title:book.title,sourceLabel:book.id===IBN_BOOK?'Original archived manuscript':book.id===REVIEW_BOOK?'Current manuscript':'Saved manuscript',sourcePath:'chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=id,chapter_number,title,body,revision,updated_at&order=chapter_number.asc'});return;}
     if(params.get('view')==='references'){const branches=await api('chronicles_dsl_branches?book_id=eq.'+book.id+'&archived=eq.false&select=data->references&order=updated_at.desc&limit=1');$('#main').innerHTML=header()+'<section class="reference-page"><h1>References</h1><h2>Images &amp; Media</h2><p class="reference-note">Artwork and media developed for this book, with original sources and earlier versions preserved.</p>'+renderBookMedia(book.id,bookArtwork[book.id],esc)+'<h2>Research &amp; Notes</h2><p style="white-space:pre-wrap">'+esc(branches[0]?.references||'Research notes are not recorded yet.')+'</p></section>';return;}
     if(['dsl','storyline','chapters'].includes(params.get('view'))){active=null;editing=false;await renderDSL($('#main'),api,book.id===REVIEW_BOOK?IBN_BOOK:book.id,params.get('view'));return;}
     const rules=params.get('rules')==='1';

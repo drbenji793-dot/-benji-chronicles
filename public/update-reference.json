@@ -3,10 +3,10 @@
   "version": 1,
   "edition": "ar",
   "release": {
-    "version": 192,
-    "releasedAt": "2026-11-02T20:15:30.951033+00:00",
+    "version": 193,
+    "releasedAt": "2026-11-02T20:23:01.662127+00:00",
     "timezone": "UTC",
-    "note": "Selective external review import, linked decisions, separate before/after repair approval and saved-text verification"
+    "note": "Route current Ibn al Jabal Review and Export to the same manuscript as Chapters; preserve explicit archive"
   },
   "mechanismVersion": 1,
   "commit": null,
