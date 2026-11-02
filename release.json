@@ -1,6 +1,6 @@
 {
-  "version": 184,
-  "releasedAt": "2026-11-02T03:19:13.681357+00:00",
+  "version": 185,
+  "releasedAt": "2026-11-02T03:26:54.976205+00:00",
   "timezone": "UTC",
-  "note": "Remove duplicate chapter footer navigation and HQ and Ink links; retain compact essential tools"
+  "note": "Stack chapter footer panels together without the empty technical details gap"
 }

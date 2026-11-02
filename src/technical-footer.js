@@ -35,7 +35,7 @@ export function mountTechnicalFooter(main,footer){
   }
   const workflow=main.querySelector('.library-workflow');
   if(workflow&&!panel.contains(workflow)){const anchor=document.createElement('span');anchor.hidden=true;workflow.before(anchor);entries.push({anchor,content:workflow});panel.append(workflow);}
-  panel.append(website);if(main.lastElementChild!==panel)main.append(panel);
+  panel.append(website);const host=main.querySelector('.editor-area')||main;if(host.lastElementChild!==panel)host.append(panel);
   observer.observe(main,{childList:true,subtree:true});
  }
  refresh();return ()=>observer.disconnect();

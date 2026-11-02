@@ -19,4 +19,6 @@ assert.equal(document.querySelector('#test').closest('details').querySelector('s
 document.querySelector('#test').click();assert.equal(clicks,1);
 main.innerHTML='<section>New page</section>';await new Promise(r=>setTimeout(r,0));
 assert(!main.textContent.includes('r261'));assert(main.textContent.includes('v164'));assert.equal(main.querySelectorAll('details').length,1);
+main.innerHTML='<section class="editor-area"><details class="notes"><summary>Writing notes</summary></details>'+technicalPanel('<button>Edit</button>')+'</section>';await new Promise(r=>setTimeout(r,0));
+const editor=main.querySelector('.editor-area');assert.equal(editor.lastElementChild.dataset.pageTechnical,'');assert(editor.lastElementChild.previousElementSibling.classList.contains('chapter-secondary-tools'));
 stop();dom.window.close();console.log('Technical footer consolidation, card placement, route cleanup and live controls pass.');

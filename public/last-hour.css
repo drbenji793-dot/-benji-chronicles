@@ -148,3 +148,9 @@ html body #main #universal-book-controls .universal-steps>button,html body #main
 .chapter-secondary-tools fieldset p{grid-column:1/-1}
 .editor-area>details.notes:not(.chapter-planning-notes){border:1px solid rgba(80,80,80,.22);border-radius:6px;background:rgba(110,110,110,.08);padding:6px 8px;font:11px/1.5 system-ui;margin:10px 0}
 .editor-area>details.notes>summary{font:11px/1.5 system-ui}
+
+/* v185: keep chapter footer panels in one tight stack. */
+html body #main .editor-area>details.notes:not(.chapter-planning-notes),
+html body #main .editor-area>.chapter-secondary-tools,
+html body #main .editor-area>[data-page-technical]{margin:4px 0;width:100%;max-width:100%;box-sizing:border-box}
+html body #main .editor-area>[data-page-technical]{font-size:11px}
