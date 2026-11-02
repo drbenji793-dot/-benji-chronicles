@@ -3,10 +3,10 @@
   "version": 1,
   "edition": "ar",
   "release": {
-    "version": 189,
-    "releasedAt": "2026-11-02T19:17:44.983740+00:00",
+    "version": 190,
+    "releasedAt": "2026-11-02T19:39:38.095111+00:00",
     "timezone": "UTC",
-    "note": "Bound Review loading, introduce concise Story workspace, separate pending and deferred decisions"
+    "note": "Preserve question history and deferred answers; guard application and record connected review evidence"
   },
   "mechanismVersion": 1,
   "commit": null,
