@@ -117,3 +117,8 @@ html body .managed-book .book-manage details button{font:8px/1.25 system-ui,sans
 /* Site header contains only its logo and name in both editions. */
 html body .brand .collaboration{display:none!important}
 html body .managed-book>.collection-cover{width:100%;max-width:none}
+
+/* Keep the chapter index link between the navigation arrows. */
+html body #main .universal-steps{display:flex;align-items:center;justify-content:center;gap:6px}
+html body #main .universal-steps .benji-chapters-back{display:inline-flex;align-items:center;margin:0;font:11px/1.3 system-ui,sans-serif;min-height:30px;padding:4px 9px;box-sizing:border-box}
+html body #main .editor-area .toolbar #chapter-undo{font:11px/1.3 system-ui,sans-serif;padding:5px 6px;min-width:0}

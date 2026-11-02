@@ -1,6 +1,6 @@
 {
-  "version": 175,
-  "releasedAt": "2026-11-02T02:02:03.704Z",
+  "version": 176,
+  "releasedAt": "2026-11-02T02:08:33.747Z",
   "timezone": "UTC",
-  "note": "Remove redundant orange Chapters banner; preserve chapter navigation tab"
+  "note": "Remove Related Story overview control, add unsaved chapter Undo beside Copy, center Chapters between arrows"
 }
