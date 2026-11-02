@@ -19,7 +19,8 @@ export function updateLife(data,record){
 }
 const styles=`.goe{max-width:900px;margin:auto;overflow-wrap:anywhere}.goe h1{font:32px Georgia,serif}.goe-tabs,.goe-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.goe button,.goe a{font:inherit;color:inherit;min-height:44px;padding:10px 14px;border:1px solid #b7a58c;border-radius:10px;background:transparent;text-decoration:none}.goe button[aria-pressed=true]{background:#304f43;color:white}.goe-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.goe-card{padding:16px;border:1px solid #b7a58c;border-radius:12px;min-width:0}.goe-card p,.goe-life-section p{white-space:pre-wrap;line-height:1.7}.goe input{max-width:100%;width:100%;padding:12px;font:inherit;box-sizing:border-box}.goe-life-section{padding:10px 0;border-bottom:1px solid #b7a58c}.goe small{opacity:.8}.goe-status{min-height:24px}@media(max-width:600px){.goe-grid{grid-template-columns:1fr}.goe-tabs{display:grid;grid-template-columns:1fr 1fr}.goe-toolbar button{flex:1 1 120px}}`;
 export function bookGarden(ctx){
- const {model,branch,book,route,render,modal,close,field,area,select,submit,editEvent,initialize}=ctx;
+ const {model,branch,book,route,render,modal:openModal,close,field,area,select,submit,editEvent,initialize}=ctx;
+ const modal=(...args)=>{const m=openModal(...args);if(m)for(const panel of m.querySelectorAll('.technical-details'))panel.parentElement.append(panel);return m;};
  let tab='characters';const exchange=gardenExchange(ctx);
  const t=(en,arabic)=>en;
  const people=()=> (model().characters||[]).filter(activeRecord);

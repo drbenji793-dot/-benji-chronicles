@@ -7,7 +7,7 @@ export function revisionStamp(record={},fallback={}){
  const revision=record.revision;
  const sourceRevision=record.sourceRevision??fallback.revision;
  const time=record.updatedAt||record.updated_at||fallback.updated_at;
- return (revision==null?(sourceRevision==null?'Revision not recorded':'Source r'+sourceRevision):'r'+revision)+' · '+formatTime(time)+(record.updatedAt||record.updated_at?'':' · source snapshot');
+ return (revision==null?(sourceRevision==null?'Revision not recorded':'Source r'+sourceRevision):'r'+revision)+' · Last modified: '+formatTime(time)+(record.updatedAt||record.updated_at?'':' · source snapshot');
 }
 
 export function technicalDetails(record={},fallback={},note=''){
@@ -16,4 +16,4 @@ export function technicalDetails(record={},fallback={},note=''){
 }
 
 // Internal renderers pass already escaped markup; never raw stored content.
-export function technicalPanel(content){return '<details class="technical-details" dir="ltr"><summary>Current <span aria-hidden="true">⌄</span></summary>'+content+'</details>';}
+export function technicalPanel(content){return '<details class="technical-details" dir="ltr"><summary>Technical details <span aria-hidden="true">⌄</span></summary>'+content+'</details>';}

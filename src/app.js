@@ -1,3 +1,4 @@
+import {mountTechnicalFooter} from './technical-footer.js';
 import {mountResourceHistory} from './resource-history.js';
 import {technicalPanel} from './revision-stamp.js';
 import {formatTime} from './revision-stamp.js';
@@ -222,3 +223,5 @@ function openExport(){
 
 async function mountCurrentBookControls(){if(document.querySelector('#universal-book-controls'))return;await mountBookControls({siteLanguage:SITE_LANGUAGE,params:new URLSearchParams(location.hash.slice(1)),api,esc,getWriter:()=>writer,say,navigate:h=>navigation.navigate(h),canManage:()=>!busy&&!editing&&!document.querySelector('[contenteditable="true"]'),refresh:async h=>{await getIndex();await newBooks.load();if(h&&h!==location.hash)await navigation.navigate(h);else await renderRoute();}});}
 let controlRenderTimer;new MutationObserver(()=>{clearTimeout(controlRenderTimer);controlRenderTimer=setTimeout(()=>{if(document.querySelector('#main .toolbar,#main .chronicles-book-actions,#main #part-new-chapter'))mountCurrentBookControls().catch(e=>say(e.message,true));},0);}).observe(document.querySelector('#main'),{childList:true});
+
+mountTechnicalFooter(document.querySelector("#main"),document.querySelector(".rules-global-footer"));
