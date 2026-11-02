@@ -1,6 +1,6 @@
 {
-  "version": 177,
-  "releasedAt": "2026-11-02T02:13:48.653Z",
+  "version": 178,
+  "releasedAt": "2026-11-02T02:23:43.930Z",
   "timezone": "UTC",
-  "note": "Single compact Chapters button between arrows; prevent plus and Edit overlap"
+  "note": "Compact unlabeled theme color squares with accessible names and selected outline"
 }
