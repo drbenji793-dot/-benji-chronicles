@@ -54,9 +54,16 @@ body .editor-area .technical-details.reading-details{font-size:12px;padding:0 10
 
 /* Benji's approved compact controls, shared by both editions. */
 html body .topbar{padding-block:12px}
-html body .brand{gap:9px;min-width:0}
-html body .brand img{width:34px;height:34px}
-html body .brand strong{font:600 14px/1.35 system-ui,sans-serif;color:#2879a8;letter-spacing:0}
+html body .brand{display:flex;align-items:center;gap:10px;min-width:0;max-width:100%}
+html body .brand img{width:44px;height:44px;flex:0 0 44px;object-fit:contain}
+html body .brand>span{min-width:0}
+html body .brand strong{display:block;font:700 clamp(20px,5.7vw,28px)/1.15 Georgia,'Times New Roman',serif;color:#946b16;letter-spacing:-.3px;text-shadow:none}
+@supports (-webkit-background-clip:text) or (background-clip:text){
+html body .brand strong{background:linear-gradient(174deg,#6e490b 0%,#b8871b 23%,#e2bb55 38%,#ac7713 49%,#80540b 65%,#c79b31 82%,#91600b 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+}
+html[lang="en"] body .brand strong{font-size:clamp(17px,4.7vw,25px)}
+@media(forced-colors:active){html body .brand strong{background:none;color:CanvasText;-webkit-text-fill-color:CanvasText}}
+
 html body .brand .collaboration{font:11px/1.4 system-ui,sans-serif;letter-spacing:0;margin-top:3px}
 html body .theme-picker{gap:6px;padding-block:6px}
 html body .theme-picker button{font:11px/1.3 system-ui,sans-serif;min-height:30px;padding:5px 9px;border-radius:6px}
