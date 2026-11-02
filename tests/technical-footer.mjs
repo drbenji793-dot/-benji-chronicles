@@ -14,6 +14,8 @@ main.querySelector('section').remove();main.insertAdjacentHTML('afterbegin','<se
 let clicks=0;document.querySelector('#test').parentElement.parentElement.addEventListener('click',e=>{if(e.target.id==='test')clicks++;});
 await new Promise(r=>setTimeout(r,0));
 assert(!main.textContent.includes('r260'));assert(main.textContent.includes('r261'));
+assert.equal(document.querySelector('#test').closest('details').open,false);
+assert.equal(document.querySelector('#test').closest('details').querySelector('summary').textContent,'Writing settings and tools');
 document.querySelector('#test').click();assert.equal(clicks,1);
 main.innerHTML='<section>New page</section>';await new Promise(r=>setTimeout(r,0));
 assert(!main.textContent.includes('r261'));assert(main.textContent.includes('v164'));assert.equal(main.querySelectorAll('details').length,1);

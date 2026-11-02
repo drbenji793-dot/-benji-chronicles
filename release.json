@@ -1,6 +1,6 @@
 {
-  "version": 182,
-  "releasedAt": "2026-11-02T03:14:22.259732+00:00",
+  "version": 183,
+  "releasedAt": "2026-11-02T03:17:42.837852+00:00",
   "timezone": "UTC",
-  "note": "Remove visible chapter Draft label and compact planning notes above story divider; v181 baseline preserved"
+  "note": "Contain preserved chapter tools in compact collapsed panels instead of spilling controls below story"
 }
