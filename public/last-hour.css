@@ -169,3 +169,14 @@ html body #main .editor-area>[data-page-technical]{font-size:11px}
 .story-workspace .technical-details{margin-top:8px}
 .book-navigation .ink-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:480px){.book-navigation .ink-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.story-workspace{padding:12px}.story-workspace h2{font-size:23px}}
+
+/* Evidence based Review uses compact, stacked controls in both editions. */
+.review-findings{margin:12px 0;max-width:100%;min-width:0}
+.review-findings details{margin:8px 0;padding:8px;border:1px solid var(--line,#b8a68e);border-radius:7px;background:rgba(100,100,100,.06)}
+.review-findings summary,.review-findings label,.review-findings button,.review-findings select,.review-findings input,.review-findings textarea{font-family:system-ui,sans-serif;font-size:12px!important;line-height:1.4}
+.review-findings form{display:grid;gap:8px;min-width:0}
+.review-findings label{display:grid;gap:4px;min-width:0}
+.review-findings input,.review-findings select,.review-findings textarea{box-sizing:border-box;width:100%;min-width:0;max-width:100%;padding:6px 8px}
+.review-findings button{justify-self:start;padding:5px 9px;min-height:28px;min-width:0;max-width:100%;white-space:normal}
+.review-findings p,.review-findings summary{overflow-wrap:anywhere}
+.review-findings [data-passage-text]{max-height:360px;overflow-y:auto;min-width:0}

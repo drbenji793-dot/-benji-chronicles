@@ -3,10 +3,10 @@
   "version": 1,
   "edition": "ar",
   "release": {
-    "version": 190,
-    "releasedAt": "2026-11-02T19:39:38.095111+00:00",
+    "version": 191,
+    "releasedAt": "2026-11-02T19:59:09.506422+00:00",
     "timezone": "UTC",
-    "note": "Preserve question history and deferred answers; guard application and record connected review evidence"
+    "note": "Evidence based review findings with exact saved quotes, separate proposal decisions and stale source guards"
   },
   "mechanismVersion": 1,
   "commit": null,

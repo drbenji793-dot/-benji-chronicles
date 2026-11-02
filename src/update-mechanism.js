@@ -4,7 +4,7 @@ const metadata=new Set(['revision','updatedAt','updatedBy','savedAt','timezone',
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const content=r=>Object.fromEntries(Object.entries(r||{}).filter(([k])=>!metadata.has(k)));
 const active=r=>r&&!r.archived&&!['superseded','archived'].includes(r.recordStatus)&&!['superseded','archived'].includes(r.status);
-const collections=['characters','relationships','places','decisions','events','links','objects'];
+const collections=['characters','relationships','places','decisions','events','links','objects','editorialFindings'];
 const internal=new Set(['recordStamps','currentUpdate','sourceDocument','source','base_snapshot','history','snapshots']);
 export function stampUpdate(before,after,{writer,revision,note,bookId=null,branchId=null,at=new Date().toISOString()}={}){
  if(!Number.isInteger(revision)||revision<0)throw Error('A current source revision is required.');
