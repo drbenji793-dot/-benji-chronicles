@@ -8,7 +8,7 @@ import {escapeHTML as h,clone} from './dsl-engine.js';
 export const critiqueLink=root=>'<a class="harsh-critique" href="'+root+'&view=critique">Harsh Critique</a>';
 export const CRITIQUE_CRITERIA=['Opening and narrative promise','Pacing and scene necessity','Character motivation and agency','Dialogue, viewpoint and narrative voice','Originality and cultural adaptation','Mystery logic and evidence','Chronology and continuity','Period and procedural credibility','Ending and emotional payoff','Prioritized Keep / Rewrite / Cut repairs'];
 export function critiqueCriteria(language){
- return CRITIQUE_CRITERIA.map((c,i)=>i===3?(language==='ar'?'Dialogue and Egyptian Arabic voice (zk5)':'Dialogue and English 2 voice'):i===4?(language==='ar'?'Originality and cultural setting':'Originality and cultural adaptation'):c);
+ return CRITIQUE_CRITERIA.map((c,i)=>i===3?(language==='ar'?'Dialogue and Egyptian Arabic voice (zk5)':'Dialogue and _zk5e voice'):i===4?(language==='ar'?'Originality and cultural setting':'Originality and cultural adaptation'):c);
 }
 export const REVIEW_INSTRUCTIONS='Critique the work, not the author. Cite chapter evidence for each issue, explain its effect and suggest a concrete repair. Separate facts from interpretation. Flag research gaps without inventing evidence. Do not rewrite chapters automatically.';
 export function reviewBriefHTML({context,chapters,fingerprint,findings=[],generatedAt=new Date().toISOString()},clean){

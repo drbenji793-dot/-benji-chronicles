@@ -47,7 +47,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   let illustratedCount=0;
   const illustratedCover=b=>`<div class="story-cover-art bellwether-cover" role="img" aria-label="${esc(b.title)} cover: a passenger train at a snowy Midwest station at night"><div class="cover-lettering"><h2>${esc(b.title)}</h2><small>AMERICAN ADAPTATION · 1951</small></div><div class="cover-credit">Benji &amp; Almostasherq</div></div>`;
   async function load(){books=(await api('chronicles_books?select=id,title,language,primary_writer,collaboration,related_work,created_at,revision&order=created_at.asc')).filter(b=>!planningStory(b.id));if(books.some(b=>b.id===illustratedBook))illustratedCount=(await api('chronicles_book_entries?book_id=eq.'+illustratedBook+'&kind=eq.chapter&select=id')).length;}
-  function illustratedCards(language){return books.filter(b=>b.language===language&&b.id===illustratedBook).map(b=>`<a class="story-card collection-story" href="${link(b.id)}">${illustratedCover(b)}<div class="card-body"><h2>${esc(b.title)}</h2><small>${illustratedCount} chapters · English 2</small><span>Open story</span></div></a>`).join('');}
+  function illustratedCards(language){return books.filter(b=>b.language===language&&b.id===illustratedBook).map(b=>`<a class="story-card collection-story" href="${link(b.id)}">${illustratedCover(b)}<div class="card-body"><h2>${esc(b.title)}</h2><small>${illustratedCount} chapters · _zk5e</small><span>Open story</span></div></a>`).join('');}
   function isBookRoute(params){return params.has('book');}
   // Book Cover T001: one full portrait cover, sharing the Lost Files dimensions.
   const bookArtwork={

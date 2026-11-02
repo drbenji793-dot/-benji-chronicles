@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-02T23:27:13.325847+00:00",
+  "timezone": "America/New_York",
+  "principle": "Explicit project adoption; no automatic overwrite",
+  "protected": [
+    "SCP"
+  ],
+  "codes": [
+    {
+      "code": "_benji_philly",
+      "aliases": "_benji_philosophy",
+      "meaning": "Governing philosophy",
+      "usage": "Read before creating or changing a machine.",
+      "template": "Benji_Philosophy_v001.html"
+    },
+    {
+      "code": "_ztra",
+      "aliases": "_tra",
+      "meaning": "Build or update a project tracker",
+      "usage": "Scope, tasks, evidence, decisions, release and recovery. Tracker updates alone do not authorize unrelated site changes.",
+      "template": "Project_Tracker_v001.html"
+    },
+    {
+      "code": "_zk5",
+      "aliases": "zk5",
+      "meaning": "Arabic writing standard",
+      "usage": "Use Benji’s source voice and the book’s selected E or F mode. No automatic canon changes.",
+      "template": "Arabic_Voice_v002.html"
+    },
+    {
+      "code": "_zk5e",
+      "aliases": "_zk5english",
+      "meaning": "English writing standard",
+      "usage": "Use natural English with Benji’s scene logic and approved craft rules. English 2 is a retired style label.",
+      "template": "English_Voice_v004.html"
+    },
+    {
+      "code": "_zrec",
+      "aliases": "_zrectangle",
+      "meaning": "Compact provenance component",
+      "usage": "Open the grey rectangle for actual saved modification, author, method, version and separate release.",
+      "template": "Technical_Rectangle_v001.html"
+    },
+    {
+      "code": "_bs",
+      "aliases": "None",
+      "meaning": "Brainstorm first",
+      "usage": "Present analysis and proposed decisions. Do not implement the proposal until authorized.",
+      "template": "Benji_Philosophy_v001.html"
+    },
+    {
+      "code": "_up5",
+      "aliases": "_update · __update",
+      "meaning": "Complete, verify, synchronize and lock",
+      "usage": "Apply only to the authorized project. Verify live source and required recovery evidence before claiming a lock.",
+      "template": "Project_Tracker_v001.html"
+    },
+    {
+      "code": "_a",
+      "aliases": "None",
+      "meaning": "Approved",
+      "usage": "Approve the clearly identified proposal or scope. It does not approve unrelated changes.",
+      "template": "Benji_Philosophy_v001.html"
+    },
+    {
+      "code": "_p",
+      "aliases": "None",
+      "meaning": "Publish",
+      "usage": "Publish the identified approved result, preserving existing audience and scope.",
+      "template": "Project_Tracker_v001.html"
+    },
+    {
+      "code": "_n",
+      "aliases": "None",
+      "meaning": "Notify Claude",
+      "usage": "Prepare the identified handoff; sending requires an available authorized destination. Never claim it was sent when only prepared.",
+      "template": "Work_Remaining_v001.html"
+    }
+  ],
+  "templates": {
+    "philosophy": "Benji_Philosophy_v001.html",
+    "codes": "ZCodes_Registry_v001.html",
+    "tracker": "Project_Tracker_v001.html",
+    "rectangle": "Technical_Rectangle_v001.html",
+    "arabic": "Arabic_Voice_v002.html",
+    "english": "English_Voice_v004.html",
+    "later": "Work_Remaining_v001.html"
+  },
+  "sourceHashes": {
+    "original.txt": "82682681e78f9b8cf2fbfa7c9aa1109e171eb1a69d91f5b0218b483ab3e68f6a",
+    "arabic.html": "4f29486ae6f82c995600f37e0dbc18d939e51fbbaa33732174c725bb2ea926c5",
+    "zk5.json": "8339528b6cdb8572ee23d6a5477f225442f11cb410d44824c6c076a5fac03c4f",
+    "english.html": "a2c9f7fbeb7ae61a4fc4e3e953ef0556870706cf76d7ecb34edc856cd18ce484"
+  }
+}
