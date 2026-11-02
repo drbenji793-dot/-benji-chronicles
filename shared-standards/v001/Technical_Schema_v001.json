@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "component": "_zrec",
+  "version": "v001",
+  "record": {
+    "contentVersion": null,
+    "modifiedAt": null,
+    "timezone": "America/New_York",
+    "author": null,
+    "method": null,
+    "style": null,
+    "styleVersion": null,
+    "status": null,
+    "lastChange": null,
+    "protected": null,
+    "release": {
+      "version": null,
+      "releasedAt": null,
+      "commit": null
+    }
+  },
+  "rules": [
+    "Never set modifiedAt on render or open",
+    "Use Not recorded for missing facts",
+    "Store timestamps as ISO 8601; render with explicit timezone",
+    "Keep content revision separate from release version",
+    "Use text nodes for record values; no raw HTML",
+    "Actions are rendered only when a real callback exists"
+  ]
+}

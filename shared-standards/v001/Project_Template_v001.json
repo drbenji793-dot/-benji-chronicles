@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "template": "_ztra",
+  "templateVersion": "v001",
+  "project": "",
+  "scope": "",
+  "protectedAreas": [
+    "SCP"
+  ],
+  "baseline": {
+    "url": "",
+    "version": "",
+    "commit": "",
+    "verifiedAt": null
+  },
+  "tasks": [],
+  "decisions": [],
+  "release": null,
+  "recovery": null,
+  "adoptedAt": null
+}

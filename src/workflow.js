@@ -46,6 +46,9 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
    const technical=document.createElement('details');technical.innerHTML='<summary>Technical record</summary><p>Chapter version '+esc(version(c.revision))+' · Internal revision '+esc(c.revision)+'</p><p>Entry: '+esc(c.id)+'</p><p>Saved UTC: '+esc(c.updated_at)+'</p><p>Chapter versions start at 101. The style guide has its own version.</p>';
    details.append(technical);
  }
+ // The technical footer moves live controls outside this panel while status loads.
+ // Retain their identities so delayed responses update the original controls.
+ const approveControl=panel.querySelector('[data-wf=approve]'),reviewControl=panel.querySelector('[data-wf=review]'),transferControl=panel.querySelector('[data-wf=transfer]'),sendControl=panel.querySelector('[data-wf=approve-send]');
  const guard=()=>{if(isEditing()){say('Save or cancel your edits first. Review and approval use the saved revision.',true);return false}return true};let w;
  async function status(){
  const rows=await api('chronicles_workflow?source_id=eq.'+c.id+'&select=*');if(!panel.isConnected)return;w=rows[0];
@@ -59,10 +62,10 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
  if(!approved&&w?.transferred_at&&!synced)label+=` · Last sent to Ink: revision ${version(w.transferred_revision)} · ${date(w.transferred_at)}`;
  if(!panel.isConnected)return;
  panel.querySelector('.workflow-status').textContent=label;
- const approve=panel.querySelector('[data-wf=approve]');approve.disabled=approved;approve.textContent=approved?'Approved':c.kind==='rules'?'Approve Rules':'Approve Chapter';
- panel.querySelector('[data-wf=review]').textContent=c.kind==='rules'?'Review Rules':'Review Chapter';
- panel.querySelector('[data-wf=transfer]').disabled=!approved||synced;
- if(reviewEdition){const button=panel.querySelector('[data-wf=approve-send]');button.disabled=synced;button.textContent=synced?'Sent to Ink':'Approve and send to Ink';}
+ const approve=approveControl;approve.disabled=approved;approve.textContent=approved?'Approved':c.kind==='rules'?'Approve Rules':'Approve Chapter';
+ reviewControl.textContent=c.kind==='rules'?'Review Rules':'Review Chapter';
+ transferControl.disabled=!approved||synced;
+ if(reviewEdition){const button=sendControl;button.disabled=synced;button.textContent=synced?'Sent to Ink':'Approve and send to Ink';}
  }
 
  async function combinedApproval(){

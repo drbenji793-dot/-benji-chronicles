@@ -1,0 +1,1 @@
+details.zrec{background:rgba(90,90,90,.09);border:1px solid #8885;border-radius:5px;padding:5px 8px;font:11px/1.6 system-ui;margin-top:18px}details.zrec summary{cursor:pointer;font-size:11px}details.zrec dl{display:grid;grid-template-columns:minmax(95px,1fr) 3fr;gap:5px;margin:10px 0}dt{font-weight:600}dd{margin:0;overflow-wrap:anywhere}

@@ -1,6 +1,6 @@
 {
-  "version": 195,
-  "releasedAt": "2026-11-02T22:41:39.505418+00:00",
+  "version": 196,
+  "releasedAt": "2026-11-02T23:31:34.141280+00:00",
   "timezone": "UTC",
-  "note": "Shared pending work projection across Story, Decisions and Review with scoped source checks and focused navigation"
+  "note": "Preserve workflow control references during technical footer relocation; add versioned HQ standards source mirror without automatic adoption"
 }
