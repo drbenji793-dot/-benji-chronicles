@@ -1,6 +1,6 @@
 {
-  "version": 172,
-  "releasedAt": "2026-11-02T01:31:07.567Z",
+  "version": 173,
+  "releasedAt": "2026-11-02T01:36:51.629Z",
   "timezone": "UTC",
-  "note": "Fix overlapping book Edit/Delete controls and match Arrange books disclosure height"
+  "note": "Smaller centered book menus including Lost Files; logo and site name only header"
 }
