@@ -89,3 +89,12 @@ html body .shelf-arrange button[aria-pressed="true"]{background:rgba(100,100,100
 /* Compact arrangement strip beneath the bookshelf. */
 html body .shelf-arrange{font:9px/1.25 system-ui,sans-serif;margin:10px 0 4px;padding:1px 5px;gap:4px;border-radius:4px}
 html body .shelf-arrange button{font:inherit;min-height:20px;padding:1px 3px}
+
+/* Cover-only shelves and a compact centered management menu. */
+html body .library-bookshelf .card-body,html body .collection-grid .card-body,html body .library-bookshelf .chronicles-new-info{display:none!important}
+html body .managed-book .book-manage{display:flex;justify-content:center;gap:0;margin:6px auto 10px;padding:0;border:0}
+html body .book-manage details{box-sizing:border-box;width:fit-content;max-width:100%;padding:1px 5px;background:rgba(100,100,100,.09);border:1px solid rgba(100,100,100,.2);border-radius:4px;font:9px/1.25 system-ui,sans-serif;text-align:center}
+html body .book-manage summary{display:block;list-style:none;font:12px/1 system-ui,sans-serif;min-height:20px;min-width:28px;padding:4px 6px;box-sizing:border-box;cursor:pointer}
+html body .book-manage summary::-webkit-details-marker{display:none}
+html body .book-manage details[open] summary{transform:rotate(90deg)}
+html body .book-manage details button{font:10px/1.3 system-ui,sans-serif;min-height:24px;padding:3px 6px;margin:2px;border-radius:3px}

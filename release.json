@@ -1,6 +1,6 @@
 {
-  "version": 167,
-  "releasedAt": "2026-11-02T01:08:52.900Z",
+  "version": 168,
+  "releasedAt": "2026-11-02T01:13:17.544Z",
   "timezone": "UTC",
-  "note": "Move compact Arrange books strip below the bookshelf"
+  "note": "Cover-only shelves with compact centered menu containing Rename and Delete"
 }
