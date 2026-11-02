@@ -1,3 +1,4 @@
+import {saveNoteResolution} from './note-save.js';
 import {mountChapterHistory} from './chapter-history.js';
 import {technicalPanel,formatTime} from './revision-stamp.js';
 import {revisionStamp} from './revision-stamp.js';
@@ -529,7 +530,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     $('#chronicles-notes').innerHTML=notes.map(n=>`<div class="note ${n.author==='Ahmed'?'ahmed':n.author==='Guest'?'guest':n.author==='Guest 2'?'guest2':'zee'}">
       <small><strong>${esc(n.author)}</strong> · ${date(n.created_at)}</small>${n.quote_text?`<blockquote dir="auto">${esc(n.quote_text)}</blockquote><small>Chapter revision when noted: ${n.source_revision||''}</small>`:''}<p dir="auto">${esc(n.body)}</p><button data-resolve-note="${n.id}">${n.resolved_at?'Reopen note':'Resolved'}</button>${n.resolved_at?`<small>Resolved by ${esc(n.resolved_by)} · ${date(n.resolved_at)}</small>`:''}
     </div>`).join('');
-    document.querySelectorAll('[data-resolve-note]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const n=notes.find(n=>n.id===b.dataset.resolveNote);await api('chronicles_book_notes?id=eq.'+n.id,{method:'PATCH',body:JSON.stringify({resolved_at:n.resolved_at?null:new Date().toISOString(),resolved_by:n.resolved_at?null:getWriter()})});await loadNotes(id);}catch(e){say(e.message,true);b.disabled=false;}});
+    document.querySelectorAll('[data-resolve-note]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{const n=notes.find(n=>n.id===b.dataset.resolveNote);await saveNoteResolution(api,n,id,getWriter());await loadNotes(id);}catch(e){say(e.message,true);b.disabled=false;}});
   }
   async function addNote(){
     if(!active)return;

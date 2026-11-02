@@ -3,10 +3,10 @@
   "version": 1,
   "edition": "ar",
   "release": {
-    "version": 186,
-    "releasedAt": "2026-11-02T03:51:55.010889+00:00",
+    "version": 187,
+    "releasedAt": "2026-11-02T09:24:45.340725+00:00",
     "timezone": "UTC",
-    "note": "Shared planning update records, dependency flags, complete stamps and enforced release checks"
+    "note": "Reject stale chapter note resolution updates"
   },
   "mechanismVersion": 1,
   "commit": null,
