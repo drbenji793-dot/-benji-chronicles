@@ -30,7 +30,7 @@ for(const language of ['ar','en']){
  dom.window.HTMLAnchorElement.prototype.click=function(){filename=this.download;};
  const originalTimer=globalThis.setTimeout;globalThis.setTimeout=()=>0;
  await document.querySelector('[data-brief]').onclick();globalThis.setTimeout=originalTimer;
- assert.equal(filename,'Review_Brief_v003.html');assert.equal(blob.type,'text/html;charset=utf-8');
+ assert.equal(filename,'Review_Brief_v004.html');assert.equal(blob.type,'text/html;charset=utf-8');
  assert((await blob.text()).startsWith('<!doctype html>'));
  assert.equal(JSON.stringify(chapters),before);
  dom.window.close();
