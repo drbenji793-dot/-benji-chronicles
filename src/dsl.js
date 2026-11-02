@@ -1,5 +1,6 @@
+import {handoffCSS} from './handoff-format.js';
 import {eventChangeFields} from './story-connections.js';
-import {technicalPanel,technicalDetails} from './revision-stamp.js';
+import {technicalPanel,technicalDetails,revisionStamp} from './revision-stamp.js';
 import {stampPlanningChanges} from './current-book-brief.js';
 import {loadPlanning,completePlanningForSave} from './planning-loader.js';
 import {bookGarden,updateLife} from './book-garden.js';
@@ -192,7 +193,7 @@ export async function renderDSL(main,api,bookId,mode='dsl',context={}){
   if(name==='brief')return garden.exportForGPT();
   if(name==='export'){download(JSON.stringify({format:'chronicles-dsl',purpose:'Recovery snapshot only; compare with current revision before reuse',exportedAt:new Date().toISOString(),bookId,branch},null,2),safeFilename(book.title)+' DSL.json','application/json');return;}
   if(name==='template'){download(JSON.stringify({format:'chronicles-dsl-template',template:TEMPLATE_ID,modules:MASTER_MODULES,data:makeMasterStory()},null,2),'DSL Master T001.json','application/json');return;}
-  if(name==='export-html'){const d=project.published?.data||model();download('<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+h(book.title)+'</title><style>body{max-width:850px;padding:25px;margin:auto;font:18px/2 Arial}article{border-bottom:1px solid #aaa;padding:15px 0}.dsl-meta,small{font-size:13px}a{color:inherit}</style><p>'+h(project.published?'Published DSL revision':'Unpublished working preview')+'</p>'+readable(d).replaceAll('href="#','href="https://benji-chronicles.vercel.app/#')+'</html>',safeFilename(book.title)+' Storyline.html','text/html;charset=utf-8');return;}
+  if(name==='export-html'){const d=project.published?.data||model(),exportedAt=new Date().toISOString();download('<!doctype html><html lang="en" dir="ltr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+h(book.title)+'</title><style>body{max-width:850px;padding:25px;margin:auto;font:18px/2 Arial}article{border-bottom:1px solid #aaa;padding:15px 0}.dsl-meta,small{font-size:13px}a{color:inherit}'+handoffCSS+'</style>'+readable(d).replaceAll('href="#','href="https://benji-chronicles.vercel.app/#')+technicalPanel('<p>Storyline export v2 · Exported '+h(exportedAt)+' · UTC</p><p>'+h(project.published?'Published DSL revision':'Unpublished working preview')+'</p><p>'+h(revisionStamp(project.published?{revision:project.published.branch_revision,updated_at:project.published.published_at}:branch))+'</p>')+'</html>',safeFilename(book.title)+' Storyline.html','text/html;charset=utf-8');return;}
   if(name==='recover'){const d=readLocal();if(d?.data)return fork(d.data,'Recovered local draft','Recover unsaved local draft as new branch');}
   if(name==='discard'){if(confirm('Discard this local draft only? Saved shared revisions will not change.')){clearLocal();render();}return;}
   if(name==='refresh'){if(!closeDialog())return;await load();refreshNeeded=false;render();return;}
