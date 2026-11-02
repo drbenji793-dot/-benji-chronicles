@@ -22,14 +22,14 @@ for(const language of ['ar','en']){
  assert(doc.body.lastElementChild.textContent.includes('Source r4'));
  assert(doc.body.lastElementChild.textContent.includes('Source r2'));
  assert.equal(doc.querySelectorAll('section .technical-details').length,0);
- await renderCritique(document.querySelector('main'),async p=>p==='chapters'?chapters:[],context);
+ await renderCritique(document.querySelector('main'),async p=>p.startsWith('chapters')?chapters:[],context);
  assert(!document.querySelector('main').textContent.includes('نقد صارم'));
  assert.equal(document.querySelector('.critique-page').dir,'ltr');
  let blob,filename;
  URL.createObjectURL=b=>(blob=b,'blob:test');URL.revokeObjectURL=()=>{};
  dom.window.HTMLAnchorElement.prototype.click=function(){filename=this.download;};
  const originalTimer=globalThis.setTimeout;globalThis.setTimeout=()=>0;
- document.querySelector('[data-brief]').click();globalThis.setTimeout=originalTimer;
+ await document.querySelector('[data-brief]').onclick();globalThis.setTimeout=originalTimer;
  assert.equal(filename,'Review_Brief_v003.html');assert.equal(blob.type,'text/html;charset=utf-8');
  assert((await blob.text()).startsWith('<!doctype html>'));
  assert.equal(JSON.stringify(chapters),before);
@@ -45,7 +45,8 @@ console.log('Review export: Arabic/English criteria, readable safe HTML, source 
  let saved,reject=false;
  const api=async(path,opts)=>{
   if(opts?.method==='PATCH'){const q=new URLSearchParams(path.split('?')[1]);assert.equal(q.get('book_id'),'eq.book');assert.equal(q.get('revision'),saved?'eq.9':'eq.8');if(reject)return [];saved=JSON.parse(opts.body);return [{...original,data:saved.data,revision:9}];}
-  return path==='chapters'?[{id:'ch',revision:3,body:'<p>Story preserved</p>'}]:[structuredClone(original)];
+  if(path.includes('select=reviews:'))return [{reviews:[]}];
+  return path.startsWith('chapters')?[{id:'ch',revision:3,body:'<p>Story preserved</p>'}]:[structuredClone(original)];
  };
  await renderCritique(document.querySelector('main'),api,{bookId:'book',title:'Review',language:'ar',sourcePath:'chapters'});
  const f=document.querySelector('[data-critique-form]');f.elements.title.value='Review';f.elements.ar.value='مراجعة';

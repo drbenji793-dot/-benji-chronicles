@@ -17,9 +17,9 @@ for(const language of ['ar','en']){
   const nav=document.querySelector('.book-navigation');
   assert.equal(nav.hidden,false);
   const tabs=[...nav.querySelectorAll('.ink-tabs a')];
-  assert.deepEqual(tabs.map(a=>a.textContent),['Story Brief','Chapters','Notes','Review','Export','Story World']);
+  assert.deepEqual(tabs.map(a=>a.textContent),['Story','Chapters','Story World','Review']);
   assert(tabs.every(a=>a.getAttribute('href').startsWith('#book='+id)));
-  assert(tabs[5].getAttribute('href').endsWith('&view=dsl&dslview=garden'));
+  assert(tabs[2].getAttribute('href').endsWith('&view=dsl&dslview=garden'));
   if(route.chapter)assert.equal(nav.querySelector('[aria-current]').textContent,'Chapters');
 
  }

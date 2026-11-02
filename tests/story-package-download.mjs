@@ -32,13 +32,14 @@ const originalClick=w.HTMLAnchorElement.prototype.click;w.HTMLAnchorElement.prot
 const bundle=await build({entryPoints:['src/app.js'],bundle:true,write:false,format:'iife',logLevel:'silent',define:{__CHRONICLES_EDITION__:JSON.stringify(language),'import.meta.url':JSON.stringify('https://example.com/app.js')}});w.eval(bundle.outputFiles[0].text);const q=s=>w.document.querySelector(s);const wait=()=>new Promise(r=>setTimeout(r,180));
 try {
  await wait();
- assert(q('.synopsis-reading').textContent.includes('Saved Outside Time synopsis'));
- assert(q('.synopsis-reading').textContent.includes('Saved written scene'));
- assert(q('.synopsis-reading').textContent.includes('Not approved'));
+ assert(q('[data-summary]').textContent.includes('Saved Outside Time synopsis'));
+ assert(q('.story-text').textContent.includes('Saved written scene'));
+ assert(q('.story-text').textContent.includes('Not approved'));
+ w.location.hash='#book=ff9fed20-1254-45b6-82f4-9f7b9fe7c3ba&view=export';await wait();
  q('#full-story-package').click();
  assert.equal(downloads.length,1,'Full Story Package starts a download directly: '+q('#export-message').textContent);
  assert.equal(blobs.length,1);
- assert.equal(q('#book-export-form').hidden,true);
+ assert.equal(q('#book-export-form').hidden,false);
  assert.equal(q('#export-file-links a[download]').textContent,'Download HTML');
  assert.equal(q('#export-file-links a[target=_blank]').textContent,'Open file');
  const html=await new Promise(resolve=>{const r=new w.FileReader();r.onload=()=>resolve(r.result);r.readAsText(blobs[0]);});
