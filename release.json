@@ -1,6 +1,6 @@
 {
-  "version": 162,
-  "releasedAt": "2026-11-01T23:28:32.002443+00:00",
+  "version": 163,
+  "releasedAt": "2026-11-02T00:39:12.411326+00:00",
   "timezone": "UTC",
-  "note": "Keep the latest navigation tap while a page finishes loading; preserve unsaved content guards"
+  "note": "Readable review brief HTML, language-specific criteria and English review controls"
 }

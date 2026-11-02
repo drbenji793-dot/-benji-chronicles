@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import {JSDOM} from 'jsdom';
+import createDOMPurify from 'dompurify';
+import {reviewBriefHTML,renderCritique} from '../src/critique.js';
+for(const language of ['ar','en']){
+ const dom=new JSDOM('<main></main>',{url:'https://example.test/#view=critique'});
+ for(const k of ['window','document','location','MutationObserver','localStorage','FormData'])globalThis[k]=dom.window[k];
+ const chapters=[{id:'one',chapter_number:1,title:'ابن الجبل',revision:4,body:'<p>حافيين &amp; سالم</p><script>alert(1)</script>'},{id:'two',chapter_number:2,title:'Next',revision:2,body:''}];
+ const context={bookId:'book',title:'ابن الجبل',language,sourcePath:'chapters'};
+ const before=JSON.stringify(chapters);
+ const html=reviewBriefHTML({context,chapters,fingerprint:'source',generatedAt:'2026-11-02T00:00:00Z'},s=>createDOMPurify(window).sanitize(s));
+ const doc=new JSDOM(html).window.document;
+ assert.equal(doc.querySelector('meta[charset]').getAttribute('charset'),'utf-8');
+ assert.equal(doc.querySelector('script'),null);
+ assert(doc.body.textContent.includes('حافيين & سالم'));
+ assert(doc.body.textContent.includes('No saved text supplied'));
+ assert.equal(doc.body.textContent.includes('English 2'),language==='en');
+ assert.equal(doc.body.textContent.includes('zk5'),language==='ar');
+ assert([...doc.querySelectorAll('.technical-details')].every(d=>!d.open));
+ await renderCritique(document.querySelector('main'),async p=>p==='chapters'?chapters:[],context);
+ assert(!document.querySelector('main').textContent.includes('نقد صارم'));
+ assert.equal(document.querySelector('.critique-page').dir,'ltr');
+ let blob,filename;
+ URL.createObjectURL=b=>(blob=b,'blob:test');URL.revokeObjectURL=()=>{};
+ dom.window.HTMLAnchorElement.prototype.click=function(){filename=this.download;};
+ const originalTimer=globalThis.setTimeout;globalThis.setTimeout=()=>0;
+ document.querySelector('[data-brief]').click();globalThis.setTimeout=originalTimer;
+ assert.equal(filename,'Review_Brief_v002.html');assert.equal(blob.type,'text/html;charset=utf-8');
+ assert((await blob.text()).startsWith('<!doctype html>'));
+ assert.equal(JSON.stringify(chapters),before);
+ dom.window.close();
+}
+console.log('Review export: Arabic/English criteria, readable safe HTML, source fidelity and download verified.');

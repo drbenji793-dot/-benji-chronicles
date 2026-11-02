@@ -15,7 +15,7 @@ export function outsideTimeNavigation(params,nav){
 export async function renderOutsideTime(params,nav,main,api){
  outsideTimeNavigation(params,nav);
  const view=params.get('view')||'chapters';
- if(view==='critique'){await renderCritique(main,api,{bookId:OUTSIDE_TIME_BOOK,title:'خارج الزمن',sourcePath:'chronicles_book_entries?book_id=eq.'+OUTSIDE_TIME_BOOK+'&kind=eq.chapter&select=id,chapter_number,title,body,revision&order=chapter_number.asc'});return;}
+ if(view==='critique'){await renderCritique(main,api,{bookId:OUTSIDE_TIME_BOOK,language:'ar',title:'خارج الزمن',sourcePath:'chronicles_book_entries?book_id=eq.'+OUTSIDE_TIME_BOOK+'&kind=eq.chapter&select=id,chapter_number,title,body,revision,updated_at&order=chapter_number.asc'});return;}
  if(view==='contents'){
   const hash=location.hash;main.innerHTML='<div class="loading">Loading Contents…</div>';
   const [chapters,parts]=await Promise.all([api('chronicles_book_entries?book_id=eq.'+OUTSIDE_TIME_BOOK+'&kind=eq.chapter&select=id,chapter_number,title,revision&order=chapter_number.asc'),api('chronicles_book_parts?book_id=eq.'+OUTSIDE_TIME_BOOK+'&select=id,title,start_chapter&order=start_chapter.asc')]);
