@@ -1,6 +1,6 @@
 {
-  "version": 181,
-  "releasedAt": "2026-11-02T02:45:00.035887+00:00",
+  "version": 182,
+  "releasedAt": "2026-11-02T03:14:22.259732+00:00",
   "timezone": "UTC",
-  "note": "Complete companion and standalone export interface cleanup with consolidated technical details"
+  "note": "Remove visible chapter Draft label and compact planning notes above story divider; v181 baseline preserved"
 }

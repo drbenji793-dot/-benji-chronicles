@@ -351,11 +351,11 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
 
         ${selectedPart?`<p class="chapter-part">${esc(partName(selectedPart))}</p>`:''}
         <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
-        ${!rules&&book.id===REVIEW_BOOK?'<p class="chapter-stage" dir="ltr">'+esc(c.statusLabel||(!clean(c.body).replace(/<[^>]*>/g,'').trim()?'Planned':'Draft'))+'</p>'+planningNotes(c):''}
+        ${!rules&&book.id===REVIEW_BOOK?planningNotes(c):''}
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
         <div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div>${technicalPanel(`<div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Chapter ${version(c.revision)} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}<p>${esc(writingLabel(c.writing_meta))}</p>${c.writing_meta?.origin?`<p>${esc(c.writing_meta.origin)}</p>`:''}</div>`)}
         ${!c.body.trim()&&!rules?'<p class="notice" dir="ltr">Chapter text · Not written yet. Press Edit to begin.</p>':''}
-        <article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
+        <hr class="chapter-story-divider" aria-hidden="true"><article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
         <nav class="chapter-bottom-controls" aria-label="Chapter editing and navigation" dir="ltr">
           ${rules?'':`<button id="bottom-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button>`}
           <button id="bottom-edit">Edit</button><button id="bottom-save" class="primary" disabled>Save</button>
