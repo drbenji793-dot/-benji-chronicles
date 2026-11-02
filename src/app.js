@@ -1,3 +1,4 @@
+import {renderStoryWorkspace} from './story-workspace.js';
 import {mountTechnicalFooter} from './technical-footer.js';
 import {mountResourceHistory} from './resource-history.js';
 import {technicalPanel} from './revision-stamp.js';
@@ -84,11 +85,7 @@ function applySharedBookNavigation(){
 }
 async function renderCollectionTool(params){
  const view=params.get('view');
- if(view==='brief'){const branches=await api('chronicles_dsl_branches?book_id=eq.'+planningId(story,lang)+'&archived=eq.false&select=data&order=updated_at.desc');
- const d=branches[0]?.data||{},draft=d.storyDraft||d.currentStory||{};
- const resources=await api('chronicles_story_resources?story_number=eq.'+story+'&language=eq.'+lang+'&kind=eq.storyboard&select=body');
- const brief=savedStoryBrief({...d,summary:d.summary||resources[0]?.body||''});
- $('#main').innerHTML='<section class="reference-page"><h1>Story Brief</h1><h2 dir="auto">'+esc(storyTitle(story,lang))+'</h2><div dir="auto" style="white-space:pre-wrap;line-height:1.9">'+esc(brief||'No story brief saved yet.')+'</div><nav class="reference-nav"><a href="#story='+story+'&lang='+lang+'&view=dsl&dslview=synopsis">Open story planning</a><a href="#story='+story+'&lang='+lang+'&view=characters">Characters</a><a href="#story='+story+'&lang='+lang+'&view=references">References</a><a href="#story='+story+'&lang='+lang+'&view=story-notes">Saved story notes</a></nav></section>';return;}
+ if(view==='brief'){await renderStoryWorkspace($('#main'),api,{bookId:planningId(story,lang),title:storyTitle(story,lang),language:lang,root:'#story='+story+'&lang='+lang,branchId:params.get('dslbranch'),extraLinks:'<a href="#story='+story+'&lang='+lang+'&view=story-notes">Saved story notes</a>'});return;}
  $('#main').innerHTML='<section class="reference-page"><h1>Export</h1><h2 dir="auto">'+esc(storyTitle(story,lang))+'</h2><p>Export the latest saved chapters as PDF or HTML.</p><button id="collection-export" class="primary">PDF / HTML</button></section>';$('#collection-export').onclick=openExport;
 }
 // One contextual Garden entrance on every book page; no manuscript writes.

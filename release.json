@@ -1,6 +1,6 @@
 {
-  "version": 188,
-  "releasedAt": "2026-11-02T09:38:27.284143+00:00",
+  "version": 189,
+  "releasedAt": "2026-11-02T19:17:44.983740+00:00",
   "timezone": "UTC",
-  "note": "Guard book metadata and note revisions, preserve recovery history, stamp critique reports"
+  "note": "Bound Review loading, introduce concise Story workspace, separate pending and deferred decisions"
 }

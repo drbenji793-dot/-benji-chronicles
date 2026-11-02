@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';import {renderStoryWorkspace,storySections} from '../src/story-workspace.js';import {questionGroups} from '../src/dsl-workshop.js';
+const data={summary:'سالم يفقد اسمه ويعود للمواجهة.',storyBrief:{text:'Detailed editorial notes retained'},events:[],characters:[{id:'c',name:'سالم'}],workshop:{questions:[{id:'open',title:'Open',status:'open'},{id:'defer',title:'Later',status:'deferred',answer:'أؤجل القرار'},{id:'pending',title:'Saved',status:'answered',answer:'Choice'},{id:'applied',title:'Done',status:'applied',answer:'Done'}]}};
+const groups=questionGroups(data);assert.deepEqual(groups.open.map(x=>x.id),['open']);assert.deepEqual(groups.pending.map(x=>x.id),['pending']);assert.deepEqual(groups.deferred.map(x=>x.id),['defer']);
+assert.equal(storySections(data).open.length,1);
+for(const language of ['ar','en']){
+ const dom=new JSDOM('<main></main>',{url:'https://test.local/#book=b&view=brief'});for(const k of ['window','document','location','MutationObserver','localStorage','FormData'])globalThis[k]=dom.window[k];globalThis.confirm=()=>true;
+ let branch={id:'br',book_id:'b',revision:8,updated_at:'2026-11-02T12:00:00Z',data:structuredClone(data)},writes=[],conflict=false;
+ const api=async(p,o)=>{if(o){writes.push(JSON.parse(o.body));if(conflict)return [];branch={...branch,...writes.at(-1),revision:9};return [branch];}if(p.includes('select=data,revision'))return conflict?[]:[branch];return [branch];};
+ await renderStoryWorkspace(document.querySelector('main'),api,{bookId:'b',title:'ابن الجبل',language,root:'#book=b'});
+ assert.equal(document.querySelectorAll('h1').length,1);assert.equal(document.querySelector('[data-summary]').textContent,data.summary);assert([...document.querySelectorAll('details')].every(x=>!x.open));assert(document.querySelector('details:not(.story-export)').textContent.includes('Detailed editorial notes retained'));assert.equal(writes.length,0);
+ document.querySelector('[data-edit]').click();const form=document.querySelector('form');form.elements.summary.value='Revised concise summary';form.dispatchEvent(new dom.window.Event('input'));await form.onsubmit({preventDefault(){}});
+ assert.equal(writes.length,1);assert.equal(writes[0].data.storyBrief.text,data.storyBrief.text);assert.equal(writes[0].data.summary,'Revised concise summary');assert.equal(writes[0].data.currentUpdate.baseRevision,8);
+ conflict=true;document.querySelector('[data-edit]').click();const f=document.querySelector('form');f.elements.summary.value='Unsaved';f.dispatchEvent(new dom.window.Event('input'));await f.onsubmit({preventDefault(){}});assert(document.querySelector('[data-status]').textContent.includes('another device'));assert(localStorage.getItem('chronicles-story-summary:b:br').includes('Unsaved'));assert.equal(writes.length,1);dom.window.close();
+}
+console.log('PASS concise Story, retained planning, collapsed sections, shared decisions, guarded save and local recovery in both languages');
