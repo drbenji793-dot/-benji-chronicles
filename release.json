@@ -1,6 +1,6 @@
 {
-  "version": 196,
-  "releasedAt": "2026-11-02T23:31:34.141280+00:00",
+  "version": 197,
+  "releasedAt": "2026-11-02T23:36:50.367759+00:00",
   "timezone": "UTC",
-  "note": "Preserve workflow control references during technical footer relocation; add versioned HQ standards source mirror without automatic adoption"
+  "note": "Create source-linked author questions from accepted review findings with duplicate and stale-source guards"
 }
