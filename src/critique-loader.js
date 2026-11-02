@@ -13,9 +13,14 @@ export async function reviewBranch(api,bookId,branchId){
  const q=new URLSearchParams({book_id:'eq.'+bookId,archived:'eq.false',select:'id,book_id,name,revision,updated_at',order:'updated_at.asc',limit:'1'});
  if(branchId)q.set('id','eq.'+branchId);
  const rows=await api('chronicles_dsl_branches?'+q);if(!rows[0]){if(branchId)throw Error('Selected planning path is unavailable.');return null;}
- const b=rows[0],reports=await api('chronicles_dsl_branches?book_id=eq.'+bookId+'&id=eq.'+b.id+'&revision=eq.'+b.revision+'&select=reviews:data->editorialReviews&limit=1');
+ const b=rows[0],reports=await api('chronicles_dsl_branches?book_id=eq.'+bookId+'&id=eq.'+b.id+'&revision=eq.'+b.revision+'&select=reviews:data->editorialReviews,findings:data->editorialFindings&limit=1');
  if(!reports[0])throw Error('Planning changed while opening Review. Retry.');
- return {...b,data:{editorialReviews:reports[0].reviews||[]}};
+ return {...b,data:{editorialReviews:reports[0].reviews||[],editorialFindings:reports[0].findings||[]}};
+}
+export async function reviewChapter(api,sourcePath,metadata){
+ const rows=await api(reviewPath(sourcePath,'id,chapter_number,title,body,revision,updated_at',{ids:[metadata.id],limit:1}));
+ if(rows.length!==1||rows[0].id!==metadata.id||rows[0].revision!==metadata.revision)throw Error('Chapter changed. Reopen Review before citing it.');
+ return rows[0];
 }
 export async function reviewBodies(api,sourcePath,metadata,isCurrent=()=>true){
  const rows=[];for(let i=0;i<metadata.length;i+=10){if(!isCurrent())throw Error('Review was closed.');const batch=metadata.slice(i,i+10);const page=await api(reviewPath(sourcePath,'id,chapter_number,title,body,revision,updated_at',{ids:batch.map(c=>c.id),limit:10}));

@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';
+import {JSDOM} from 'jsdom';
+import {createFinding,decideFinding,planningFingerprint} from '../src/critique-findings.js';
+import {savedParagraphs,findingsHTML,bindFindings,findingWorkspace} from '../src/critique-findings-ui.js';
+import {stampPlanningChanges} from '../src/current-book-brief.js';
+const data={summary:'Current',rules:'Protect dialogue',events:[{id:'e',summary:'Established'}],workshop:{questions:[{id:'q',answer:'Keep',status:'deferred'}]},editorialReviews:[{id:'old',en:'Existing report'}]};
+const chapter={id:'ch',revision:3,chapter_number:1,title:'سالم',body:'<p>سالم رجع الورشة.</p><p>قال: حافيين.</p>'};
+const input={title:'Voice',paragraph:2,quote:'قال: حافيين.',issue:'Check voice',impact:'Consistency',repair:'Keep approved wording',kind:'Interpretation',severity:'Minor',confidence:'Medium',recommendation:'Keep',origin:'GPT self critique'};
+const context={chapter,paragraphs:['سالم رجع الورشة.','قال: حافيين.'],bookId:'book',branchId:'br',revision:8,writer:'Benji',language:'ar'};
+const snapshot=structuredClone(data);
+let saved=await createFinding(data,input,context),finding=saved.editorialFindings[0];
+assert.deepEqual(data,snapshot);assert.equal(finding.status,'proposed');assert.equal(finding.writingRules,'Protect dialogue');assert.equal(finding.writingRulesRevision,null);
+await assert.rejects(()=>createFinding(data,{...input,quote:'Invented'},context),/quote must match/);
+await assert.rejects(()=>createFinding(data,input,{...context,paragraphs:[]}),/quote must match/);
+await assert.rejects(()=>createFinding(saved,input,context),/already exists/);
+await assert.rejects(()=>decideFinding(saved,finding.id,{status:'accepted',note:'Yes',chapters:[{...chapter,revision:4}],bookId:'book',branchId:'br'}),/Source changed/);
+await assert.rejects(()=>decideFinding({...saved,summary:'Changed'},finding.id,{status:'accepted',note:'Yes',chapters:[chapter],bookId:'book',branchId:'br'}),/Source changed/);
+await assert.rejects(()=>decideFinding(saved,finding.id,{status:'accepted',note:'Yes',chapters:[chapter],bookId:'other',branchId:'br'}),/another book/);
+await assert.rejects(()=>decideFinding(saved,finding.id,{status:'resolved',note:'Yes',chapters:[chapter],bookId:'book',branchId:'br'}),/valid|decision/);
+saved=stampPlanningChanges(data,saved,{writer:'Benji',revision:8,note:'Finding',bookId:'book',branchId:'br'});
+assert.equal(saved.editorialFindings[0].revision,1);assert.equal(saved.editorialFindings[0].sourceBranchRevision,8);
+assert.equal(await planningFingerprint(saved),await planningFingerprint(data));
+const accepted=await decideFinding(saved,finding.id,{status:'accepted',note:'Prepare a separate repair',chapters:[chapter],bookId:'book',branchId:'br',writer:'Benji'});
+assert.equal(accepted.editorialFindings[0].status,'accepted');assert.equal(accepted.editorialFindings[0].history.length,1);assert.deepEqual(accepted.events,data.events);assert.deepEqual(accepted.editorialReviews,data.editorialReviews);
+for(const language of ['ar','en']){
+ const dom=new JSDOM('<main></main>',{url:'https://test.invalid/#view=critique'});for(const k of ['window','document','location','MutationObserver','localStorage','FormData'])globalThis[k]=dom.window[k];
+ assert.deepEqual(savedParagraphs(chapter.body),context.paragraphs);
+ assert.deepEqual(savedParagraphs('<p>Text</p><script>bad()</script>'),['Text']);
+ const html=findingsHTML(accepted.editorialFindings,{bookId:'book',title:'<script>bad()</script>',language});const exported=new JSDOM(html).window.document;
+ assert.equal(exported.querySelector('script'),null);assert.equal(exported.querySelectorAll('.technical-details').length,1);assert(exported.body.lastElementChild.matches('.technical-details'));assert(exported.body.textContent.includes('قال: حافيين.'));assert(exported.body.textContent.includes('not independent validation'));assert(exported.body.textContent.includes('Accepted for proposal'));
+ let branch={id:'br',revision:8,data:structuredClone(data)},writes=0,reject=false,busy=false,dirty=false;
+ const api=async(path,opts)=>{if(opts?.method){assert.equal(opts.method,'PATCH');assert(path.startsWith('chronicles_dsl_branches?'));assert(path.includes('revision=eq.'+branch.revision));if(reject)return [];writes++;return [{...branch,revision:branch.revision+1,data:JSON.parse(opts.body).data}];}if(path.startsWith('chapters'))return [chapter];return [{data:structuredClone(branch.data),revision:branch.revision}];};
+ const main=document.querySelector('main');main.innerHTML=findingWorkspace([chapter],true);const bind=()=>bindFindings(main,api,{bookId:'book',title:'Book',language,sourcePath:'chapters?book_id=eq.book'},[chapter],{getBranch:()=>branch,setBranch:b=>branch=b,current:()=>true,isBusy:()=>busy,setBusy:b=>busy=b,onDirty:b=>dirty=b});let dispose=bind();
+ const form=main.querySelector('[data-finding-form]');for(const [k,v]of Object.entries({...input,chapterId:'ch'}))form.elements[k].value=v;form.dispatchEvent(new window.Event('input',{bubbles:true}));assert(dirty);await form.onsubmit({preventDefault(){}});assert.equal(writes,1);assert.equal(dirty,false);assert.equal(branch.data.editorialFindings.length,1);assert.equal(branch.data.editorialFindings[0].revision,1);
+ assert.equal(main.querySelector('.critique-finding').open,false);
+ const decision=main.querySelector('[data-finding-decision]');decision.elements.note.value='Keep this reason';decision.dispatchEvent(new window.Event('input',{bubbles:true}));assert(dirty);
+ dispose();main.innerHTML=findingWorkspace([chapter],true);dispose=bind();assert.equal(main.querySelector('[data-finding-decision]').elements.note.value,'Keep this reason');
+ const df=main.querySelector('[data-finding-decision]');df.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));for(let i=0;i<30&&busy;i++)await new Promise(r=>setTimeout(r,5));assert.equal(writes,2);assert.equal(branch.data.editorialFindings[0].status,'accepted');assert.equal(branch.data.editorialFindings[0].revision,2);assert.equal(dirty,false);assert.equal(main.querySelector('[data-finding-decision]').elements.note.value,'');
+ // Conflict leaves the new finding draft untouched and does not write chapter content.
+ const f=main.querySelector('[data-finding-form]');for(const [k,v]of Object.entries({...input,title:'Second',issue:'Different issue',chapterId:'ch'}))f.elements[k].value=v;f.dispatchEvent(new window.Event('input',{bubbles:true}));reject=true;await f.onsubmit({preventDefault(){}});assert.equal(writes,2);assert(main.querySelector('[data-finding-state]').textContent.includes('another device'));assert(localStorage.getItem('chronicles-finding-draft:book:br').includes('Different issue'));assert.deepEqual(branch.data.events,data.events);
+ dispose();dom.window.close();
+}
+console.log('PASS structured findings: exact evidence, scoped sources, stale decisions, duplicate guard, per-record stamps, isolated proposals, draft recovery, safe export and Arabic/English UI');
