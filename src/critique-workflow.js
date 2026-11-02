@@ -40,6 +40,25 @@ export async function linkFinding(data,id,{kind,targetId,note},context){
  if((f.links||[]).some(l=>l.kind===kind&&l.id===targetId))throw Error('This record is already linked.');
  f.links=[...(f.links||[]),{kind,id:targetId,note:requireText(note,'link reason',2000),at:context.at||new Date().toISOString(),writer:context.writer}];return out;
 }
+export async function createFindingQuestion(data,id,{title,note},context){
+ const f=await currentFinding(data,id,context);
+ if(f.status!=='accepted')throw Error('Accept the finding for proposal first.');
+ title=requireText(title,'specific author question',500);note=requireText(note,'decision reason',4000);
+ const rows=data.workshop?.questions||[];
+ if(rows.some(q=>q.sourceFindingId===id))throw Error('A decision was already created for this finding. Open its existing link or review its history.');
+ if((f.links||[]).some(l=>l.kind==='question'))throw Error('This finding already links to a decision. Review that decision first.');
+ if(rows.some(q=>normalized(q.title).toLocaleLowerCase()===normalized(title).toLocaleLowerCase()))throw Error('A question with this wording already exists. Link the existing decision or review its history.');
+ const at=context.at||new Date().toISOString(),questionId=crypto.randomUUID(),out=structuredClone(data);
+ const question={id:questionId,title,note,status:'open',answer:'',answerNotes:'',options:[],eventIds:(f.links||[]).filter(l=>l.kind==='event').map(l=>l.id),characterIds:[],sourceFindingId:id,sourceChapterId:f.chapterId,sourceChapterRevision:f.chapterRevision,sourceParagraph:f.paragraph,sourceQuote:f.quote,sourceBranchRevision:context.revision,sourcePlanningFingerprint:f.planningFingerprint,updatedBy:context.writer,updatedAt:at};
+ out.workshop={...(out.workshop||{}),questions:[...structuredClone(rows),question]};
+ const target=out.editorialFindings.find(x=>x.id===id);
+ target.links=[...(target.links||[]),{kind:'question',id:questionId,note,at,writer:context.writer}];
+ // Creating an unanswered question changes planning context, not story facts.
+ // Retain the prior fingerprint and identify this exact bookkeeping transition.
+ target.sourceTransitions=[...(target.sourceTransitions||[]),{fromFingerprint:f.planningFingerprint,reason:'Created linked unanswered decision',questionId,at,writer:context.writer}];
+ target.planningFingerprint=await planningFingerprint(out);
+ return out;
+}
 export async function proposeRepair(data,id,input,context){
  const f=await currentFinding(data,id,context);
  if(f.status!=='accepted')throw Error('Accept the finding for proposal first.');

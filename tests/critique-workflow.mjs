@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
-import {reviewPacket,parseReviewPacket,importReview,linkFinding,proposeRepair,decideRepair,verifyRepair} from '../src/critique-workflow.js';
+import {reviewPacket,parseReviewPacket,importReview,linkFinding,createFindingQuestion,proposeRepair,decideRepair,verifyRepair} from '../src/critique-workflow.js';
 import {decideFinding} from '../src/critique-findings.js';
 import {findingWorkspace,bindFindings,findingsHTML} from '../src/critique-findings-ui.js';
 for(const language of ['ar','en']){
@@ -48,6 +48,21 @@ for(const language of ['ar','en']){
  const upload=main.querySelector('[data-review-import]');Object.defineProperty(upload,'files',{value:[{size:JSON.stringify(returned).length,text:async()=>JSON.stringify(returned)}]});await upload.onchange({target:upload});
  assert.equal(main.querySelectorAll('[data-import-index]:checked').length,0);main.querySelector('[data-import-index="1"]').checked=true;
  const importButton=main.querySelector('[data-import-selected]');await importButton.onclick({target:importButton});assert.equal(writes,3);assert.equal(branch.data.editorialFindings.length,2);assert.equal(branch.data.editorialFindings[1].status,'proposed');assert.equal(branch.data.editorialFindings[1].issue,'Another issue');assert.equal(main.querySelector('[data-import-preview]').textContent,'');
+
+ // Actual create-question handler makes one open linked decision, not an answer or chapter edit.
+ const createForm=main.querySelector('[data-finding-question]');
+ assert(createForm);createForm.elements.title.value=language==='ar'?'لماذا رجع سالم الآن؟':'Why did Salem return now?';createForm.elements.note.value='Author must choose the reason; do not infer it.';
+ createForm.dispatchEvent(new window.Event('input',{bubbles:true}));assert(localStorage.getItem('chronicles-review-workflow:book:br').includes('Author must choose'));
+ createForm.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));for(let i=0;i<100&&busy;i++)await new Promise(r=>setTimeout(r,5));
+ assert.equal(writes,4);const created=branch.data.workshop.questions.find(q=>q.sourceFindingId===id);assert(created);assert.equal(created.status,'open');assert.equal(created.answer,'');assert.equal(created.sourceQuote,para);assert.equal(created.sourceChapterRevision,3);
+ assert(branch.data.editorialFindings[0].links.some(l=>l.id===created.id));assert(main.querySelector('.finding-workflow a').textContent.includes('Linked decision'));assert.equal(main.querySelector('[data-finding-question]'),null);assert.deepEqual(branch.data.events,data.events);assert.equal(chapter.body,'<p>'+para+'</p>');
+ const beforeDuplicate=JSON.stringify(branch.data);
+ await assert.rejects(()=>createFindingQuestion(branch.data,id,{title:created.title,note:'Retry'},context),/already created/);assert.equal(JSON.stringify(branch.data),beforeDuplicate);
+
+ const basis=structuredClone(next);basis.editorialFindings[0].links=[];
+ await assert.rejects(()=>createFindingQuestion(basis,basis.editorialFindings[0].id,{title:'Why return?',note:'Already asked'},context),/wording already exists/);
+ await assert.rejects(()=>createFindingQuestion({...basis,summary:'Changed source'},basis.editorialFindings[0].id,{title:'A new question',note:'Reason'},context),/Source changed/);
+ await assert.rejects(()=>createFindingQuestion(basis,basis.editorialFindings[0].id,{title:'A new question',note:'Reason'},{...context,bookId:'wrong'}),/unavailable/);
  dispose();dom.window.close();
 }
 console.log('PASS review workflow: selective attributed import, stale/duplicate guards, linked records, exact before/after, explicit repair decisions, verification and actual Arabic/English handlers');
