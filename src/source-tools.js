@@ -48,12 +48,13 @@ export function sectionReview(data,section,chapters=[]){
 export function selectedSynopsis(data,{view='short',scope='plan',chapters=[]}={}){
  return synopsisSections(data).filter(s=>s.view===view&&s.scope===scope).map(s=>({...s,review:sectionReview(data,s,chapters)}));
 }
-const eventFields=new Set(['type','truth','belief','setup','outcome','setupEventId','reinforcementEventId','revealEventId','setupChapterId','revealChapterId','characterIds','knowledgeRecords']);
-function validClue(data,values,chapters=[]){
+const eventFields=new Set(['type','truth','belief','setup','outcome','setupEventId','reinforcementEventId','revealEventId','setupChapterId','revealChapterId','replacementEventId','characterIds','knowledgeRecords']);
+function validClue(data,values,chapters=[],targetId){
  for(const key of Object.keys(values))if(!eventFields.has(key))throw Error('Unsupported clue field: '+key);
  if(values.type&&!['twist','clue','secret'].includes(values.type))throw Error('Choose twist, clue or secret.');
- for(const key of ['truth','belief','setup','outcome','setupEventId','reinforcementEventId','revealEventId','setupChapterId','revealChapterId'])if(key in values&&(typeof values[key]!=='string'||values[key].length>30000))throw Error('Invalid clue field: '+key);
+ for(const key of ['truth','belief','setup','outcome','setupEventId','reinforcementEventId','revealEventId','setupChapterId','revealChapterId','replacementEventId'])if(key in values&&(typeof values[key]!=='string'||values[key].length>30000))throw Error('Invalid clue field: '+key);
  for(const key of ['setupEventId','reinforcementEventId','revealEventId'])if(values[key]&&!sourceRecord(data,{kind:'events',id:values[key]}))throw Error('Choose an available event.');
+ if(values.replacementEventId&&(!sourceRecord(data,{kind:'events',id:values.replacementEventId})||values.replacementEventId===targetId))throw Error('Choose a different current replacement event.');
  for(const key of ['setupChapterId','revealChapterId'])if(values[key]&&!chapters.some(c=>c.id===values[key]&&activeRecord(c)))throw Error('Choose an available saved chapter for planned placement.');
  if(values.characterIds&&(!Array.isArray(values.characterIds)||new Set(values.characterIds).size!==values.characterIds.length||values.characterIds.some(id=>!sourceRecord(data,{kind:'characters',id}))))throw Error('Choose current character IDs.');
  if(values.knowledgeRecords){
@@ -73,7 +74,7 @@ export function makeToolProposal(data,input,context,chapters=[]){
  if(!['clue','synopsis'].includes(input.kind)||!input.targetId||!String(input.reason||'').trim()||!String(input.author||'').trim())throw Error('Provide a target, reason and proposal author.');
  const target=input.kind==='clue'?sourceRecord(data,{kind:'events',id:input.targetId}):synopsisSections(data).find(x=>x.id===input.targetId);
  if(!target)throw Error('The target is unavailable.');
- if(input.kind==='clue')validClue(data,input.values||{},chapters);
+ if(input.kind==='clue')validClue(data,input.values||{},chapters,input.targetId);
  else if(typeof input.values?.text!=='string'||!input.values.text.trim()||input.values.text.length>100000||Object.keys(input.values).some(k=>k!=='text'))throw Error('Provide only the proposed synopsis text.');
  const refs=copy(input.sourceRefs||[]);
  if(!refs.length)throw Error('Link at least one current source before review.');
@@ -81,6 +82,7 @@ export function makeToolProposal(data,input,context,chapters=[]){
   const add=(kind,id)=>{if(id&&!refs.some(r=>r.kind===kind&&r.id===id))refs.push({kind,id});};
   add('events',target.id);
   for(const key of ['setupEventId','reinforcementEventId','revealEventId'])add('events',input.values[key]);
+  add('events',input.values.replacementEventId);
   for(const key of ['setupChapterId','revealChapterId'])add('chapters',input.values[key]);
   for(const id of input.values.characterIds||[])add('characters',id);
   for(const k of input.values.knowledgeRecords||[]){add('events',k.factEventId);add('events',k.eventId);if(k.characterId!=='reader')add('characters',k.characterId);}
@@ -106,7 +108,7 @@ export function reviewToolProposal(data,id,action,context,chapters=[],note=''){
   const target=p.kind==='clue'?sourceRecord(d,{kind:'events',id:p.targetId}):synopsisSections(d).find(x=>x.id===p.targetId);
   if(!same(target,p.before)||sourceDifferences(d,p.sources,chapters).length)throw Error('Target or linked sources changed. Prepare a fresh proposal.');
   assertNoApprovalConflicts(d,p.kind==='clue'?{changes:[{id:p.targetId,fields:p.values}]}:p.targetId==='summary'?{summary:p.values.text}:{});
-  if(p.kind==='clue'){validClue(d,p.values,chapters);Object.assign(target,copy(p.values));target.toolReview={proposalId:p.id,approvedBy:context.writer,at:new Date().toISOString(),sourceRevision:context.baseRevision};}
+  if(p.kind==='clue'){validClue(d,p.values,chapters,p.targetId);Object.assign(target,copy(p.values));target.toolReview={proposalId:p.id,approvedBy:context.writer,at:new Date().toISOString(),sourceRevision:context.baseRevision};target.updatedBy=context.writer;target.updatedAt=target.toolReview.at;}
   else if(p.targetId==='summary'){d.summary=p.values.text;d.synopsisMeta={...d.synopsisMeta,summary:{sources:p.sources,status:'approved'}};}
   else if(p.targetId==='full'){d.synopsisMeta={...d.synopsisMeta,full:{text:p.values.text,sources:p.sources,status:'approved'}};}
   else {const s=d.synopsisSections?.find(x=>x.id===p.targetId);if(!s)throw Error('Legacy chapter outlines are read only here. Create a linked synopsis section first.');Object.assign(s,{text:p.values.text,sources:p.sources,status:'approved'});}

@@ -1,6 +1,6 @@
 {
-  "version": 212,
-  "releasedAt": "2026-11-03T19:03:46Z",
+  "version": 213,
+  "releasedAt": "2026-11-03T19:18:13Z",
   "timezone": "UTC",
-  "note": "Protected chapter placement links for planned clue setup and reveal"
+  "note": "Source visible clue IDs, modification provenance and protected replacement links"
 }
