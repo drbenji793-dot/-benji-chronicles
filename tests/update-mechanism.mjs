@@ -33,3 +33,14 @@ assert.throws(()=>stampUpdate(original,next,{...opts,revision:undefined}),/revis
 const duplicate=structuredClone(original);duplicate.characters.push(duplicate.characters[0]);
 assert.throws(()=>stampUpdate(original,duplicate,opts),/duplicate/);
 console.log('PASS update records, dependency closure, record stamps, retirement, unchanged data, source revisions and current exports');
+
+const stable={events:[{id:'e',characterIds:['c'],placeId:'p'},{id:'f',placeIds:['p']},{id:'g'}],characters:[{id:'c',name:'Old'}],places:[{id:'p',name:'Home'}],links:[{id:'l',from:'e',to:'g'}]};
+for(const kind of ['characters','places']){
+ for(const remove of [false,true]){
+  const changed=structuredClone(stable);if(remove)changed[kind]=[];else changed[kind][0].name='Changed';
+  const result=stampUpdate(stable,changed,opts);
+  assert.deepEqual(result.currentUpdate.dependencies.eventIds,kind==='characters'?['e','g']:['e','f','g']);
+  assert.deepEqual(result.workshop.reviewEventIds,result.currentUpdate.dependencies.eventIds);
+ }
+}
+console.log('PASS stable character and place dependencies on edits and removals, including downstream events');

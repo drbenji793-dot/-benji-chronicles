@@ -54,9 +54,9 @@ assert.throws(()=>applyProposal(approved,{...proposal,changes:[{id:'e',fields:{s
 assert.equal(applyProposal(approved,{...proposal,answer:'Keep this answer',changes:[{id:'e',fields:{summary:'After'}}]},context).workshop.questions[0].status,'applied');
 console.log('PASS approved answer application preserves its exact decision');
 
-const {applicationReview,verifyDecisionApplication}=await import('../src/decision-verification.js');
+const {applicationReview,verifyDecisionApplication,decisionEvidence}=await import('../src/decision-verification.js');
 const {stampUpdate}=await import('../src/update-mechanism.js');
-const linked=structuredClone(data);linked.events.push({id:'later',title:'Consequence',summary:'Unchanged'});linked.links=[{id:'link',from:'e',to:'later',kind:'causes'}];
+const linked=structuredClone(data);linked.events.push({id:'later',title:'Consequence',summary:'Unchanged'});linked.links=[{id:'link',from:'e',to:'later',kind:'causes'}];linked.events[1].characterIds=['hero'];linked.events[1].placeId='home';linked.characters=[{id:'hero',name:'Salem'}];linked.places=[{id:'home',name:'Village'}];
 const applied=applyProposal(linked,{...proposal,changes:[{id:'e',fields:{summary:'After'}}]},context);
 let stamped=stampUpdate(linked,applied,{writer:'Benji',revision:7,note:'Apply',bookId:'b',branchId:'r'});
 assert.equal(applicationReview(stamped,stamped.workshop.questions[0],context).ready,false);
@@ -94,3 +94,25 @@ console.log('PASS all question states, mixed counters, retained deferred answers
  assert.equal(questionSourcesChanged(made,made.workshop.questions[0]),false);made.events[0].summary='Changed fact';assert.equal(questionSourcesChanged(made,made.workshop.questions[0]),true);assert.equal(made.workshop.questions[0].questionSources[0].content.summary,'Current fact');
 }
 console.log('PASS manual question reasons, duplicate protection, explicit choice compatibility and source change evidence');
+
+{
+const base={events:[],workshop:{questions:[{id:'parent',title:'Choose direction',status:'approved',answer:'North',selectionMode:'single',options:['North','South']}]}};
+const revised=reviseQuestion(base,'parent',{reason:'Reconsider route',sourceRevision:4,writer:'Benji'}),q=revised.workshop.questions.at(-1);
+assert.equal(q.selectionMode,'single');assert.doesNotThrow(()=>editQuestion(revised,q.id,{title:q.title,status:'open',note:'Clarify choice'},{writer:'Benji'}));
+assert.throws(()=>editQuestion(revised,'unrelated',{title:q.title,status:'open',note:'Duplicate'},{allowCreate:true}),/already exists/);
+assert.throws(()=>saveQuestionAnswer(revised,q.id,{answer:'North and South',parts:{selected:['North','South'],written:''}}),/one choice/);
+}
+console.log('PASS linked revision remains editable while preserving its choice policy and unrelated duplicate guards');
+
+for(const kind of ['characters','places'])for(const remove of [false,true]){
+ const changed=structuredClone(verified);if(remove)changed[kind]=[];else changed[kind][0].name='New source';
+ assert.equal(applicationReview(changed,changed.workshop.questions[0],context).stale,true);
+ assert.equal(pendingWork(changed,context).find(x=>x.id==='q').state,'Sources changed');
+}
+console.log('PASS verified event decisions reopen when downstream character/place sources change or disappear');
+
+{
+const missing=structuredClone(cleared);missing.characters=[];
+missing.workshop.questions[0].application.evidence=decisionEvidence(missing,missing.workshop.questions[0].application.evidenceEventIds||missing.workshop.questions[0].application.eventIds||[],missing.workshop.questions[0].application.summaryChanged);
+assert.match(applicationReview(missing,missing.workshop.questions[0],context).reason,/linked character or place is unavailable/);
+}

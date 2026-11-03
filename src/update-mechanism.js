@@ -43,8 +43,9 @@ export function stampUpdate(before,after,{writer,revision,note,bookId=null,branc
    for(const id of row?.eventIds||[])affected.add(id);
    if(change.kind==='characters'&&row){
     const names=[row.name,...(Array.isArray(row.aliases)?row.aliases:[])].filter(Boolean).map(n=>n.toLocaleLowerCase());
-    for(const e of d.events||[])if(String(e.characters||'').split(/[,،;؛\n]/u).some(n=>names.includes(n.trim().toLocaleLowerCase())))affected.add(e.id);
+    for(const e of d.events||[])if((e.characterIds||[]).includes(row.id)||String(e.characters||'').split(/[,،;؛\n]/u).some(n=>names.includes(n.trim().toLocaleLowerCase())))affected.add(e.id);
    }
+   if(change.kind==='places'&&row)for(const e of d.events||[])if(e.placeId===row.id||(e.placeIds||[]).includes(row.id))affected.add(e.id);
   }
  }
  const links=[...(before.links||[]),...(data.links||[])].filter(active);
