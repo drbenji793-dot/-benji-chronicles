@@ -1,9 +1,11 @@
+import {clueAudit,clueNotices} from './clue-audit.js';
 import {reviewQueue} from './planning-review.js';
 import {assertNoApprovalConflicts} from './approval-conflicts.js';
 import {eventEvidence,same as sameEvidence} from './planning-evidence.js';
 import {activeRecord} from './current-book-brief.js';
 import {savedStoryBrief} from './story-brief.js';
 
+export {clueNotices};
 const copy=x=>structuredClone(x);
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const rows=(d,k)=>k==='questions'?(d.workshop?.questions||[]):(d[k]||[]);
@@ -31,21 +33,6 @@ export function knowledgeAt(data,{characterId,readingOrder=Infinity,eventId}={})
   if(Number.isFinite(readingOrder)&&(order==null||order>readingOrder))continue;
   out.push({...k,holderId,eventId:acquired.id,readingOrder:order,evidence:k.sourceNote,certainty:k.certainty||'Not recorded',factId:k.factEventId,factTitle:fact?.title||'Unavailable fact',holder:holderId==='reader'?'Reader':(data.characters||[]).find(c=>c.id===holderId)?.name||'Unavailable character',event:acquired.title,stale:!!fact&&(fact.truth||'')!==k.sourceFactTruth});
  }return out;
-}
-export function clueNotices(data,event){
- const issues=[];const add=(code,reason)=>issues.push({code,reason,kind:'Metadata check',confidence:'Deterministic',sourceId:event.id,sourceRevision:event.revision??null});
- if(!event.truth?.trim())add('truth','Underlying truth is not recorded.');
- if(!event.setup?.trim()&&!event.setupEventId)add('setup','No setup is recorded. This does not prove the story lacks setup.');
- if(!event.revealEventId)add('payoff','No reveal event is linked. An intentional mystery may remain unresolved.');
- for(const key of ['setupEventId','reinforcementEventId','revealEventId'])if(event[key]&&!sourceRecord(data,{kind:'events',id:event[key]}))add(key,'Linked '+key.replace('EventId','')+' event is unavailable.');
- const setup=sourceRecord(data,{kind:'events',id:event.setupEventId}),reveal=sourceRecord(data,{kind:'events',id:event.revealEventId});
- if(setup&&reveal&&Number(setup.order)>Number(reveal.order))add('order','Setup follows reveal in reading order. Check whether this is intentional.');
- for(const id of event.characterIds||[])if(!sourceRecord(data,{kind:'characters',id}))add('character:'+id,'Linked character is unavailable.');
- for(const k of event.knowledgeRecords||[]){
-  if(k.characterId!=='reader'&&!sourceRecord(data,{kind:'characters',id:k.characterId}))add('holder:'+k.id,'Knowledge holder is unavailable.');
-  if(!sourceRecord(data,{kind:'events',id:k.eventId}))add('acquisition:'+k.id,'Knowledge acquisition event is unavailable.');
- }
- return issues;
 }
 export function synopsisSections(data){
  const saved=data.synopsisSections||[];
@@ -156,5 +143,5 @@ export function addSynopsisSection(data,{id=crypto.randomUUID(),title,view,scope
 export function sourcePackage(data,context,{kind,targetId,view='short',scope='plan',chapters=[]}={}){
  const targets=kind==='clue'?clueRecords(data):selectedSynopsis(data,{view,scope,chapters});
  const selected=targetId?targets.filter(x=>x.id===targetId):targets;
- return {format:'chronicles-source-review',version:1,...context,kind,view,scope,exportedAt:new Date().toISOString(),audience:'Writer review; contains spoilers',pendingReviews:{events:reviewQueue(data).map(({id,reason})=>({id,reason})),proposals:(data.workshop?.toolProposals||[]).filter(p=>p.bookId===context.bookId&&p.branchId===context.branchId&&p.status==='approved').map(p=>({id:p.id,kind:p.kind,targetId:p.targetId,review:toolProposalReview(data,p,{chapters})}))},targets:copy(selected),sources:{events:copy((data.events||[]).filter(activeRecord)),characters:copy((data.characters||[]).filter(activeRecord)),questions:copy((data.workshop?.questions||[]).filter(activeRecord)),decisions:copy((data.decisions||[]).filter(activeRecord)),chapters:copy(chapters)},instructions:'Return a proposal only. Preserve target IDs, bookId, branchId and baseRevision. Include kind, targetId, author, reason, values and sourceRefs [{kind,id}]. Do not approve, publish or modify manuscript text.'};
+ return {format:'chronicles-source-review',version:1,...context,kind,view,scope,exportedAt:new Date().toISOString(),audience:'Writer review; contains spoilers',pendingReviews:{clues:clueAudit(data,chapters).rows.filter(r=>r.notices.length).map(r=>({eventId:r.event.id,notices:r.notices,review:r.review})),events:reviewQueue(data).map(({id,reason})=>({id,reason})),proposals:(data.workshop?.toolProposals||[]).filter(p=>p.bookId===context.bookId&&p.branchId===context.branchId&&p.status==='approved').map(p=>({id:p.id,kind:p.kind,targetId:p.targetId,review:toolProposalReview(data,p,{chapters})}))},targets:copy(selected),sources:{events:copy((data.events||[]).filter(activeRecord)),characters:copy((data.characters||[]).filter(activeRecord)),questions:copy((data.workshop?.questions||[]).filter(activeRecord)),decisions:copy((data.decisions||[]).filter(activeRecord)),chapters:copy(chapters)},instructions:'Return a proposal only. Preserve target IDs, bookId, branchId and baseRevision. Include kind, targetId, author, reason, values and sourceRefs [{kind,id}]. Do not approve, publish or modify manuscript text.'};
 }
