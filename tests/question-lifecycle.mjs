@@ -53,3 +53,24 @@ const approved=structuredClone(data);approved.workshop.questions[0].status='appr
 assert.throws(()=>applyProposal(approved,{...proposal,changes:[{id:'e',fields:{summary:'After'}}]},context),/approved answer cannot/);
 assert.equal(applyProposal(approved,{...proposal,answer:'Keep this answer',changes:[{id:'e',fields:{summary:'After'}}]},context).workshop.questions[0].status,'applied');
 console.log('PASS approved answer application preserves its exact decision');
+
+const {applicationReview,verifyDecisionApplication}=await import('../src/decision-verification.js');
+const {stampUpdate}=await import('../src/update-mechanism.js');
+const linked=structuredClone(data);linked.events.push({id:'later',title:'Consequence',summary:'Unchanged'});linked.links=[{id:'link',from:'e',to:'later',kind:'causes'}];
+const applied=applyProposal(linked,{...proposal,changes:[{id:'e',fields:{summary:'After'}}]},context);
+let stamped=stampUpdate(linked,applied,{writer:'Benji',revision:7,note:'Apply',bookId:'b',branchId:'r'});
+assert.equal(applicationReview(stamped,stamped.workshop.questions[0],context).ready,false);
+assert.throws(()=>verifyDecisionApplication(stamped,'q',{...context,sourceRevision:8,note:'Checked'}),/connected event checks/);
+const cleared=completeEventReview(stamped,{id:'later',note:'Checked consequence',sourceRevision:8,eventSnapshot:stamped.events[1],writer:'Benji'});
+assert.equal(applicationReview(cleared,cleared.workshop.questions[0],context).ready,true);
+assert.throws(()=>verifyDecisionApplication(cleared,'q',{...context,sourceRevision:9,note:''}),/Record what/);
+assert.throws(()=>verifyDecisionApplication(cleared,'q',{...context,branchId:'other',sourceRevision:9,note:'Checked'}),/another book or path/);
+const verified=verifyDecisionApplication(cleared,'q',{...context,sourceRevision:9,note:'Checked event and downstream consequence'});
+assert.equal(verified.workshop.questions[0].status,'resolved');assert.deepEqual(verified.events,cleared.events);assert.deepEqual(verified.sourceDocument,data.sourceDocument);
+const changed=structuredClone(verified);changed.events[1].summary='Later evidence contradicts it';
+assert.equal(applicationReview(changed,changed.workshop.questions[0],context).stale,true);
+const {pendingWork}=await import('../src/pending-work.js');
+assert.equal(pendingWork(changed,context).find(x=>x.id==='q').state,'Sources changed');
+assert(!pendingWork(verified,context).some(x=>x.id==='q'));
+assert.equal(applicationReview(data,data.workshop.questions[2],context).ready,false);
+console.log('PASS stamped application evidence, downstream review gate, explicit verification, changed-source reopening and unchanged story data');
