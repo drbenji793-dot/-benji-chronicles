@@ -39,16 +39,26 @@ export function storyEssenceFields(data={}){
  return definitions.map(([key,label])=>({key,label,value:truthyText(merged[key]),source:truthyText(root[key])?'storyEssence.'+key:truthyText(foundation[key])?'foundation.'+key:null}));
 }
 
+export const essentialCharacterRecord=character=>{
+ const tier=truthyText(character.tier).toLowerCase();
+ const role=truthyText(character.role).toLowerCase();
+ if(character.essential===true||character.primary===true)return true;
+ if(/^(minor|background|supporting|cameo|guest)$/.test(tier))return false;
+ return /^(main|major|primary|principal|protagonist|antagonist|lead|central)$/.test(tier)||
+  /\b(protagonist|antagonist|main character|central character|lead character)\b/i.test(role)||
+  /(?:الشخصية الرئيسية|البطل الرئيسي|الخصم الرئيسي)/u.test(role);
+};
 export function storyClaritySnapshot(data={}){
  const groups=questionGroups(data);
- const characters=(data.characters||[]).filter(activeRecord).map(c=>({
+ const allCharacters=(data.characters||[]).filter(activeRecord);
+ const characters=allCharacters.filter(essentialCharacterRecord).map(c=>({
   id:c.id||'',name:truthyText(c.name)||'Unnamed character',
   role:truthyText(c.role),tier:truthyText(c.tier),
   sourceRevision:c.revision??null
  }));
  const source=storySectionInventory(data);
  const essence=storyEssenceFields(data);
- return {source,essence,characters,
+ return {source,essence,characters,otherCharacterCount:allCharacters.length-characters.length,
   pendingQuestions:[...groups.open,...groups.deferred].filter(activeRecord).map(q=>({id:q.id||'',title:q.title||q.prompt||'Question',status:questionState(q)})),
   totalEvents:count(data.events),
   totalOutlineChapters:count(data.storyDraft?.chapters||data.currentStory?.chapters),
@@ -70,7 +80,8 @@ export function storyClarityHTML(snapshot,{characterHref=()=>null}={}){
   snapshot.characters.map(c=>'<p dir="auto">'+(characterHref(c.id)?'<a href="'+h(characterHref(c.id))+'">'+h(c.name)+'</a>':h(c.name))+
    ' · '+h(c.role||'Role not recorded')+(c.tier?' · '+h(c.tier):'')+
    ' · Source revision '+h(c.sourceRevision??'Unknown')+'</p>').join('')+
-  (!snapshot.characters.length?'<p>No linked characters saved.</p>':'')+
+  (!snapshot.characters.length?'<p>No character is explicitly classified as central in the saved cards.</p>':'')+
+  '<p>'+snapshot.otherCharacterCount+' additional character cards remain in Characters. Only explicit main roles are listed here.</p>'+
   '<p>Biographies remain on the linked character cards; no duplicated biography or automatic role inference.</p></details>'+
   '<p>Active events: '+snapshot.totalEvents+' · Chapter outline entries: '+snapshot.totalOutlineChapters+
   ' · Current pending questions: '+snapshot.pendingQuestions.length+'. Planning records and saved manuscript text are separate.</p></details>';
