@@ -1,6 +1,6 @@
 {
-  "version": 216,
-  "releasedAt": "2026-11-03T22:02:31Z",
+  "version": 217,
+  "releasedAt": "2026-11-03T22:21:50Z",
   "timezone": "UTC",
-  "note": "Read-only publication branch revision verification in Story and Synopsis"
+  "note": "Shared Story section inventory, sourced names, critique evidence and question chapter links"
 }
