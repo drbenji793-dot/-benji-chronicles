@@ -1,6 +1,6 @@
 {
-  "version": 214,
-  "releasedAt": "2026-11-03T19:28:52Z",
+  "version": 215,
+  "releasedAt": "2026-11-03T21:47:15Z",
   "timezone": "UTC",
-  "note": "Current and proposed change previews with protected decision and separate manuscript review"
+  "note": "Unified source authority and pending evidence checks in Story and Synopsis"
 }
