@@ -1,0 +1,27 @@
+import {questionPackage,parseQuestionPackage,validateQuestionResponses,importQuestionResponses,reviewQuestionResponse} from './question-package.js';
+import {escapeHTML as h} from './dsl-engine.js';
+export function questionPackageUI(ctx){
+ const actions='<details><summary>Portable questions and response proposals</summary><p>Export current context, then import reviewed responses as proposals. Saved answers still need separate impact review.</p><button type="button" data-question-package>Download question package</button> <button type="button" data-question-responses>Import responses</button> <button type="button" data-response-review>Review imported responses</button><p data-question-package-status role="status"></p></details>';
+ function bind(root){
+  const say=t=>{const e=root.querySelector('[data-question-package-status]');if(e)e.textContent=t;};
+  root.querySelector('[data-question-package]')?.addEventListener('click',async e=>{e.target.disabled=true;try{const s=await ctx.source();const p=await questionPackage(s.data,s.context,s.chapters);ctx.download(JSON.stringify(p,null,2),'Question_Package_r'+s.context.baseRevision+'.json','application/json');say('Question package prepared. Responses must be imported and reviewed before becoming answers.');}catch(err){say(err.message);}finally{e.target.disabled=false;}});
+  root.querySelector('[data-question-responses]')?.addEventListener('click',()=>{
+   const m=ctx.modal('Import question responses','<input type="file" accept=".json,application/json" data-question-file><p>Imported responses remain proposals. Protected decisions require a linked revision.</p><div data-response-preview></div><p class="dsl-form-status" role="status"></p>');if(!m)return;let generation=0;
+   const input=m.querySelector('[data-question-file]'),box=m.querySelector('[data-response-preview]'),msg=m.querySelector('.dsl-form-status');
+   input.onchange=async()=>{const token=++generation;box.innerHTML='';msg.textContent='';try{const file=input.files[0];if(!file)return;if(file.size>4000000)throw Error('Choose a file under 4 MB.');const p=parseQuestionPackage(await file.text()),s=await ctx.source(),rows=await validateQuestionResponses(s.data,p,s.context,s.chapters);if(token!==generation||!m.isConnected)return;
+    box.innerHTML='<p>Source: '+h(p.origin)+' · r'+h(p.baseRevision)+'</p>'+rows.map(r=>'<label><input type="checkbox" data-response-select value="'+h(r.questionId)+'"><strong dir="auto">'+h(r.title)+'</strong><p>Saved answer: <span dir="auto">'+h(r.currentAnswer||'None')+'</span></p><p>Proposed answer: <span dir="auto">'+h(r.answer)+'</span></p><p dir="auto">'+h(r.reason)+'</p></label>').join('')+'<button type="button" data-save-responses>Save selected proposals</button>';
+    box.querySelector('[data-save-responses]').onclick=async e=>{e.target.disabled=true;input.disabled=true;ctx.busy(true);try{const ids=[...box.querySelectorAll('[data-response-select]:checked')].map(x=>x.value),fresh=await ctx.source();await ctx.save(await importQuestionResponses(fresh.data,p,ids,fresh.context,fresh.chapters),'Import question response proposals');ctx.close();ctx.render();}catch(err){msg.textContent=err.message;}finally{ctx.busy(false);input.disabled=false;e.target.disabled=false;}};
+   }catch(err){if(token===generation)msg.textContent=err.message;}};
+  });
+  root.querySelector('[data-response-review]')?.addEventListener('click',async()=>{try{
+   const s=await ctx.source(),rows=(s.data.workshop?.responseProposals||[]).filter(p=>['proposed','deferred'].includes(p.status));
+   const m=ctx.modal('Review response proposals','<p>Accept saves answers only. Applying story consequences remains a separate reviewed action. Select related responses together.</p>'+rows.map(p=>'<label><input type="checkbox" data-proposal-select value="'+h(p.id)+'"><strong dir="auto">'+h(p.title)+'</strong><p>'+h(p.origin)+'</p><p dir="auto">'+h(p.answer)+'</p><p dir="auto">'+h(p.reason)+'</p></label>').join('')+(rows.length?'<button data-response-action="accept">Accept as saved answers</button> <button data-response-action="defer">Defer</button> <button data-response-action="reject">Reject</button> <button data-response-action="reopen">Reopen deferred</button>':'<p>No response proposals await review.</p>')+'<p class="dsl-form-status" role="status"></p>');if(!m)return;
+   for(const b of m.querySelectorAll('[data-response-action]'))b.onclick=async()=>{ctx.busy(true);m.querySelectorAll('button').forEach(b=>b.disabled=true);try{const ids=[...m.querySelectorAll('[data-proposal-select]:checked')].map(x=>x.value);if(!ids.length)throw Error('Select responses to review.');const fresh=await ctx.source();let next=structuredClone(fresh.data);
+    // Validate every choice against one unchanged source before combining the atomic save.
+    for(const id of ids){const checked=await reviewQuestionResponse(fresh.data,id,b.dataset.responseAction,fresh.context,fresh.chapters),p=checked.workshop.responseProposals.find(p=>p.id===id);next.workshop.responseProposals=next.workshop.responseProposals.map(x=>x.id===id?p:x);if(b.dataset.responseAction==='accept')next.workshop.questions=next.workshop.questions.map(q=>q.id===p.questionId?checked.workshop.questions.find(x=>x.id===q.id):q);}
+    await ctx.save(next,'Review question response proposals');ctx.close();ctx.render();
+   }catch(err){m.querySelector('.dsl-form-status').textContent=err.message;}finally{ctx.busy(false);m.querySelectorAll('button').forEach(b=>b.disabled=false);}};
+  }catch(err){say(err.message);}});
+ }
+ return {actions,bind};
+}
