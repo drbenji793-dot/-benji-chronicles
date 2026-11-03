@@ -193,3 +193,21 @@ html body #main .editor-area>[data-page-technical]{font-size:11px}
 .pending-work section{margin:10px 0}.pending-work h4{font:600 12px/1.4 system-ui,sans-serif;margin:4px 0}
 .pending-work ul{list-style:none;padding:0;margin:0}.pending-work li{padding:6px 0;border-top:1px solid rgba(70,70,70,.12);overflow-wrap:anywhere}
 .pending-work li a{font:inherit}.pending-work small{display:block;font:11px/1.4 system-ui,sans-serif;opacity:.8}.pending-work p{font:11px/1.4 system-ui,sans-serif;margin:6px 0}
+
+/* Story source reports stay within a narrow viewport and retain copyable evidence. */
+.story-workspace [data-source-report],
+.story-workspace [data-source-report] details,
+.story-workspace [data-story-clarity],
+.story-workspace [data-story-clarity] details{max-width:100%;min-width:0;box-sizing:border-box;overflow-wrap:anywhere}
+.story-workspace [data-source-report] pre,
+.story-workspace [data-source-report] code,
+.story-workspace [data-story-clarity] pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-width:100%}
+.story-workspace [data-source-report] a,
+.story-workspace [data-story-clarity] a{max-width:100%;overflow-wrap:anywhere}
+.story-workspace [data-story-source-group]{margin:8px 0;padding:6px 8px}
+.story-workspace [data-story-source-group]>summary{font-weight:650}
+@media(max-width:480px){
+ .story-workspace [data-story-source-group]{padding:4px 6px}
+ .story-workspace [data-story-source-group] details{padding:4px 6px}
+ .story-workspace [data-story-source-group] pre{font-size:11px;line-height:1.55}
+}
