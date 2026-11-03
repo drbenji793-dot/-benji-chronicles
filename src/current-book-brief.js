@@ -25,7 +25,7 @@ function reviewStory(story){
 export function currentPlanning(data={}){
  const out={};for(const key of fields){if(data[key]!==undefined)out[key]=Array.isArray(data[key])?data[key].filter(active).map(r=>structuredClone(r)):structuredClone(data[key]);}
  for(const key of ['currentStory','storyDraft'])if(out[key])out[key]=reviewStory(out[key]);
- out.workshop={questions:(data.workshop?.questions||[]).filter(active).map(r=>structuredClone(r)),reviewEventIds:reviewQueue(data).map(r=>r.id),synopsisNeedsReview:!!data.workshop?.synopsisNeedsReview,eventReviews:structuredClone(data.workshop?.eventReviews||[])};
+ out.workshop={responseProposals:structuredClone((data.workshop?.responseProposals||[]).filter(p=>['proposed','deferred'].includes(p.status))),questions:(data.workshop?.questions||[]).filter(active).map(r=>structuredClone(r)),reviewEventIds:reviewQueue(data).map(r=>r.id),synopsisNeedsReview:!!data.workshop?.synopsisNeedsReview,eventReviews:structuredClone(data.workshop?.eventReviews||[])};
  return out;
 }
 export function currentBookBrief({book,branch,chapters=[]},chapterNumber){

@@ -43,6 +43,8 @@ export function editQuestion(data,id,values,{writer,at=new Date().toISOString(),
   if((data.workshop?.questions||[]).some(other=>other.id!==id&&other.id!==q.revisesQuestionId&&activeRecord(other)&&String(other.title||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase()===title))throw Error('This question already exists, including any saved decision. Open it or propose a linked revision.');
   if(!old&&!String(values.note||'').trim())throw Error('Explain why this question needs a decision.');
   if(values.selectionMode&&!['single','compatible'].includes(values.selectionMode))throw Error('Choose how answer options may be combined.');
+  if(values.decisionKind&&!['Missing decision','Author preference','Factual inconsistency'].includes(values.decisionKind))throw Error('Choose a supported decision type.');
+  if(values.urgency&&!['Low','Normal','High'].includes(values.urgency))throw Error('Choose a supported urgency.');
   const nextRecord={...q,...values,id,updatedBy:writer,updatedAt:at};
   if(sourceContext){nextRecord.questionContext=sourceContext;nextRecord.questionSources=questionSources(data,nextRecord);}
   return nextRecord;

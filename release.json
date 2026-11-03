@@ -1,6 +1,6 @@
 {
-  "version": 207,
-  "releasedAt": "2026-11-03T12:33:09.914655+00:00",
+  "version": 208,
+  "releasedAt": "2026-11-03T12:54:45.746318+00:00",
   "timezone": "UTC",
-  "note": "Explicit zk5 and zk5e guide adoption in reviews and portable source packages"
+  "note": "Portable sourced question packages and guarded response proposal review"
 }
