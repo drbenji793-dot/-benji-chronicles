@@ -14,4 +14,16 @@ assert.throws(()=>validateQuestionSelection(data.workshop.questions[0],{selected
 assert.throws(()=>saveQuestionAnswer(data,'q1',{answer:'North\nSouth',writer:'Test',parts:{selected:['North','South'],written:''}}),/contradict/);
 assert.throws(()=>saveQuestionAnswer(data,'q1',{answer:'Other',writer:'Test',parts:{selected:['Removed'],written:''}}),/no longer available/);
 assert.throws(()=>validateQuestionSelection(data.workshop.questions[0],{selected:['North','North']}),/repeat/);
-const changed=editQuestion(data,'q1',{...data.workshop.questions[0],incompatibleOptionPairs:[['North','Wait']],s¶»§q«^
+const changed=editQuestion(data,'q1',{...data.workshop.questions[0],incompatibleOptionPairs:[['North','Wait']],status:'open'},{writer:'Test'});
+assert.deepEqual(changed.workshop.questions[0].incompatibleOptionPairs,[['North','Wait']]);
+assert.throws(()=>editQuestion(data,'q1',{...data.workshop.questions[0],incompatibleOptionPairs:[['North','Not listed']],status:'open'},{writer:'Test'}),/distinct current options/);
+const saved=saveQuestionAnswer(data,'q1',{answer:'North',writer:'Test',parts:{selected:['North'],written:''}});
+assert.equal(saved.workshop.questions[0].status,'answered');
+assert.equal(data.workshop.questions[0].answer,'');
+const missing=structuredClone(data);missing.characters=[];
+assert.match(questionImpactSummary(missing,missing.workshop.questions[0]).summary,/unavailable/);
+const unlinked=questionImpactSummary({workshop:{questions:[]}}, {id:'q3',eventIds:[],characterIds:[]});
+assert.match(unlinked.summary,/Source links not recorded/);
+const q={...data.workshop.questions[0],selectionMode:'single'};
+assert.throws(()=>validateQuestionSelection(q,{selected:['North','Wait']}),/one choice/);
+console.log('PASS question impact, protected links, missing sources, incompatible choices, stale options, saved answer and immutability');

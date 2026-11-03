@@ -12,4 +12,4 @@ Base: production Reader v208, GitHub commit 666c40ec7db4298e94c417b5b7a3739a8279
 This release modifies the shared Chronicles application for Arabic and English. No database schema change is required. No story fact, chapter prose, cover, author preference or saved planning record is edited. Actual iPhone Safari Download, Share and reopening remain separately unverified. External backup equality and restoration have not been established in this release. No manuscript acceptance is implied.
 
 ## Follow-up
-Continue current source reconcilia¶»§q«^
+Continue current source reconciliation, critique continuity, clue metadata, UI cleanup and external recovery verification under the tracker. Do not count unresolved editorial decisions as website implementation failures.
