@@ -6,7 +6,7 @@ export function clueAudit(data,chapters=[]){
  const all=data.events||[],events=all.filter(activeRecord),byId=new Map(events.map(e=>[e.id,e])),byChapter=new Map(chapters.map(c=>[c.id,c]));
  return {retired:all.length-events.length,rows:events.map(e=>{
  const notices=[];const add=(code,text)=>notices.push({code,text,kind:'Recorded source check',confidence:'Deterministic metadata check'});
- if(isClue(e))for(const notice of clueNotices(data,e))add(notice.code,notice.reason);
+ if(isClue(e))for(const notice of clueNotices(data,e,chapters))add(notice.code,notice.reason);
  if(e.sourceId){const c=byChapter.get(e.sourceId);if(!c)add('chapter-missing','Linked chapter is unavailable in this source load.');else if(c.revision!==e.sourceRevision)add('chapter-stale','Saved chapter revision differs from the linked revision.');}
  for(const link of (data.links||[]).filter(activeRecord).filter(l=>l.from===e.id||l.to===e.id))if(!byId.has(link.from)||!byId.has(link.to))add('link:'+link.id,'A recorded connection points to an unavailable event.');
  const status=['accepted','approved'].includes(e.status)?'Approved plan':['proposal','proposed'].includes(e.status)?'Proposal':e.status==='question'?'Open question':e.status==='conflict'?'Conflict':e.status==='written'?'Written source, planning approval not inferred':'Unclassified';
@@ -22,7 +22,7 @@ export function clueReviewEvidence(data,eventId,chapters=[]){
  const ids=new Set([eventId,event.setupEventId,event.reinforcementEventId,event.revealEventId,...(event.knowledgeRecords||[]).flatMap(k=>[k.eventId,k.factEventId]),...links.flatMap(l=>[l.from,l.to])].filter(Boolean));
  const events=[...ids].sort().map(id=>(data.events||[]).find(e=>e.id===id&&activeRecord(e))||{id,missing:true});
  const characters=[...new Set(events.flatMap(e=>[...(e.characterIds||[]),...(e.knowledgeRecords||[]).map(k=>k.characterId).filter(id=>id&&id!=='reader')]))].sort().map(id=>(data.characters||[]).find(c=>c.id===id&&activeRecord(c))||{id,missing:true});
- const sources=[...new Set(events.map(e=>e.sourceId).filter(Boolean))].sort().map(id=>{const c=chapters.find(c=>c.id===id);return c?{id,revision:c.revision??null,title:c.title??''}:{id,missing:true};});
+ const sources=[...new Set([...events.map(e=>e.sourceId),event.setupChapterId,event.revealChapterId].filter(Boolean))].sort().map(id=>{const c=chapters.find(c=>c.id===id);return c?{id,revision:c.revision??null,title:c.title??''}:{id,missing:true};});
  return {events:events.map(eventEvidence),links:links.map(eventEvidence).sort((a,b)=>String(a.id).localeCompare(String(b.id))),characters:characters.map(eventEvidence),chapters:sources};
 }
 export function clueReviewState(data,eventId,chapters=[]){
@@ -41,7 +41,7 @@ export function reviewClue(data,{eventId,decision,note,expected},context,chapter
 }
 
 const auditSource=(data,ref)=>(data[ref.kind]||[]).find(r=>r.id===ref.id&&activeRecord(r));
-export function clueNotices(data,event){
+export function clueNotices(data,event,chapters=[]){
  const issues=[];const add=(code,reason)=>issues.push({code,reason,kind:'Metadata check',confidence:'Deterministic',sourceId:event.id,sourceRevision:event.revision??null});
  if(!event.truth?.trim())add('truth','Underlying truth is not recorded.');
  if(!event.setup?.trim()&&!event.setupEventId)add('setup','No setup is recorded. This does not prove the story lacks setup.');
@@ -49,7 +49,11 @@ export function clueNotices(data,event){
  for(const key of ['setupEventId','reinforcementEventId','revealEventId'])if(event[key]&&!auditSource(data,{kind:'events',id:event[key]}))add(key,'Linked '+key.replace('EventId','')+' event is unavailable.');
  const setup=auditSource(data,{kind:'events',id:event.setupEventId}),reveal=auditSource(data,{kind:'events',id:event.revealEventId});
  if(setup&&reveal&&Number(setup.order)>Number(reveal.order))add('order','Setup follows reveal in reading order. Check whether this is intentional.');
- for(const id of event.characterIds||[])if(!auditSource(data,{kind:'characters',id}))add('character:'+id,'Linked character is unavailable.');
+ const byChapter=new Map(chapters.map(c=>[c.id,c]));
+ for(const key of ['setupChapterId','revealChapterId'])if(event[key]&&chapters.length&&!byChapter.has(event[key]))add(key,'Planned chapter placement is unavailable in the saved chapter list.');
+ const plannedSetup=byChapter.get(event.setupChapterId),plannedReveal=byChapter.get(event.revealChapterId);
+ if(plannedSetup&&plannedReveal&&Number.isFinite(Number(plannedSetup.chapter_number))&&Number.isFinite(Number(plannedReveal.chapter_number))&&Number(plannedSetup.chapter_number)>Number(plannedReveal.chapter_number))add('planned-chapter-order','Planned setup follows the reveal in chapter order. This can be intentional; review before changing either.');
+  for(const id of event.characterIds||[])if(!auditSource(data,{kind:'characters',id}))add('character:'+id,'Linked character is unavailable.');
  for(const k of event.knowledgeRecords||[]){
   if(k.characterId!=='reader'&&!auditSource(data,{kind:'characters',id:k.characterId}))add('holder:'+k.id,'Knowledge holder is unavailable.');
   if(!auditSource(data,{kind:'events',id:k.eventId}))add('acquisition:'+k.id,'Knowledge acquisition event is unavailable.');
