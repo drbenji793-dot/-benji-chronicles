@@ -1,6 +1,6 @@
 {
-  "version": 209,
-  "releasedAt": "2026-11-03T16:06:45Z",
+  "version": 210,
+  "releasedAt": "2026-11-03T16:26:36Z",
   "timezone": "UTC",
-  "note": "Compact question impact and author-defined incompatible choice guards"
+  "note": "Read-only source inventory for Twists and Clues"
 }
