@@ -8,3 +8,27 @@ const next=saveKnowledge(d,input,{writer:'Benji',sourceRevision:7});assert.equal
 assert.throws(()=>saveKnowledge(next,input,{sourceRevision:8}),/already has/);assert.throws(()=>saveKnowledge(d,{...input,characterId:'missing'},{sourceRevision:8}),/unavailable/);
 next.characters[0].name='Renamed';assert.equal(knowledgeMap(next)[0].characters[0].name,'Renamed');next.events[1].truth='Changed';assert.equal(knowledgeMap(next)[0].characters[0].stale,true);assert.deepEqual(d.events[0].knowledgeRecords,undefined);
 console.log('PASS explicit character identity, unread possession, preserved legacy notes, duplicate guard, rename resolution and stale source');
+const {reviewKnowledge,knowledgeRows}=await import('../src/character-knowledge.js');
+const {stampUpdate}=await import('../src/update-mechanism.js');
+const scope={bookId:'b',branchId:'r',sourceRevision:7,writer:'Benji'};
+const proposal=saveKnowledge(d,input,scope),record=proposal.events[0].knowledgeRecords[0];
+const stamped=stampUpdate(d,proposal,{...scope,revision:7,note:'Save knowledge'});
+const current=stamped.events[0].knowledgeRecords[0];
+const approved=reviewKnowledge(stamped,{eventId:'a',id:record.id,decision:'approved',note:'Evidence and timing agree',expected:current},{...scope,sourceRevision:8});
+assert.equal(approved.events[0].knowledgeRecords[0].status,'approved');
+const revision=saveKnowledge(approved,{...input,id:record.id,state:'knows',statement:'Now reads the letter'}, {...scope,sourceRevision:9});
+assert.equal(revision.events[0].knowledgeRecords[0].statement,input.statement);assert.equal(revision.events[0].knowledgeRecords[0].proposedRevision.statement,'Now reads the letter');
+let old=revision.events[0].knowledgeRecords[0];
+assert.throws(()=>reviewKnowledge(revision,{eventId:'a',id:record.id,decision:'approved',note:'Yes',expected:{}},scope),/changed/);
+assert.throws(()=>reviewKnowledge(revision,{eventId:'a',id:record.id,decision:'approved',note:'Yes',expected:old},{...scope,branchId:'other'}),/another book/);
+const stale=structuredClone(revision);stale.events[0].order=20;
+assert.throws(()=>reviewKnowledge(stale,{eventId:'a',id:record.id,decision:'approved',note:'Yes',expected:old},scope),/Source changed/);
+const rejected=reviewKnowledge(revision,{eventId:'a',id:record.id,decision:'rejected',note:'Keep existing knowledge',expected:old},scope);
+assert.equal(rejected.events[0].knowledgeRecords[0].statement,input.statement);assert.equal(rejected.events[0].knowledgeRecords[0].proposedRevision,undefined);
+assert.equal(knowledgeRows(approved,{characterId:'n'}).length,0);assert.equal(knowledgeRows(approved,{status:'approved'}).length,1);assert.equal(knowledgeRows(approved,{eventId:'f'}).length,1);assert.equal(knowledgeRows(approved,{chapterId:'missing'}).length,0);
+console.log('PASS knowledge review, stamp-safe snapshots, retained approved values, stale and foreign guards, filters and rejection history');
+
+const readerData={events:[{id:'e',title:'Evidence',truth:'Secret',order:3}],characters:[]};
+const readerProposal=saveKnowledge(readerData,{eventId:'e',factEventId:'e',characterId:'reader',state:'suspects',statement:'Reader suspects',sourceNote:'Shown evidence'},{writer:'Benji',sourceRevision:1,bookId:'b',branchId:'r'});
+assert.equal(knowledgeRows(readerProposal,{characterId:'reader'})[0].characters[0].name,'Reader');assert.equal(knowledgeRows(readerProposal,{readingOrder:2}).length,0);assert.equal(knowledgeRows(readerProposal,{readingOrder:3}).length,1);
+console.log('PASS reader identity and bounded reading order retained from v200');

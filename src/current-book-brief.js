@@ -6,7 +6,7 @@ export function recordState(record={}){
 }
 export const activeRecord=r=>r&&!r.archived&&!['superseded','archived'].includes(r.recordStatus)&&!['superseded','archived'].includes(r.status);
 const active=activeRecord;
-export const CURRENT_FIELDS=['schema','foundation','template','garden','title','summary','hypothesis','rules','characters','relationships','places','decisions','events','links','objects','world','currentStory','storyDraft','workStatus','currentUpdate','recordStamps','storyBrief','synopsisSections','synopsisMeta','structureDecision','editorialResolution','escapeDecision','escapeMechanics','trustLedger','plotRepair','historicalResearch'];
+export const CURRENT_FIELDS=['synopsisReviews','schema','foundation','template','garden','title','summary','hypothesis','rules','characters','relationships','places','decisions','events','links','objects','world','currentStory','storyDraft','workStatus','currentUpdate','recordStamps','storyBrief','synopsisSections','synopsisMeta','structureDecision','editorialResolution','escapeDecision','escapeMechanics','trustLedger','plotRepair','historicalResearch'];
 const fields=CURRENT_FIELDS;
 // The saved source is an internal comparison snapshot, not current writing guidance.
 // Project a copy so stale-draft checks and recovery data remain intact in storage.
