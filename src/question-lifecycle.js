@@ -40,7 +40,7 @@ export function editQuestion(data,id,values,{writer,at=new Date().toISOString(),
   if(next==='answered'&&(!String(q.answer||'').trim()||isDeferral(q.answer)))throw Error('Save an answer before marking it answered.');
   const title=String(values.title??q.title??'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase();
   if(!title)throw Error('Provide the question.');
-  if((data.workshop?.questions||[]).some(other=>other.id!==id&&activeRecord(other)&&String(other.title||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase()===title))throw Error('This question already exists, including any saved decision. Open it or propose a linked revision.');
+  if((data.workshop?.questions||[]).some(other=>other.id!==id&&other.id!==q.revisesQuestionId&&activeRecord(other)&&String(other.title||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase()===title))throw Error('This question already exists, including any saved decision. Open it or propose a linked revision.');
   if(!old&&!String(values.note||'').trim())throw Error('Explain why this question needs a decision.');
   if(values.selectionMode&&!['single','compatible'].includes(values.selectionMode))throw Error('Choose how answer options may be combined.');
   const nextRecord={...q,...values,id,updatedBy:writer,updatedAt:at};
@@ -56,7 +56,7 @@ export function reviseQuestion(data,id,{reason,writer,sourceRevision,at=new Date
  if(!String(reason||'').trim()||!Number.isInteger(sourceRevision))throw Error('Provide a revision reason and current source revision.');
  const existing=rows.find(x=>x.revisesQuestionId===id&&activeRecord(x)&&!['applied','resolved','rejected'].includes(questionState(x)));
  if(existing)throw Error('A revision question already exists. Open it instead.');
- const next={id:crypto.randomUUID(),title:q.title,options:[...(q.options||[])],eventIds:[...(q.eventIds||[])],characterIds:[...(q.characterIds||[])],status:'open',answer:'',answerNotes:'',revisesQuestionId:id,previousAnswer:q.answer||'',revisionReason:String(reason).trim(),sourceQuestionRevision:q.revision??null,sourceBranchRevision:sourceRevision,updatedBy:writer,updatedAt:at,note:'Revision proposal. The original decision remains in force until a separately reviewed change is applied.'};
+ const next={id:crypto.randomUUID(),title:q.title,options:[...(q.options||[])],selectionMode:q.selectionMode||'compatible',eventIds:[...(q.eventIds||[])],characterIds:[...(q.characterIds||[])],status:'open',answer:'',answerNotes:'',revisesQuestionId:id,previousAnswer:q.answer||'',revisionReason:String(reason).trim(),sourceQuestionRevision:q.revision??null,sourceBranchRevision:sourceRevision,updatedBy:writer,updatedAt:at,note:'Revision proposal. The original decision remains in force until a separately reviewed change is applied.'};
  const d=structuredClone(data);d.workshop={...d.workshop,questions:[...structuredClone(rows),next]};return d;
 }
 

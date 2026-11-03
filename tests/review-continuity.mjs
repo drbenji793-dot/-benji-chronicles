@@ -40,3 +40,14 @@ const linkedChain={summary:'Summary',events:[{id:'a',title:'A'},{id:'b',title:'B
 const affected=applyProposal(linkedChain,{bookId:'book',branchId:'branch',baseRevision:3,request:'Change',summary:'Summary',changes:[{id:'a',fields:{summary:'Changed'},reason:'Reviewed'}]},{bookId:'book',branchId:'branch',baseRevision:3});
 assert.equal(reviewQueue(affected).find(r=>r.id==='b').trigger.relationship,'Recorded direct dependency');assert.equal(reviewQueue(affected).find(r=>r.id==='c').trigger.relationship,'Recorded indirect connection');assert.equal(reviewQueue(affected).find(r=>r.id==='c').trigger.sourceRevision,3);assert.equal(reviewQueue(affected).length,2);
 console.log('PASS deduplicated connected review triggers, source revision and direct versus indirect dependency labels');
+
+const {decisionEvidence,same}=await import('../src/planning-evidence.js');
+const linkedRecords={events:[{id:'e',characterIds:['hero'],placeIds:['home']}],characters:[{id:'hero',name:'Salem'},{id:'other',name:'Other'}],places:[{id:'home',name:'Village'}],links:[],workshop:{reviewEventIds:['e']}};
+const checked=completeEventReview(linkedRecords,{id:'e',eventSnapshot:linkedRecords.events[0],sourceRevision:1,note:'Checked linked sources',writer:'Benji'});
+for(const kind of ['characters','places'])for(const remove of [false,true]){
+ const changed=structuredClone(checked);if(remove)changed[kind]=[];else changed[kind][0].name='Changed';assert.equal(reviewQueue(changed).length,1);
+ assert(!same(decisionEvidence(checked,['e'],false),decisionEvidence(changed,['e'],false)));
+}
+const metadata=structuredClone(checked);metadata.characters[0].revision=4;metadata.places[0].updatedAt='later';metadata.characters[1].name='Unrelated change';assert.equal(reviewQueue(metadata).length,0);
+const old=structuredClone(checked);old.workshop.eventReviews[0].evidence.schema=1;delete old.workshop.eventReviews[0].evidence.records;assert.equal(reviewQueue(old).length,1);
+console.log('PASS linked record edits/removals and earlier incomplete snapshots reopen reviews; stamps and unrelated records do not');
