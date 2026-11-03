@@ -4,7 +4,7 @@ export function reviewQueue(data){
  const latest=new Map();for(const r of data.workshop?.eventReviews||[])latest.set(r.eventId,r);
  const stale=[...latest.values()].filter(r=>!r.evidence||!same(r.evidence,eventReviewEvidence(data,r.eventId))).map(r=>r.eventId);
  const ids=[...new Set([...(data.workshop?.reviewEventIds||[]),...stale])];
- return ids.map(id=>{const event=(data.events||[]).find(e=>e.id===id&&activeRecord(e));return {id,event,reason:stale.includes(id)?latest.get(id)?.evidence?'Previously reviewed event or connected sources changed. Recheck the current connections.':'Earlier review has no source snapshot. Recheck the current connections.':(data.currentUpdate?.dependencies?.eventIds||[]).includes(id)?data.currentUpdate.note:'A recorded connection was marked for review; the exact earlier cause is not available here.'};});
+ return ids.map(id=>{const event=(data.events||[]).find(e=>e.id===id&&activeRecord(e));const trigger=(data.workshop?.eventReviewTriggers||[]).find(r=>r.eventId===id);return {id,event,trigger,reason:stale.includes(id)?latest.get(id)?.evidence?'Previously reviewed event or connected sources changed. Recheck the current connections.':'Earlier review has no source snapshot. Recheck the current connections.':trigger?trigger.reason:(data.currentUpdate?.dependencies?.eventIds||[]).includes(id)?data.currentUpdate.note:'A recorded connection was marked for review; the exact earlier cause is not available here.'};});
 }
 export function completeEventReview(data,{id,note,sourceRevision,eventSnapshot,writer,at=new Date().toISOString()}){
  if(!Number.isInteger(sourceRevision)||!String(note||'').trim())throw Error('Record what you checked and why no further change is needed.');

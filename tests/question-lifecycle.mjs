@@ -74,3 +74,23 @@ assert.equal(pendingWork(changed,context).find(x=>x.id==='q').state,'Sources cha
 assert(!pendingWork(verified,context).some(x=>x.id==='q'));
 assert.equal(applicationReview(data,data.workshop.questions[2],context).ready,false);
 console.log('PASS stamped application evidence, downstream review gate, explicit verification, changed-source reopening and unchanged story data');
+{
+// Mixed states must count the same after portable JSON reopening.
+const {questionGroups}=await import('../src/decision-state.js');
+const {questionState}=await import('../src/question-lifecycle.js');
+const {answersHTML}=await import('../src/answer-export.js');
+const mixed={events:[],links:[],workshop:{questions:[{id:'open',status:'open',answer:''},{id:'answer',status:'answered',answer:'Saved'},{id:'approved',status:'approved',answer:'Approved'},{id:'defer',status:'deferred',answer:'Earlier answer retained'},{id:'conflict',status:'conflict',answer:'Conflicting'},{id:'apply',status:'applied',answer:'Applied'},{id:'resolve',status:'resolved',answer:'Resolved'},{id:'reject',status:'rejected',answer:''}]}};
+const reopened=JSON.parse(JSON.stringify(mixed));assert.deepEqual(reopened.workshop.questions.map(questionState),['open','answered','approved','deferred','conflict','applied','resolved','rejected']);const grouped=questionGroups(reopened);assert.deepEqual(grouped.open.map(q=>q.id),['open','conflict']);assert.deepEqual(grouped.pending.map(q=>q.id),['answer','approved']);assert.deepEqual(grouped.deferred.map(q=>q.id),['defer']);
+const portable=answersHTML({format:'chronicles-dsl',bookId:'book',branch:{id:'branch',revision:1,data:reopened}});for(const q of mixed.workshop.questions)assert(portable.includes(q.id));assert.equal(reopened.workshop.questions[3].answer,'Earlier answer retained');
+console.log('PASS all question states, mixed counters, retained deferred answers and portable reopening');
+
+}
+{
+ const {questionSourcesChanged}=await import('../src/question-lifecycle.js');
+ const base={events:[{id:'e',title:'Current source',summary:'Current fact'}],characters:[],workshop:{questions:[]}};
+ const values={title:'Who learns the fact?',note:'Reveal order determines the next scene',options:['Hero','Reader'],selectionMode:'single',eventIds:['e'],status:'open'};
+ const made=editQuestion(base,'new',values,{allowCreate:true,writer:'Benji',sourceContext:{bookId:'b',branchId:'r',baseRevision:2}});
+ assert.throws(()=>editQuestion(made,'duplicate',values,{allowCreate:true}),/already exists/);assert.throws(()=>editQuestion(base,'no-reason',{...values,note:''},{allowCreate:true}),/why/);assert.throws(()=>saveQuestionAnswer(made,'new',{answer:'Hero\nReader',parts:{selected:['Hero','Reader'],written:''}}),/one choice/);
+ assert.equal(questionSourcesChanged(made,made.workshop.questions[0]),false);made.events[0].summary='Changed fact';assert.equal(questionSourcesChanged(made,made.workshop.questions[0]),true);assert.equal(made.workshop.questions[0].questionSources[0].content.summary,'Current fact');
+}
+console.log('PASS manual question reasons, duplicate protection, explicit choice compatibility and source change evidence');

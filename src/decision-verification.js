@@ -5,7 +5,7 @@ import {reviewQueue} from './planning-review.js';
 export {decisionEvidence,eventEvidence} from './planning-evidence.js';
 export function applicationReview(data,q,{bookId,branchId}={}){
  const a=q?.application;if(!a||!a.evidence)return {ready:false,reason:'This older application has no verification snapshot. Propose a linked revision if further work is needed.'};
- if((bookId&&bookId!==a.bookId)||(branchId&&branchId!==a.branchId))return {ready:false,reason:'Application belongs to another book or path.'};
+ if((bookId&&bookId!==a.bookId)||(branchId&&branchId!==a.branchId))return {ready:false,stale:true,reason:'Application belongs to another book or path. Review this copied decision in its current context.'};
  const current=decisionEvidence(data,a.evidenceEventIds||a.eventIds||[],a.summaryChanged);
  if(!same(a.evidence,current))return {ready:false,stale:true,reason:'Affected planning sources changed. Review the current records and propose a linked revision if the decision must change.'};
  if(current.events.some(e=>e.content.missing))return {ready:false,reason:'An affected event is unavailable.'};

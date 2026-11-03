@@ -1,6 +1,6 @@
 {
-  "version": 204,
-  "releasedAt": "2026-11-03T11:49:24.641645+00:00",
+  "version": 205,
+  "releasedAt": "2026-11-03T12:08:22.997938+00:00",
   "timezone": "UTC",
-  "note": "Record clue source review outcomes and reopen changed evidence without editing story facts"
+  "note": "Portable planning recovery, synopsis chapter and related view checks, and connected review provenance"
 }
