@@ -2,6 +2,7 @@ import {activeRecord} from './current-book-brief.js';
 import {questionState} from './question-lifecycle.js';
 import {selectedSynopsis} from './source-tools.js';
 import {escapeHTML as h} from './dsl-engine.js';
+import {recordedNameCandidates} from './story-name-review.js';
 
 const containers={events:'events',event:'events',characters:'characters',character:'characters',questions:'questions',question:'questions',decision:'questions',decisions:'decisions',fact:'decisions',places:'places',place:'places',chapters:'chapters',chapter:'chapters'};
 const text=v=>String(v??'').trim();
@@ -40,18 +41,18 @@ export function synopsisAuthorityAudit(data={},context={}){
    ...(links.some(x=>x.changed)?['Linked source changed']:[]),
    ...(links.some(x=>['Recorded conflict','Retired source','Source missing','Proposal only','Unresolved or pending choice'].includes(x.status))?['Author review required before treating linked claims as settled']:[])
   ];
-  const nameCandidates=[];
   const passage=text(section.text);
-  for(const link of links.filter(x=>containers[x.kind]==='characters')){
-   const character=(data.characters||[]).find(c=>c.id===link.id);
-   if(!character)continue;
-   for(const alias of character.aliases||[]){
-    const candidate=text(typeof alias==='string'?alias:alias?.name);
-    if(candidate&&candidate!==text(character.name)&&passage.includes(candidate))nameCandidates.push({characterId:character.id,matchedName:candidate,currentName:character.name||'',review:'Recorded name or alias in text, not automatically obsolete'});
-   }
-  }
+  const nameCandidates=recordedNameCandidates(data,passage,{linkedCharacterIds:links.filter(x=>containers[x.kind]==='characters').map(x=>x.id)});
+  // Only explicit source IDs establish a finding-to-section relationship.
+  const sourceKeys=new Set(links.map(x=>sourceKey(x)));
+  const linkedFindings=(data.editorialFindings||[]).filter(activeRecord)
+   .filter(f=>!['rejected','resolved','obsolete'].includes(statusOf(f)))
+   .filter(f=>[...(f.links||[]),...(f.chapterId?[{kind:'chapters',id:f.chapterId}]:[])].some(x=>sourceKeys.has(sourceKey(x))))
+   .map(f=>({id:f.id,title:f.title||f.issue||f.id,status:f.status||'Unclassified',
+    chapterId:f.chapterId||null,chapterRevision:f.chapterRevision??null,paragraph:f.paragraph??null,
+    quote:text(f.quote),evidence:'Explicit source ID match; critique is not an approved correction'}));
   return {id:section.id,title:section.title||section.id,origin:section.id==='summary'?'Current summary':section.id==='full'?'Story Brief':section.id.startsWith('outline:')?'Chapter plan':'Saved synopsis section',
-   status:section.status||'Unclassified',review:section.review.state,hasText:!!passage,links,flags,nameCandidates};
+   status:section.status||'Unclassified',review:section.review.state,hasText:!!passage,links,flags,nameCandidates,linkedFindings};
  });
  const questions=(data.workshop?.questions||[]).filter(activeRecord).filter(q=>['open','conflict','deferred'].includes(questionState(q))).map(q=>({id:q.id,title:q.title||q.prompt||q.id,status:questionState(q)}));
  const findings=(data.editorialFindings||[]).filter(activeRecord).filter(f=>!['rejected','resolved','obsolete'].includes(statusOf(f))).map(f=>({id:f.id,title:f.title||f.issue||f.id,status:f.status||'Unclassified'}));
@@ -79,7 +80,10 @@ export function synopsisAuthorityHTML(audit,{href=()=>null,includeNotes=true}={}
    '<p>'+h(section.origin)+' · '+h(section.status)+' · '+(section.hasText?'Text retained':'No text recorded')+'</p>'+
    section.links.map(link=>'<p>'+maybeLink(link.kind,link.id,link.name)+' · '+h(link.status)+' · Saved r'+h(link.savedRevision??'Unknown')+' · Current r'+h(link.currentRevision??'Unknown')+(link.changed?' · Source changed':'')+'</p>').join('')+
    section.flags.map(flag=>'<p>'+h(flag)+'</p>').join('')+
-   section.nameCandidates.map(c=>'<p dir="auto">Name to review: '+h(c.matchedName)+' · Current card: '+maybeLink('characters',c.characterId,c.currentName)+' · Not an automatic correction</p>').join('')+
+   section.nameCandidates.map(c=>'<p dir="auto">Name to review: '+h(c.matchedName)+' · Current card: '+maybeLink('characters',c.characterId,c.currentName)+' · '+h(c.review)+' · Not an automatic correction</p>').join('')+
+   (section.linkedFindings.length?'<details data-synopsis-findings><summary>Linked critique findings ('+section.linkedFindings.length+')</summary>'+
+      section.linkedFindings.map(f=>'<p dir="auto">'+maybeLink('findings',f.id,f.title)+' · '+h(f.status)+' · Chapter '+h(f.chapterId||'Not recorded')+
+        ' r'+h(f.chapterRevision??'Unknown')+' · Paragraph '+h(f.paragraph??'Unknown')+' · '+h(f.evidence)+'</p>').join('')+'</details>':'')+
    '</details>').join('')+
   (includeNotes?'<details data-pending-decisions><summary>Pending decisions ('+audit.questions.length+')</summary>'+
   audit.questions.map(q=>'<p dir="auto">'+maybeLink('questions',q.id,q.title)+' · '+h(q.status)+'</p>').join('')+
