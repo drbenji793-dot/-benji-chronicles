@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {knowledgeMap} from '../src/dsl-master.js';
+import {saveKnowledge} from '../src/character-knowledge.js';
+const d={events:[{id:'a',title:'Acquisition',order:1,characters:'Ali, Nora',knowledge:'Someone carries the sealed letter',truth:''},{id:'f',title:'The letter',order:5,truth:'Its contents'}],characters:[{id:'c',name:'Ali'},{id:'n',name:'Nora'}],workshop:{questions:[]},chapters:[{body:'Unchanged'}]};
+assert.deepEqual(knowledgeMap(d)[0].characters,[]);assert.equal(knowledgeMap(d)[0].legacy,d.events[0].knowledge);
+const input={eventId:'a',characterId:'c',factEventId:'f',state:'possesses_unread',statement:'Carries the sealed letter',sourceNote:'Given at acquisition before the reveal'};
+const next=saveKnowledge(d,input,{writer:'Benji',sourceRevision:7});assert.equal(knowledgeMap(next)[0].characters.length,1);assert.equal(knowledgeMap(next)[0].characters[0].state,'possesses_unread');assert.deepEqual(next.chapters,d.chapters);assert.equal(next.events[0].knowledge,d.events[0].knowledge);assert.equal(next.events[1].truth,d.events[1].truth);
+assert.throws(()=>saveKnowledge(next,input,{sourceRevision:8}),/already has/);assert.throws(()=>saveKnowledge(d,{...input,characterId:'missing'},{sourceRevision:8}),/unavailable/);
+next.characters[0].name='Renamed';assert.equal(knowledgeMap(next)[0].characters[0].name,'Renamed');next.events[1].truth='Changed';assert.equal(knowledgeMap(next)[0].characters[0].stale,true);assert.deepEqual(d.events[0].knowledgeRecords,undefined);
+console.log('PASS explicit character identity, unread possession, preserved legacy notes, duplicate guard, rename resolution and stale source');

@@ -1,6 +1,6 @@
 {
-  "version": 197,
-  "releasedAt": "2026-11-02T23:36:50.367759+00:00",
+  "version": 198,
+  "releasedAt": "2026-11-03T00:34:15.645486+00:00",
   "timezone": "UTC",
-  "note": "Create source-linked author questions from accepted review findings with duplicate and stale-source guards"
+  "note": "Verify planning applications against saved evidence and record character knowledge explicitly"
 }

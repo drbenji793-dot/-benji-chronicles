@@ -1,3 +1,4 @@
+import {knowledgeRows} from './character-knowledge.js';
 /* DSL Master T001. Reusable architecture only. Never imports another novel's content. */
 export const TEMPLATE_ID='DSL-T001';
 export const TEMPLATE_REVISION=2;
@@ -46,9 +47,4 @@ export function storyHealth(data,chapters=[]){
  const counts={events:events.length,characters:characters.length,twists:events.filter(e=>e.type==='twist').length,openQuestions:events.filter(e=>e.status==='question').length,linkedChapters:new Set(events.map(e=>e.sourceChapter).filter(Boolean)).size};
  return {counts,checks};
 }
-export function knowledgeMap(data){
- const chars=getCharacters(data);
- return (data?.events||[]).filter(e=>!e.archived).slice().sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0)).map(e=>({
- id:e.id,title:e.title,reader:e.readerKnows||'',hidden:e.truth||'',characters:chars.filter(c=>appearsIn(e,c.name,c.aliases)).map(c=>({name:c.name,knowledge:e.knowledge||'',secret:c.secret||''}))}));
-}
-
+export function knowledgeMap(data){return knowledgeRows(data);}
