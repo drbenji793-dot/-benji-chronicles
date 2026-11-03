@@ -16,10 +16,40 @@ export function replaceQuestion(data,id,transform,{allowCreate=false,sourceConte
  if(index<0)rows.push(next);else rows[index]=next;
  d.workshop={...(d.workshop||{}),questions:rows};return d;
 }
+// A factual preview only: relationships are possibilities for review, never automatic story edits.
+export function questionImpactSummary(data,q){
+ const unique=values=>[...new Set((values||[]).filter(Boolean))];
+ const events=unique(q.eventIds),characters=unique(q.characterIds);
+ const missing=[...events.filter(id=>!(data.events||[]).some(r=>r.id===id&&activeRecord(r))).map(id=>'event:'+id),...characters.filter(id=>!(data.characters||[]).some(r=>r.id===id&&activeRecord(r))).map(id=>'character:'+id)];
+ const related=(data.workshop?.questions||[]).filter(other=>other.id!==q.id&&activeRecord(other)&&protectedDecision(other)&&(
+  other.id===q.revisesQuestionId||
+  (other.eventIds||[]).some(id=>events.includes(id))||
+  (other.characterIds||[]).some(id=>characters.includes(id))));
+ const count=(n,label)=>n+' '+label+(n===1?'':'s');
+ const summary=events.length||characters.length
+  ?'Potential review: '+count(events.length,'event')+', '+count(characters.length,'character')+'.'
+  :'Source links not recorded; verify scope before applying.';
+ const warnings=[...(missing.length?['Some linked records are unavailable.']:[]),...(related.length?[count(related.length,'protected decision')+' to review.']:[]),...(questionSourcesChanged(data,q)?['Linked source snapshot changed.']:[])];
+ return {events,characters,missing,protectedDecisions:related.map(r=>r.id),warnings,summary:[summary,...warnings].join(' ')};
+}
+// Optional explicit incompatible pairs are enforced for manual answers and imported proposals.
+export function validateQuestionSelection(q,parts){
+ const raw=parts?.selected??[];if(!Array.isArray(raw))throw Error('Select a list of current choices.');
+ const selected=raw.filter(v=>!isDeferral(v));
+ if(!Array.isArray(selected)||new Set(selected).size!==selected.length)throw Error('Do not repeat the same choice.');
+ if(q.selectionMode==='single'&&selected.length>1)throw Error('This question allows one choice. Remove incompatible selections.');
+ const known=new Set(q.options||[]);
+ if(selected.some(v=>!known.has(v)))throw Error('A selected choice is no longer available. Reopen the current question.');
+ for(const pair of q.incompatibleOptionPairs||[]){
+  if(!Array.isArray(pair)||pair.length!==2)continue;
+  if(pair.every(value=>selected.includes(value)))throw Error('These choices contradict one another. Select a compatible answer or write another.');
+ }
+ return selected;
+}
 export function saveQuestionAnswer(data,id,{answer,notes,parts,writer,at=new Date().toISOString()}){
  return replaceQuestion(data,id,q=>{
   if(['applied','resolved','approved'].includes(questionState(q)))throw Error('This decision is approved or applied. Create a linked revision instead of overwriting it.');
-  if(q.selectionMode==='single'&&(parts?.selected||[]).filter(v=>!isDeferral(v)).length>1)throw Error('This question allows one choice. Remove incompatible selections.');
+  if(parts)validateQuestionSelection(q,parts);
   q.answerHistory=[...(q.answerHistory||[]),{answer:q.answer||'',notes:q.answerNotes||'',status:questionState(q),writer,at}];
   if(isDeferral(answer)){q.status='deferred';}else{
    q.answer=answer;q.status=String(answer||'').trim()?'answered':'open';
@@ -43,6 +73,13 @@ export function editQuestion(data,id,values,{writer,at=new Date().toISOString(),
   if((data.workshop?.questions||[]).some(other=>other.id!==id&&other.id!==q.revisesQuestionId&&activeRecord(other)&&String(other.title||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase()===title))throw Error('This question already exists, including any saved decision. Open it or propose a linked revision.');
   if(!old&&!String(values.note||'').trim())throw Error('Explain why this question needs a decision.');
   if(values.selectionMode&&!['single','compatible'].includes(values.selectionMode))throw Error('Choose how answer options may be combined.');
+  if(values.incompatibleOptionPairs!==undefined){
+   if(!Array.isArray(values.incompatibleOptionPairs)||values.incompatibleOptionPairs.length>40)throw Error('Limit incompatible option pairs to 40.');
+   const valid=new Set(values.options||q.options||[]);
+   for(const pair of values.incompatibleOptionPairs){
+    if(!Array.isArray(pair)||pair.length!==2||pair[0]===pair[1]||pair.some(v=>!valid.has(v)))throw Error('Each incompatible pair must contain two distinct current options.');
+   }
+  }
   if(values.decisionKind&&!['Missing decision','Author preference','Factual inconsistency'].includes(values.decisionKind))throw Error('Choose a supported decision type.');
   if(values.urgency&&!['Low','Normal','High'].includes(values.urgency))throw Error('Choose a supported urgency.');
   const nextRecord={...q,...values,id,updatedBy:writer,updatedAt:at};
