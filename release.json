@@ -1,6 +1,6 @@
 {
-  "version": 206,
-  "releasedAt": "2026-11-03T12:19:52.447841+00:00",
+  "version": 207,
+  "releasedAt": "2026-11-03T12:33:09.914655+00:00",
   "timezone": "UTC",
-  "note": "Linked character and place evidence invalidation and editable protected decision revisions"
+  "note": "Explicit zk5 and zk5e guide adoption in reviews and portable source packages"
 }
