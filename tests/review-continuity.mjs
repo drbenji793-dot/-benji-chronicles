@@ -36,3 +36,7 @@ for(const language of ['ar','en']){
  assert.equal(JSON.stringify(base),original);
 }
 console.log('PASS approval collisions, linked revisions, source invalidation, connected review reopening and JSON/HTML recovery in both languages');
+const linkedChain={summary:'Summary',events:[{id:'a',title:'A'},{id:'b',title:'B'},{id:'c',title:'C'}],links:[{id:'ab',from:'a',to:'b'},{id:'bc',from:'b',to:'c'}],workshop:{questions:[]}};
+const affected=applyProposal(linkedChain,{bookId:'book',branchId:'branch',baseRevision:3,request:'Change',summary:'Summary',changes:[{id:'a',fields:{summary:'Changed'},reason:'Reviewed'}]},{bookId:'book',branchId:'branch',baseRevision:3});
+assert.equal(reviewQueue(affected).find(r=>r.id==='b').trigger.relationship,'Recorded direct dependency');assert.equal(reviewQueue(affected).find(r=>r.id==='c').trigger.relationship,'Recorded indirect connection');assert.equal(reviewQueue(affected).find(r=>r.id==='c').trigger.sourceRevision,3);assert.equal(reviewQueue(affected).length,2);
+console.log('PASS deduplicated connected review triggers, source revision and direct versus indirect dependency labels');

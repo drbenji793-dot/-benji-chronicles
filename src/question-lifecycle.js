@@ -1,3 +1,4 @@
+import {eventEvidence,same} from './planning-evidence.js';
 import {activeRecord} from './current-book-brief.js';
 export const isDeferral=value=>/^(أؤجل القرار|defer|deferred)$/i.test(String(value||'').trim());
 export const questionState=q=>{
@@ -7,7 +8,7 @@ export const questionState=q=>{
 };
 export const protectedDecision=q=>['approved','applied','resolved'].includes(questionState(q));
 export const questionLabel=q=>({open:'Open',answered:'Answer saved',approved:'Approved · pending application',deferred:'Deferred',conflict:'Conflict',applied:'Applied',resolved:'Resolved',rejected:'Rejected'}[questionState(q)]);
-export function replaceQuestion(data,id,transform,{allowCreate=false}={}){
+export function replaceQuestion(data,id,transform,{allowCreate=false,sourceContext}={}){
  const d=structuredClone(data),rows=d.workshop?.questions||[],index=rows.findIndex(q=>q.id===id);
  if(index<0&&!allowCreate)throw Error('This question is no longer available. Reload the current source.');
  if(index>=0&&!activeRecord(rows[index]))throw Error('This question has been retired. Open the current decision.');
@@ -18,6 +19,7 @@ export function replaceQuestion(data,id,transform,{allowCreate=false}={}){
 export function saveQuestionAnswer(data,id,{answer,notes,parts,writer,at=new Date().toISOString()}){
  return replaceQuestion(data,id,q=>{
   if(['applied','resolved','approved'].includes(questionState(q)))throw Error('This decision is approved or applied. Create a linked revision instead of overwriting it.');
+  if(q.selectionMode==='single'&&(parts?.selected||[]).filter(v=>!isDeferral(v)).length>1)throw Error('This question allows one choice. Remove incompatible selections.');
   q.answerHistory=[...(q.answerHistory||[]),{answer:q.answer||'',notes:q.answerNotes||'',status:questionState(q),writer,at}];
   if(isDeferral(answer)){q.status='deferred';}else{
    q.answer=answer;q.status=String(answer||'').trim()?'answered':'open';
@@ -28,7 +30,7 @@ export function saveQuestionAnswer(data,id,{answer,notes,parts,writer,at=new Dat
   q.updatedBy=writer;q.updatedAt=at;return q;
  });
 }
-export function editQuestion(data,id,values,{writer,at=new Date().toISOString(),allowCreate=false}={}){
+export function editQuestion(data,id,values,{writer,at=new Date().toISOString(),allowCreate=false,sourceContext}={}){
  return replaceQuestion(data,id,old=>{
   const q=old||{id,answer:'',options:[],eventIds:[]},state=questionState(q),next=values.status;
   if(old&&protectedDecision(q))throw Error('This decision is protected. Propose a linked revision instead.');
@@ -36,7 +38,14 @@ export function editQuestion(data,id,values,{writer,at=new Date().toISOString(),
   if(['applied','resolved','approved'].includes(next)&&next!==q.status)throw Error('Application and approval require a reviewed change.');
   if(!['open','answered','deferred','rejected','conflict','applied','resolved','approved'].includes(next))throw Error('Unknown question status.');
   if(next==='answered'&&(!String(q.answer||'').trim()||isDeferral(q.answer)))throw Error('Save an answer before marking it answered.');
-  return {...q,...values,id,updatedBy:writer,updatedAt:at};
+  const title=String(values.title??q.title??'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase();
+  if(!title)throw Error('Provide the question.');
+  if((data.workshop?.questions||[]).some(other=>other.id!==id&&activeRecord(other)&&String(other.title||'').normalize('NFKC').trim().replace(/\s+/g,' ').toLowerCase()===title))throw Error('This question already exists, including any saved decision. Open it or propose a linked revision.');
+  if(!old&&!String(values.note||'').trim())throw Error('Explain why this question needs a decision.');
+  if(values.selectionMode&&!['single','compatible'].includes(values.selectionMode))throw Error('Choose how answer options may be combined.');
+  const nextRecord={...q,...values,id,updatedBy:writer,updatedAt:at};
+  if(sourceContext){nextRecord.questionContext=sourceContext;nextRecord.questionSources=questionSources(data,nextRecord);}
+  return nextRecord;
  },{allowCreate});
 }
 
@@ -50,3 +59,6 @@ export function reviseQuestion(data,id,{reason,writer,sourceRevision,at=new Date
  const next={id:crypto.randomUUID(),title:q.title,options:[...(q.options||[])],eventIds:[...(q.eventIds||[])],characterIds:[...(q.characterIds||[])],status:'open',answer:'',answerNotes:'',revisesQuestionId:id,previousAnswer:q.answer||'',revisionReason:String(reason).trim(),sourceQuestionRevision:q.revision??null,sourceBranchRevision:sourceRevision,updatedBy:writer,updatedAt:at,note:'Revision proposal. The original decision remains in force until a separately reviewed change is applied.'};
  const d=structuredClone(data);d.workshop={...d.workshop,questions:[...structuredClone(rows),next]};return d;
 }
+
+export function questionSources(data,q){return [...(q.eventIds||[]).map(id=>({kind:'events',id})),...(q.characterIds||[]).map(id=>({kind:'characters',id}))].map(ref=>({...ref,content:eventEvidence((data[ref.kind]||[]).find(r=>r.id===ref.id&&activeRecord(r))||{id:ref.id,missing:true})}));}
+export function questionSourcesChanged(data,q){return !!q.questionSources&&!same(q.questionSources,questionSources(data,q));}

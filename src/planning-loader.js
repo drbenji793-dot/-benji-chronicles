@@ -1,9 +1,10 @@
+export const planningChapterPath=({bookId,collection,language='ar'})=>collection?'chronicles_chapters?story_number=eq.'+collection+'&language=eq.'+language:'chronicles_book_entries?book_id=eq.'+(bookId==='66739f5d-2bac-4d75-a4fd-6df93da8ac7e'?'c911584d-bd5b-42fe-b41c-a2a456c64d41':encodeURIComponent(bookId))+'&kind=eq.chapter';
 const GARDEN_FIELDS=['schema','template','garden','title','summary','hypothesis','rules','characters','relationships','places','decisions','events','links','objects','world','workStatus','currentUpdate','recordStamps'];
 // Lists contain metadata only. Historical payloads are fetched by explicit selection.
 export const BRANCH_META='id,book_id,name,archived,revision,updated_by,updated_at,change_note,parent_id,parent_revision';
 export async function loadPlanning(api,{bookId,branchId,collection,language='ar',full=false,chapterBodies=false}){
  const scope='book_id=eq.'+encodeURIComponent(bookId);
- const chapterPath=collection?'chronicles_chapters?story_number=eq.'+collection+'&language=eq.'+language:'chronicles_book_entries?book_id=eq.'+(bookId==='66739f5d-2bac-4d75-a4fd-6df93da8ac7e'?'c911584d-bd5b-42fe-b41c-a2a456c64d41':encodeURIComponent(bookId))+'&kind=eq.chapter';
+ const chapterPath=planningChapterPath({bookId,collection,language});
  const results=await Promise.allSettled([
   api('chronicles_dsl_projects?'+scope+'&select='+(full?'*':'book_id,revision')),
   api('chronicles_dsl_branches?'+scope+'&select='+BRANCH_META+'&order=updated_at.asc'),
