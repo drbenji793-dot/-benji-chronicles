@@ -1,3 +1,6 @@
+import {reviewQueue} from './planning-review.js';
+import {assertNoApprovalConflicts} from './approval-conflicts.js';
+import {eventEvidence,same as sameEvidence} from './planning-evidence.js';
 import {activeRecord} from './current-book-brief.js';
 import {savedStoryBrief} from './story-brief.js';
 
@@ -113,22 +116,37 @@ export function reviewToolProposal(data,id,action,context,chapters=[],note=''){
   if(context.writer!=='Benji')throw Error('Select Benji for approval. Writer selection is not identity verification.');
   const target=p.kind==='clue'?sourceRecord(d,{kind:'events',id:p.targetId}):synopsisSections(d).find(x=>x.id===p.targetId);
   if(!same(target,p.before)||sourceDifferences(d,p.sources,chapters).length)throw Error('Target or linked sources changed. Prepare a fresh proposal.');
+  assertNoApprovalConflicts(d,p.kind==='clue'?{changes:[{id:p.targetId,fields:p.values}]}:p.targetId==='summary'?{summary:p.values.text}:{});
   if(p.kind==='clue'){validClue(d,p.values);Object.assign(target,copy(p.values));target.toolReview={proposalId:p.id,approvedBy:context.writer,at:new Date().toISOString(),sourceRevision:context.baseRevision};}
   else if(p.targetId==='summary'){d.summary=p.values.text;d.synopsisMeta={...d.synopsisMeta,summary:{sources:p.sources,status:'approved'}};}
   else if(p.targetId==='full'){d.synopsisMeta={...d.synopsisMeta,full:{text:p.values.text,sources:p.sources,status:'approved'}};}
   else {const s=d.synopsisSections?.find(x=>x.id===p.targetId);if(!s)throw Error('Legacy chapter outlines are read only here. Create a linked synopsis section first.');Object.assign(s,{text:p.values.text,sources:p.sources,status:'approved'});}
   d.workshop.synopsisNeedsReview=true;
   p.resultSnapshot=copy(p.kind==='clue'?sourceRecord(d,{kind:'events',id:p.targetId}):synopsisSections(d).find(x=>x.id===p.targetId));
+  p.appliedSources=captureSources(d,p.sources.map(({kind,id})=>({kind,id})),chapters);
   p.appliedRevision=context.baseRevision+1;p.verification='Awaiting saved source verification';
  }
  p.status=action;p.review={writer:context.writer,note,at:new Date().toISOString(),sourceRevision:context.baseRevision};return d;
 }
-export function verifyToolProposal(data,id,context,note){
+export function toolProposalReview(data,p,{chapters}={}){
+ const target=p.kind==='clue'?sourceRecord(data,{kind:'events',id:p.targetId}):synopsisSections(data).find(x=>x.id===p.targetId);
+ if(!target||Object.entries(p.values||{}).some(([k,v])=>!same(target[k],v)))return {ready:false,stale:true,reason:'Applied values no longer match. Reopen review.'};
+ const sources=p.appliedSources||p.sources||[];
+ if(!sources.length)return {ready:false,reason:'Source evidence is unavailable. Prepare a fresh proposal.'};
+ for(const s of sources){
+  if(s.kind==='chapters'&&!Array.isArray(chapters))return {ready:false,reason:'Chapter sources need to be loaded before verification.'};
+  const current=sourceRecord(data,s,chapters||[]);
+  // Legacy self sources used the preapplication snapshot. Compare the recorded result instead.
+  const expected=!p.appliedSources&&p.kind==='clue'&&s.kind==='events'&&s.id===p.targetId?p.resultSnapshot:s.snapshot;
+  if(!current||!expected||!(s.kind==='chapters'?same(current,expected):sameEvidence(eventEvidence(current),eventEvidence(expected))))return {ready:false,stale:true,reason:'Linked sources changed or are unavailable. Prepare a fresh proposal.'};
+ }
+ return {ready:true,reason:p.verification?.status==='verified'?'Verified for recorded fields and linked sources':'Saved change awaiting verification'};
+}
+export function verifyToolProposal(data,id,context,note,chapters){
  const d=copy(data),p=d.workshop?.toolProposals?.find(x=>x.id===id);
- if(!p||p.status!=='approved'||p.bookId!==context.bookId||p.branchId!==context.branchId||context.baseRevision<p.appliedRevision||!String(note||'').trim())throw Error('Reload the applied source and record verification evidence.');
- const target=p.kind==='clue'?sourceRecord(d,{kind:'events',id:p.targetId}):synopsisSections(d).find(x=>x.id===p.targetId);
- if(!target||Object.entries(p.values).some(([k,v])=>!same(target[k],v)))throw Error('Applied values no longer match. Reopen review.');
- p.verification={status:'verified',sourceRevision:context.baseRevision,writer:context.writer,note,at:new Date().toISOString(),scope:'Applied fields only; literary continuity requires human review'};return d;
+ if(!p||p.status!=='approved'||p.bookId!==context.bookId||p.branchId!==context.branchId||!Number.isInteger(context.baseRevision)||context.baseRevision<p.appliedRevision||!String(note||'').trim())throw Error('Reload the applied source and record verification evidence.');
+ const check=toolProposalReview(d,p,{chapters});if(!check.ready)throw Error(check.reason);
+ p.verification={status:'verified',sourceRevision:context.baseRevision,writer:context.writer,note,at:new Date().toISOString(),scope:'Applied fields and linked source snapshots only; literary continuity requires human review'};return d;
 }
 export function addSynopsisSection(data,{id=crypto.randomUUID(),title,view,scope}){
  if(!['short','full','chapters'].includes(view)||!['plan','manuscript'].includes(scope)||!String(title||'').trim())throw Error('Choose a title, view and source scope.');
@@ -138,5 +156,5 @@ export function addSynopsisSection(data,{id=crypto.randomUUID(),title,view,scope
 export function sourcePackage(data,context,{kind,targetId,view='short',scope='plan',chapters=[]}={}){
  const targets=kind==='clue'?clueRecords(data):selectedSynopsis(data,{view,scope,chapters});
  const selected=targetId?targets.filter(x=>x.id===targetId):targets;
- return {format:'chronicles-source-review',version:1,...context,kind,view,scope,exportedAt:new Date().toISOString(),audience:'Writer review; contains spoilers',targets:copy(selected),sources:{events:copy((data.events||[]).filter(activeRecord)),characters:copy((data.characters||[]).filter(activeRecord)),questions:copy((data.workshop?.questions||[]).filter(activeRecord)),decisions:copy((data.decisions||[]).filter(activeRecord)),chapters:copy(chapters)},instructions:'Return a proposal only. Preserve target IDs, bookId, branchId and baseRevision. Include kind, targetId, author, reason, values and sourceRefs [{kind,id}]. Do not approve, publish or modify manuscript text.'};
+ return {format:'chronicles-source-review',version:1,...context,kind,view,scope,exportedAt:new Date().toISOString(),audience:'Writer review; contains spoilers',pendingReviews:{events:reviewQueue(data).map(({id,reason})=>({id,reason})),proposals:(data.workshop?.toolProposals||[]).filter(p=>p.bookId===context.bookId&&p.branchId===context.branchId&&p.status==='approved').map(p=>({id:p.id,kind:p.kind,targetId:p.targetId,review:toolProposalReview(data,p,{chapters})}))},targets:copy(selected),sources:{events:copy((data.events||[]).filter(activeRecord)),characters:copy((data.characters||[]).filter(activeRecord)),questions:copy((data.workshop?.questions||[]).filter(activeRecord)),decisions:copy((data.decisions||[]).filter(activeRecord)),chapters:copy(chapters)},instructions:'Return a proposal only. Preserve target IDs, bookId, branchId and baseRevision. Include kind, targetId, author, reason, values and sourceRefs [{kind,id}]. Do not approve, publish or modify manuscript text.'};
 }

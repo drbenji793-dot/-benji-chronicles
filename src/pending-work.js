@@ -1,3 +1,5 @@
+import {findingContinuityState} from './finding-continuity.js';
+import {toolProposalReview} from './source-tools.js';
 import {applicationReview} from './decision-verification.js';
 import {activeRecord} from './current-book-brief.js';
 import {questionState,questionLabel} from './question-lifecycle.js';
@@ -14,13 +16,17 @@ export function pendingWork(data={}, {bookId,branchId,chapters}={}){
  }
  for(const r of reviewQueue(data))add({key:'event:'+r.id,id:r.id,kind:'event',group:'Connected events',title:r.event?.title||'Unavailable event',state:r.event?'Needs review':'Source unavailable',action:'Review connections',view:'decisions',reason:r.reason,priority:r.event?2:1});
  for(const p of data.workshop?.toolProposals||[]){
-  if((bookId&&p.bookId!==bookId)||(branchId&&p.branchId!==branchId)||p.status==='rejected'||p.status==='deferred'||p.verification?.status==='verified')continue;
-  add({key:'tool:'+p.id,id:p.id,kind:'tool',group:'Source proposals',title:p.reason,state:p.status==='approved'?'Saved change awaiting verification':'Proposal awaiting review',action:p.status==='approved'?'Verify saved change':'Review proposal',view:p.kind==='clue'?'twists':'synopsis',priority:2});
+  if((bookId&&p.bookId!==bookId)||(branchId&&p.branchId!==branchId)||p.status==='rejected'||p.status==='deferred')continue;
+  const review=p.status==='approved'?toolProposalReview(data,p,{chapters}):null;
+  if(p.verification?.status==='verified'&&review?.ready)continue;
+  add({key:'tool:'+p.id,id:p.id,kind:'tool',group:'Source proposals',title:p.reason,state:review?.stale?'Sources changed':review&&!review.ready?review.reason:p.status==='approved'?'Saved change awaiting verification':'Proposal awaiting review',action:p.status==='approved'?'Verify saved change':'Review proposal',view:p.kind==='clue'?'twists':'synopsis',priority:review?.stale?0:2});
  }
  for(const f of (data.editorialFindings||[]).filter(activeRecord)){
-  if((bookId&&f.bookId!==bookId)||(branchId&&f.branchId!==branchId)||['rejected','deferred','resolved','obsolete'].includes(f.status))continue;
-  const verifiedSource=(f.repairs||[]).filter(r=>r.status==='verified'&&r.verification?.chapterId===f.chapterId).map(r=>r.verification.chapterRevision).sort((a,b)=>b-a)[0]??f.chapterRevision;
-  const stale=Array.isArray(chapters)&&!chapters.some(c=>c.id===f.chapterId&&c.revision===verifiedSource);
+  if((bookId&&f.bookId!==bookId)||(branchId&&f.branchId!==branchId)||['rejected','deferred'].includes(f.status))continue;
+  const continuity=findingContinuityState(data,f,chapters);
+  if(['resolved','obsolete'].includes(f.status)&&!continuity.stale&&continuity.checked)continue;
+  const verifiedSource=f.continuity?.chapterRevision??(f.repairs||[]).filter(r=>r.status==='verified'&&r.verification?.chapterId===f.chapterId).map(r=>r.verification.chapterRevision).sort((a,b)=>b-a)[0]??f.chapterRevision;
+  const stale=continuity.stale||Array.isArray(chapters)&&!chapters.some(c=>c.id===f.chapterId&&c.revision===verifiedSource);
   const repairs=f.repairs||[],verified=repairs.some(r=>r.status==='verified'),approved=repairs.some(r=>r.status==='approved'),proposed=repairs.some(r=>r.status==='proposed');
   add({key:'finding:'+f.id,id:f.id,kind:'finding',group:'Review findings',title:f.title||'Finding',state:stale?'Source changed':verified?'Continuity check needed':approved?'Approved repair awaiting verification':proposed?'Repair awaiting decision':f.status==='accepted'?'Prepare repair proposal':f.status==='clarification'?'Needs clarification':'Finding awaiting review',action:'Open finding',view:'critique',priority:stale?0:f.severity==='Critical'?0:f.severity==='Major'?1:3});
  }
@@ -35,7 +41,7 @@ export function pendingWorkHTML(data, {route,...scope}){
 }
 
 export async function loadPendingWork(api,bookId,branch){
- const rows=await api('chronicles_dsl_branches?book_id=eq.'+encodeURIComponent(bookId)+'&id=eq.'+encodeURIComponent(branch.id)+'&revision=eq.'+branch.revision+'&select=workshop:data->workshop,events:data->events,links:data->links,summary:data->summary,editorialFindings:data->editorialFindings&limit=1');
+ const rows=await api('chronicles_dsl_branches?book_id=eq.'+encodeURIComponent(bookId)+'&id=eq.'+encodeURIComponent(branch.id)+'&revision=eq.'+branch.revision+'&select=workshop:data->workshop,events:data->events,links:data->links,summary:data->summary,rules:data->rules,characters:data->characters,places:data->places,decisions:data->decisions,synopsisSections:data->synopsisSections,synopsisMeta:data->synopsisMeta,storyBrief:data->storyBrief,storyDraft:data->storyDraft,currentStory:data->currentStory,editorialFindings:data->editorialFindings&limit=1');
  if(!rows[0])throw Error('Planning changed. Reopen this page before loading pending work.');
  return rows[0].data||rows[0];
 }

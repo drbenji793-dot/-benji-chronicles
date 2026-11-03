@@ -1,3 +1,5 @@
+import {recheckFinding,findingContinuityState} from '../src/finding-continuity.js';
+import {pendingWork} from '../src/pending-work.js';
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 import {reviewPacket,parseReviewPacket,importReview,linkFinding,createFindingQuestion,proposeRepair,decideRepair,verifyRepair} from '../src/critique-workflow.js';
@@ -33,6 +35,14 @@ for(const language of ['ar','en']){
  await assert.rejects(()=>verifyRepair(next,id,rid,context),/not uniquely present/);
  await assert.rejects(()=>verifyRepair(next,id,rid,{...context,chapters:[{...chapter,revision:4,paragraphs:[repair.after,repair.after]}]}),/not uniquely present/);
  const verified=await verifyRepair(next,id,rid,{...context,chapters:[{...chapter,revision:4,paragraphs:[repair.after]}]});assert.equal(verified.editorialFindings[0].repairs[0].status,'verified');assert.deepEqual(verified.events,data.events);
+ const currentContext={...context,chapters:[{...chapter,revision:4,paragraphs:[repair.after]}]};
+ await assert.rejects(()=>recheckFinding(verified,id,{status:'resolved',note:'Checked',paragraph:1,quote:repair.after},currentContext),/linked author decision/);
+ const ready=structuredClone(verified);ready.workshop.questions[0].status='resolved';
+ const resolved=await recheckFinding(ready,id,{status:'resolved',note:'Reviewed saved repair and settled linked decision',paragraph:1,quote:repair.after},currentContext);
+ assert.equal(resolved.editorialFindings[0].sourceHistory[0].quote,para);assert.equal(resolved.editorialFindings[0].status,'resolved');assert(!pendingWork(resolved,{...context,chapters:currentContext.chapters}).some(r=>r.id===id));
+ const altered=JSON.parse(JSON.stringify(resolved));altered.workshop.questions[0].answer='Changed approval';assert(findingContinuityState(altered,altered.editorialFindings[0],currentContext.chapters).stale);assert(pendingWork(altered,{...context,chapters:currentContext.chapters}).some(r=>r.id===id&&r.state==='Source changed'));
+ await assert.rejects(()=>recheckFinding(ready,id,{status:'accepted',note:'Check',paragraph:1,quote:'Invented'},currentContext),/matching quote/);
+ const obsolete=await recheckFinding(ready,id,{status:'obsolete',note:'Original issue no longer describes current source'},currentContext);assert.equal(obsolete.editorialFindings[0].status,'obsolete');assert.equal(obsolete.editorialFindings[0].quote,para);
  const doc=new JSDOM(findingsHTML(verified.editorialFindings,{...context,title:'Book'})).window.document;assert(doc.body.textContent.includes(repair.after));assert(doc.body.textContent.includes('r4'));assert.equal(doc.querySelectorAll('.technical-details').length,1);
  // Exercise actual form handlers, retained local drafts and scoped writes without chapter mutation.
  const dom=new JSDOM('<main></main>',{url:'https://test.invalid/#view=critique'});for(const k of ['window','document','localStorage','FormData','MutationObserver'])globalThis[k]=dom.window[k];
@@ -63,6 +73,7 @@ for(const language of ['ar','en']){
  await assert.rejects(()=>createFindingQuestion(basis,basis.editorialFindings[0].id,{title:'Why return?',note:'Already asked'},context),/wording already exists/);
  await assert.rejects(()=>createFindingQuestion({...basis,summary:'Changed source'},basis.editorialFindings[0].id,{title:'A new question',note:'Reason'},context),/Source changed/);
  await assert.rejects(()=>createFindingQuestion(basis,basis.editorialFindings[0].id,{title:'A new question',note:'Reason'},{...context,bookId:'wrong'}),/unavailable/);
+ const continuity=main.querySelector('[data-continuity]');continuity.elements.status.value='accepted';continuity.elements.paragraph.value='1';continuity.elements.quote.value=para;continuity.elements.note.value='Checked current passage and linked decision; issue remains open';continuity.dispatchEvent(new window.Event('input',{bubbles:true}));assert(localStorage.getItem('chronicles-review-workflow:book:br').includes('issue remains open'));continuity.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));for(let i=0;i<100&&busy;i++)await new Promise(r=>setTimeout(r,5));assert.equal(writes,5);assert.equal(branch.data.editorialFindings[0].continuity.status,'accepted');assert(main.textContent.includes('issue remains open'));assert.equal(chapter.body,'<p>'+para+'</p>');
  dispose();dom.window.close();
 }
 console.log('PASS review workflow: selective attributed import, stale/duplicate guards, linked records, exact before/after, explicit repair decisions, verification and actual Arabic/English handlers');
