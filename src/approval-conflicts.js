@@ -3,7 +3,7 @@ import {protectedDecision} from './question-lifecycle.js';
 import {same} from './planning-evidence.js';
 
 // Detect collisions with recorded approval scope, not semantic contradictions in prose.
-export function approvalConflicts(data,{questionId,changes=[],summary}={}){
+export function approvalConflicts(data,{questionId,changes=[],recordChanges=[],summary}={}){
  const current=(data.workshop?.questions||[]).find(q=>q.id===questionId&&activeRecord(q));
  const conflicts=[];
  for(const q of (data.workshop?.questions||[]).filter(activeRecord)){
@@ -16,6 +16,13 @@ export function approvalConflicts(data,{questionId,changes=[],summary}={}){
    const linked=(q.application?.eventIds||q.eventIds||[]).includes(change.id);
    const keys=claims?altered.filter(k=>Object.hasOwn(claims.fields,k)):linked?altered:[];
    if(keys.length)conflicts.push({questionId:q.id,title:q.title||q.id,eventId:change.id,fields:keys,reason:claims?'Changes fields governed by an applied decision.':'Overlaps a protected decision whose exact field scope was not recorded.'});
+  }
+  for(const change of recordChanges){
+   const target=data[change.kind]?.find(r=>r.id===change.id&&activeRecord(r));
+   const claims=q.application?.recordClaims?.find(c=>c.kind===change.kind&&c.id===change.id);
+   const linked=change.kind==='characters'&&(q.characterIds||[]).includes(change.id);
+   const keys=Object.keys(change.fields||{}).filter(k=>!same(target?.[k],change.fields[k])&&(claims?Object.hasOwn(claims.fields,k):linked));
+   if(keys.length)conflicts.push({questionId:q.id,title:q.title||q.id,recordId:change.id,fields:keys,reason:'Overlaps a protected structured record decision.'});
   }
   if(summary!==undefined&&summary!==data.summary&&q.application?.summaryChanged)conflicts.push({questionId:q.id,title:q.title||q.id,fields:['summary'],reason:'Changes a synopsis governed by an applied decision.'});
  }

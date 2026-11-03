@@ -1,3 +1,4 @@
+import {structuredEvidence} from './structured-changes.js';
 import {activeRecord} from './current-book-brief.js';
 import {decisionEvidence,same} from './planning-evidence.js';
 import {reviewQueue} from './planning-review.js';
@@ -5,10 +6,11 @@ export {decisionEvidence,eventEvidence} from './planning-evidence.js';
 export function applicationReview(data,q,{bookId,branchId}={}){
  const a=q?.application;if(!a||!a.evidence)return {ready:false,reason:'This older application has no verification snapshot. Propose a linked revision if further work is needed.'};
  if((bookId&&bookId!==a.bookId)||(branchId&&branchId!==a.branchId))return {ready:false,reason:'Application belongs to another book or path.'};
- const current=decisionEvidence(data,a.eventIds||[],a.summaryChanged);
+ const current=decisionEvidence(data,a.evidenceEventIds||a.eventIds||[],a.summaryChanged);
  if(!same(a.evidence,current))return {ready:false,stale:true,reason:'Affected planning sources changed. Review the current records and propose a linked revision if the decision must change.'};
  if(current.events.some(e=>e.content.missing))return {ready:false,reason:'An affected event is unavailable.'};
- const pending=reviewQueue(data).map(r=>r.id).filter(id=>current.events.some(e=>e.id===id));
+ if(a.recordEvidence&&!same(a.recordEvidence,structuredEvidence(data,a.recordClaims||[])))return {ready:false,stale:true,reason:'Affected character or place sources changed. Review current records before verifying.'};
+ const pending=reviewQueue(data).map(r=>r.id).filter(id=>current.events.some(e=>e.id===id)||(a.recordReviewIds||[]).includes(id));
  if(pending.length)return {ready:false,reason:pending.length+' connected event checks remain.',pending};
  return {ready:true,reason:q.status==='resolved'?'Planning application verified.':'Planning matches the applied snapshot. Record your continuity review to verify it.'};
 }

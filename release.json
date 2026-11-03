@@ -1,6 +1,6 @@
 {
-  "version": 202,
-  "releasedAt": "2026-11-03T01:18:56.961801+00:00",
+  "version": 203,
+  "releasedAt": "2026-11-03T11:41:43.132923+00:00",
   "timezone": "UTC",
-  "note": "Guard conflicting approval scopes; reopen changed source reviews; add explicit critique continuity review"
+  "note": "Apply reviewed character and place decisions with protected fields, source snapshots and linked event verification"
 }
