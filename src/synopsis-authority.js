@@ -26,7 +26,7 @@ const allRows=(data,chapters,kind)=>{
 const sourceKey=source=>[containers[source.kind]||source.kind,source.id].join(':');
 
 export function synopsisAuthorityAudit(data={},context={}){
- const {bookId=null,branchId=null,revision=null,publishedRevision=null,view='short',scope='plan',chapters=[]}=context;
+ const {bookId=null,branchId=null,revision=null,publishedRevision=null,publishedBranchId=null,publicationRecordRevision=null,publishedAt=null,view='short',scope='plan',chapters=[]}=context;
  const sections=selectedSynopsis(data,{view,scope,chapters}).map(section=>{
   const links=(section.sources||[]).map(source=>{
    const row=allRows(data,chapters,source.kind).find(x=>x.id===source.id);
@@ -55,8 +55,15 @@ export function synopsisAuthorityAudit(data={},context={}){
  });
  const questions=(data.workshop?.questions||[]).filter(activeRecord).filter(q=>['open','conflict','deferred'].includes(questionState(q))).map(q=>({id:q.id,title:q.title||q.prompt||q.id,status:questionState(q)}));
  const findings=(data.editorialFindings||[]).filter(activeRecord).filter(f=>!['rejected','resolved','obsolete'].includes(statusOf(f))).map(f=>({id:f.id,title:f.title||f.issue||f.id,status:f.status||'Unclassified'}));
- return {bookId,branchId,workingRevision:revision,publishedRevision:Number.isInteger(publishedRevision)?publishedRevision:null,
-  publishedState:Number.isInteger(publishedRevision)?'Recorded, verify source scope':'Book publication revision not established here',view,scope,sections,questions,findings};
+ const pubKnown=Number.isInteger(publishedRevision);
+ const samePath=!!publishedBranchId&&!!branchId&&publishedBranchId===branchId;
+ const publishedState=!pubKnown?'Book publication revision not established here':
+  publishedBranchId&&branchId&&!samePath?'A different planning branch is published':
+  samePath&&Number.isInteger(revision)&&revision!==publishedRevision?'Working revision differs from published branch revision':
+  samePath&&revision===publishedRevision?'Published branch revision matches this working source':
+  'Recorded, verify source scope';
+ return {bookId,branchId,workingRevision:revision,publishedRevision:pubKnown?publishedRevision:null,publishedBranchId,publicationRecordRevision,publishedAt,
+  publishedState,view,scope,sections,questions,findings};
 }
 
 export function synopsisAuthorityHTML(audit,{href=()=>null,includeNotes=true}={}){
@@ -65,7 +72,8 @@ export function synopsisAuthorityHTML(audit,{href=()=>null,includeNotes=true}={}
  };
  return '<details data-synopsis-authority style="max-width:100%;overflow-wrap:anywhere"><summary>Current source checks ('+audit.sections.length+' sections)</summary>'+
   '<p>Book: '+h(audit.bookId||'Unknown')+' · Branch: '+h(audit.branchId||'Unknown')+' · Working revision: '+h(audit.workingRevision??'Not recorded')+'</p>'+
-  '<p>Published book revision: '+h(audit.publishedRevision??'Not recorded')+' · '+h(audit.publishedState)+'. Working and published versions are not assumed identical.</p>'+
+  '<p>Published branch revision: '+h(audit.publishedRevision??'Not recorded')+' · '+h(audit.publishedState)+'. Working and published versions are not assumed identical.</p>'+
+  '<p>Published branch: '+h(audit.publishedBranchId||'Not recorded')+' · Publication record r'+h(audit.publicationRecordRevision??'Not recorded')+' · Published at: '+h(audit.publishedAt||'Not recorded')+'</p>'+
   '<p>Scope: '+h(audit.scope)+' · View: '+h(audit.view)+'. All classifications reflect stored metadata, not literary truth.</p>'+
   audit.sections.map(section=>'<details><summary dir="auto">'+h(section.title)+' · '+h(section.review)+'</summary>'+
    '<p>'+h(section.origin)+' · '+h(section.status)+' · '+(section.hasText?'Text retained':'No text recorded')+'</p>'+
