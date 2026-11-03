@@ -2,9 +2,24 @@ import {eventEvidence,same} from './planning-evidence.js';
 import {selectedSynopsis} from './source-tools.js';
 import {activeRecord} from './current-book-brief.js';
 import {savedStoryBrief} from './story-brief.js';
+import {questionState} from './question-lifecycle.js';
 
 export function synopsisText(data,view){const linked=selectedSynopsis(data,{view,scope:'plan'}).filter(s=>s.status==='approved');if(linked.length)return linked.map(s=>s.text).join('\n\n');if(view==='short')return data.summary||'';if(view==='full')return savedStoryBrief(data)||'';if(view==='chapters')return (data.storyDraft?.chapters||data.currentStory?.chapters||[]).filter(activeRecord).map((c,i)=>['Chapter '+(i+1)+' · '+(c.title||''),c.summary,...(c.points||[])].filter(Boolean).join('\n')).join('\n\n');throw Error('Unknown synopsis view.');}
 export function synopsisSourceRows(data,chapters=[]){return [['event',data.events],['character',data.characters],['decision',data.workshop?.questions],['fact',data.decisions],['place',data.places],['chapter',chapters]].flatMap(([kind,rows])=>(rows||[]).filter(activeRecord).map(r=>({key:kind+':'+r.id,kind,id:r.id,label:r.title||r.name||r.prompt||r.id,status:r.status||r.recordStatus||'Unclassified',revision:r.revision??null,content:kind==='chapter'?{id:r.id,title:r.title||'',revision:r.revision??null,chapterNumber:r.chapter_number??null}:eventEvidence(r)})));}
+// Read only provenance for each visible synopsis section; no story assertions or writes.
+export function synopsisSourceMap(data,{view='short',scope='plan',bookId,branchId,revision,chapters=[]}={}){
+ const available=new Map(synopsisSourceRows(data,chapters).map(r=>[r.key,r]));
+ const sections=selectedSynopsis(data,{view,scope,chapters}).map(section=>{
+  const origin=section.id==='summary'?'Current planning summary':section.id==='full'?'Current Story Brief':section.id.startsWith('outline:')?'Saved chapter plan':'Versioned synopsis section';
+  const sources=(section.sources||[]).map(source=>{
+   const singular={events:'event',characters:'character',questions:'decision',decisions:'fact',places:'place',chapters:'chapter'};const row=available.get((singular[source.kind]||source.kind)+':'+source.id);
+   return {kind:source.kind,id:source.id,label:row?.label||source.id,linkedRevision:source.revision??null,currentRevision:row?.revision??null,state:!row?'Source unavailable':section.review.differences.some(d=>d.kind===source.kind&&d.id===source.id)?'Needs review':'Recorded link'};
+  });
+  return {id:section.id,title:section.title||section.id,origin,status:section.status||'Unclassified',review:section.review.state,sourceCount:sources.length,sources,hasText:!!String(section.text||'').trim()};
+ });
+ const openQuestions=(data.workshop?.questions||[]).filter(q=>activeRecord(q)&&['open','conflict','deferred'].includes(questionState(q))).map(q=>({id:q.id,title:q.title,status:questionState(q)}));
+ return {bookId:bookId||null,branchId:branchId||null,revision:revision??null,view,scope,sections,openQuestions};
+}
 export function synopsisReviewState(data,view,{bookId,branchId,chapters=[]}={}){
  const review=data.synopsisReviews?.[view];if(!review)return {status:'Not reviewed',changes:[],review:null};
  if((bookId&&review.bookId!==bookId)||(branchId&&review.branchId!==branchId))return {status:'Source scope mismatch',changes:[],review};

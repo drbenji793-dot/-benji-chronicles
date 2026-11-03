@@ -1,10 +1,26 @@
 import {currentPlanning} from './current-book-brief.js';
 export const findingStates={proposed:'Proposed',accepted:'Accepted for proposal',rejected:'Rejected',deferred:'Deferred',clarification:'Needs clarification'};
-export const findingKinds=['Textual fact','Interpretation','Author preference','Research gap'];
+export const findingKinds=['Textual fact','Interpretation','Author preference','Research gap','Strength'];
 export const findingSeverities=['Minor','Major','Critical'];
 export const findingConfidences=['Low','Medium','High'];
 export const findingRecommendations=['Keep','Rewrite','Cut','Verify'];
 export const normalized=value=>String(value||'').replace(/\s+/gu,' ').trim();
+// Display evidence in a stable priority queue, never treating rank as author approval.
+export function findingReviewQueue(findings=[]){
+ const severity={Critical:0,Major:1,Minor:2};
+ const groups={action:[],strengths:[],deferred:[],history:[]};
+ findings.forEach((finding,index)=>{
+  const record={...finding,_queueIndex:index};
+  if(finding.kind==='Strength')groups.strengths.push(record);
+  else if(finding.status==='rejected'||['resolved','obsolete'].includes(finding.continuity?.status))groups.history.push(record);
+  else if(finding.status==='deferred')groups.deferred.push(record);
+  else groups.action.push(record);
+ });
+ const sort=(a,b)=>(severity[a.severity]??3)-(severity[b.severity]??3)||a._queueIndex-b._queueIndex;
+ for(const category of Object.keys(groups))groups[category].sort(sort);
+ return {groups,counts:Object.fromEntries(Object.entries(groups).map(([k,v])=>[k,v.length])),ordered:Object.values(groups).flat().map(({_queueIndex,...f})=>f)};
+}
+
 const metadata=new Set(['revision','sourceRevision','sourceBranchRevision','updatedAt','updatedBy','savedAt','updated_at','timezone','changeNote','supersedesRevision','recordStamps','currentUpdate']);
 function stable(value){
  if(Array.isArray(value))return value.map(stable);
