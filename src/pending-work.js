@@ -1,3 +1,4 @@
+import {clueAudit} from './clue-audit.js';
 import {findingContinuityState} from './finding-continuity.js';
 import {toolProposalReview} from './source-tools.js';
 import {applicationReview} from './decision-verification.js';
@@ -30,6 +31,7 @@ export function pendingWork(data={}, {bookId,branchId,chapters}={}){
   const repairs=f.repairs||[],verified=repairs.some(r=>r.status==='verified'),approved=repairs.some(r=>r.status==='approved'),proposed=repairs.some(r=>r.status==='proposed');
   add({key:'finding:'+f.id,id:f.id,kind:'finding',group:'Review findings',title:f.title||'Finding',state:stale?'Source changed':verified?'Continuity check needed':approved?'Approved repair awaiting verification':proposed?'Repair awaiting decision':f.status==='accepted'?'Prepare repair proposal':f.status==='clarification'?'Needs clarification':'Finding awaiting review',action:'Open finding',view:'critique',priority:stale?0:f.severity==='Critical'?0:f.severity==='Major'?1:3});
  }
+ for(const row of clueAudit(data,chapters||[]).rows){if(!row.review.review||!row.notices.length||!row.review.pending)continue;add({key:'clue:'+row.event.id,id:row.event.id,kind:'clue',group:'Clue source reviews',title:row.event.title||'Clue',state:row.review.label,action:'Review source notices',view:'twists',priority:row.review.stale?0:2});}
  if(data.workshop?.synopsisNeedsReview)add({key:'synopsis:current',id:'current',kind:'synopsis',group:'Story sources',title:'Synopsis',state:'Needs source review',action:'Review synopsis',view:'synopsis',priority:2});
  return rows.sort((a,b)=>a.priority-b.priority||a.key.localeCompare(b.key));
 }

@@ -1,6 +1,6 @@
 {
-  "version": 203,
-  "releasedAt": "2026-11-03T11:41:43.132923+00:00",
+  "version": 204,
+  "releasedAt": "2026-11-03T11:49:24.641645+00:00",
   "timezone": "UTC",
-  "note": "Apply reviewed character and place decisions with protected fields, source snapshots and linked event verification"
+  "note": "Record clue source review outcomes and reopen changed evidence without editing story facts"
 }
