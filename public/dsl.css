@@ -20,3 +20,10 @@
 .dsl-lane[data-era=unknown]{grid-column:1/-1}.dsl-lane[data-era=unknown] .dsl-cards{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}.dsl-review-item pre{font:12px/1.7 monospace;white-space:pre-wrap;overflow-wrap:anywhere;direction:ltr;text-align:left}.dsl-connectors path{opacity:.4}.book-navigation .ink-tabs{flex-wrap:wrap}
 
 .dsl-author[data-author="Guest 2"]{color:#75449b;background:#eee2f5}.dsl-author[data-author=Guest]{color:#246b43;background:#e0ecdf}
+
+/* Shared source review tools: wrap content rather than creating a horizontal pane. */
+.dsl-panel pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%;font-size:11px}
+.dsl-panel>article,.dsl-panel>details{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.dsl-panel .dsl-inline>label{flex:1 1 140px;min-width:0;max-width:100%}
+.dsl-panel .dsl-inline select,.dsl-panel .dsl-inline input{max-width:100%}
+.dsl-panel details.dsl-event>summary{cursor:pointer;font-size:14px;padding:6px 0}

@@ -1,6 +1,6 @@
 {
-  "version": 199,
-  "releasedAt": "2026-11-03T00:37:07.877738+00:00",
+  "version": 200,
+  "releasedAt": "2026-11-03T00:45:05.515810+00:00",
   "timezone": "UTC",
-  "note": "Keep historical decision labels neutral when old verification evidence is unavailable"
+  "note": "Source linked synopsis and clue proposals with scoped review, attributed knowledge and portable exports; preserves v199 verification"
 }

@@ -22,7 +22,7 @@ for(const language of ['ar','en']){
  assert(document.body.textContent.includes('New question'));
  assert(document.querySelector('[data-pending-answers]').textContent.includes('Old answered choice'));
  assert(!document.querySelector('[data-pending-answers]').open);
- assert.equal(document.querySelector('.dsl-tabs [aria-current]').textContent,'Questions & Decisions');
+ assert.equal(document.querySelector('.dsl-tabs [aria-current]').textContent,'Decisions');
  assert([...document.querySelectorAll('.technical-details')].every(e=>!e.open));
  assert.equal(writes,0);assert.equal(JSON.stringify(data),before);
  dom.window.close();

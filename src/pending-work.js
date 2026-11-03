@@ -13,6 +13,10 @@ export function pendingWork(data={}, {bookId,branchId,chapters}={}){
   add({key:'question:'+q.id,id:q.id,kind:'question',group:['answered','approved'].includes(state)?'Answers awaiting application':'Decisions needed',title:q.title||q.prompt||'Question',state:questionLabel(q),action:['answered','approved'].includes(state)?'Review impact':'Open question',view:'decisions',priority:state==='conflict'?0:2});
  }
  for(const r of reviewQueue(data))add({key:'event:'+r.id,id:r.id,kind:'event',group:'Connected events',title:r.event?.title||'Unavailable event',state:r.event?'Needs review':'Source unavailable',action:'Review connections',view:'decisions',reason:r.reason,priority:r.event?2:1});
+ for(const p of data.workshop?.toolProposals||[]){
+  if((bookId&&p.bookId!==bookId)||(branchId&&p.branchId!==branchId)||p.status==='rejected'||p.status==='deferred'||p.verification?.status==='verified')continue;
+  add({key:'tool:'+p.id,id:p.id,kind:'tool',group:'Source proposals',title:p.reason,state:p.status==='approved'?'Saved change awaiting verification':'Proposal awaiting review',action:p.status==='approved'?'Verify saved change':'Review proposal',view:p.kind==='clue'?'twists':'synopsis',priority:2});
+ }
  for(const f of (data.editorialFindings||[]).filter(activeRecord)){
   if((bookId&&f.bookId!==bookId)||(branchId&&f.branchId!==branchId)||['rejected','deferred','resolved','obsolete'].includes(f.status))continue;
   const verifiedSource=(f.repairs||[]).filter(r=>r.status==='verified'&&r.verification?.chapterId===f.chapterId).map(r=>r.verification.chapterRevision).sort((a,b)=>b-a)[0]??f.chapterRevision;
@@ -26,7 +30,7 @@ export function pendingWork(data={}, {bookId,branchId,chapters}={}){
 export function pendingWorkHTML(data, {route,...scope}){
  const rows=pendingWork(data,scope),groups=new Map();
  for(const row of rows){if(!groups.has(row.group))groups.set(row.group,[]);groups.get(row.group).push(row);}
- const href=row=>row.kind==='finding'?route('critique',{focuskind:'finding',focusid:row.id}):route('dsl',{dslview:row.view,...(row.kind==='question'?{focuskind:'question',focusid:row.id}:row.kind==='event'?{reviewevent:row.id}: {})});
+ const href=row=>row.kind==='finding'?route('critique',{focuskind:'finding',focusid:row.id}):route('dsl',{dslview:row.view,...(row.kind==='question'?{focuskind:'question',focusid:row.id}:row.kind==='event'?{reviewevent:row.id}:row.kind==='tool'?{toolproposal:row.id}: {})});
  return '<details class="pending-work" data-pending-work><summary>Pending work ('+rows.length+')</summary><p class="muted">Current records from this planning path. Open an item to review its source and next action.</p>'+[...groups].map(([label,items])=>'<section><h4>'+h(label)+' ('+items.length+')</h4><ul>'+items.map(row=>'<li data-pending-key="'+h(row.key)+'"><a '+(row.kind==='event'?'data-review-event="'+h(row.id)+'" ':'')+'href="'+h(href(row))+'"><span dir="auto">'+h(row.title)+'</span></a><small>'+h(row.state)+' · '+h(row.action)+'</small></li>').join('')+'</ul></section>').join('')+(!rows.length?'<p>No pending items recorded in these categories. This is not a story approval.</p>':'')+'<p class="muted">Deferred and completed records remain in their own workspaces. Counts describe stored states, not editorial correctness.</p></details>';
 }
 
