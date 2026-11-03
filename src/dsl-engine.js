@@ -1,7 +1,7 @@
 // Pure DSL logic: no database writes, AI calls, or manuscript mutations.
 export const clone = value => JSON.parse(JSON.stringify(value));
 export const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export const TYPES = {event:'Event',decision:'Decision',twist:'Twist or reveal',ending:'Ending'};
+export const TYPES = {event:'Event',decision:'Decision',twist:'Twist or reveal',clue:'Clue',secret:'Secret',ending:'Ending'};
 export const STATES = {written:'In written draft',proposal:'Proposed',accepted:'Approved plan',question:'Open question'};
 export const RELATIONS = {causes:'Causes',requires:'Sets up',reveals:'Reveals',object:'Transfers evidence',echo:'Connects eras',contradicts:'Contradicts'};
 export function blankStory(title='قصة جديدة') {return {schema:1,title,summary:'',rules:'كل فصل يبدأ بالمكان والتاريخ. أي تغيير هنا لا يعيد كتابة الفصول.',events:[],links:[],objects:[]};}
