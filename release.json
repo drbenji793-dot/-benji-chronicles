@@ -1,6 +1,6 @@
 {
-  "version": 229,
-  "releasedAt": "2026-11-04T03:20:06.974506+00:00",
+  "version": 230,
+  "releasedAt": "2026-11-04T03:33:36.683959+00:00",
   "timezone": "UTC",
-  "note": "Saved chapter prose occurrence review with source revision guards"
+  "note": "Separate saved narrative synopsis from retained planning compilation"
 }

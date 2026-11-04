@@ -1,3 +1,4 @@
+import {savedNarrative} from './synopsis-narrative.js';
 import {requireRetirement} from './source-retirement.js';
 import {clueAudit,clueNotices} from './clue-audit.js';
 import {sourceExportAudit} from './source-export-audit.js';
@@ -39,7 +40,7 @@ export function knowledgeAt(data,{characterId,readingOrder=Infinity,eventId}={})
 export function synopsisSections(data){
  const saved=data.synopsisSections||[];
  return [{id:'summary',view:'short',scope:'plan',text:data.summary||'',status:'unclassified',sources:[],...(data.synopsisMeta?.summary||{})},
- {id:'full',view:'full',scope:'plan',text:savedStoryBrief(data)||'',status:'unclassified',sources:[],...(data.synopsisMeta?.full||{})},
+ {id:'full',view:'full',scope:'plan',text:savedNarrative(data),status:'unclassified',sources:[],...(data.synopsisMeta?.full||{})},
  ...(data.storyDraft?.chapters||data.currentStory?.chapters||[]).filter(activeRecord).map((c,i)=>({id:'outline:'+c.id,view:'chapters',scope:'plan',text:[c.summary,...(c.points||[])].filter(Boolean).join('\n'),title:c.title||'Chapter '+(i+1),status:c.status||'unclassified',sources:[]})),
  ...saved.filter(activeRecord)];
 }
@@ -165,5 +166,5 @@ export function addSynopsisSection(data,{id=crypto.randomUUID(),title,view,scope
 export function sourcePackage(data,context,{kind,targetId,view='short',scope='plan',chapters=[]}={}){
  const targets=kind==='clue'?clueRecords(data):selectedSynopsis(data,{view,scope,chapters});
  const selected=targetId?targets.filter(x=>x.id===targetId):targets;
- return {format:'chronicles-source-review',version:1,...context,kind,view,scope,exportedAt:new Date().toISOString(),audience:'Writer review; contains spoilers',sourceAudit:sourceExportAudit(data,chapters),pendingReviews:{clues:clueAudit(data,chapters).rows.filter(r=>r.notices.length).map(r=>({eventId:r.event.id,notices:r.notices,review:r.review})),events:reviewQueue(data).map(({id,reason})=>({id,reason})),proposals:(data.workshop?.toolProposals||[]).filter(p=>p.bookId===context.bookId&&p.branchId===context.branchId&&p.status==='approved').map(p=>({id:p.id,kind:p.kind,targetId:p.targetId,review:toolProposalReview(data,p,{chapters})}))},targets:copy(selected),sources:{events:copy((data.events||[]).filter(activeRecord)),characters:copy((data.characters||[]).filter(activeRecord)),questions:copy((data.workshop?.questions||[]).filter(activeRecord)),decisions:copy((data.decisions||[]).filter(activeRecord)),chapters:copy(chapters.filter(activeRecord))},instructions:'Return a proposal only. Preserve target IDs, bookId, branchId and baseRevision. Include kind, targetId, author, reason, values and sourceRefs [{kind,id}]. Do not approve, publish or modify manuscript text.'};
+ return {format:'chronicles-source-review',version:1,...context,kind,view,scope,exportedAt:new Date().toISOString(),audience:'Writer review; contains spoilers',sourceAudit:sourceExportAudit(data,chapters),pendingReviews:{clues:clueAudit(data,chapters).rows.filter(r=>r.notices.length).map(r=>({eventId:r.event.id,notices:r.notices,review:r.review})),events:reviewQueue(data).map(({id,reason})=>({id,reason})),proposals:(data.workshop?.toolProposals||[]).filter(p=>p.bookId===context.bookId&&p.branchId===context.branchId&&p.status==='approved').map(p=>({id:p.id,kind:p.kind,targetId:p.targetId,review:toolProposalReview(data,p,{chapters})}))},targets:copy(selected),planningNotes:kind==='synopsis'?savedStoryBrief(data):null,sources:{events:copy((data.events||[]).filter(activeRecord)),characters:copy((data.characters||[]).filter(activeRecord)),questions:copy((data.workshop?.questions||[]).filter(activeRecord)),decisions:copy((data.decisions||[]).filter(activeRecord)),chapters:copy(chapters.filter(activeRecord))},instructions:'Return a proposal only. Preserve target IDs, bookId, branchId and baseRevision. Include kind, targetId, author, reason, values and sourceRefs [{kind,id}]. Do not approve, publish or modify manuscript text.'};
 }
