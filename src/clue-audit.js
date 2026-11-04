@@ -1,4 +1,5 @@
 import {eventEvidence,same} from './planning-evidence.js';
+import {clueKnowledgeTimingNotices} from './clue-knowledge-timing.js';
 import {activeRecord} from './current-book-brief.js';
 const clueTypes=new Set(['twist','clue','secret']);
 export const isClue=e=>clueTypes.has(e.type);
@@ -19,9 +20,9 @@ export function clueReviewEvidence(data,eventId,chapters=[]){
  const event=(data.events||[]).find(e=>e.id===eventId&&activeRecord(e));
  if(!event)return {missing:true,eventId};
  const links=(data.links||[]).filter(activeRecord).filter(l=>l.from===eventId||l.to===eventId);
- const ids=new Set([eventId,event.setupEventId,event.reinforcementEventId,event.revealEventId,event.replacementEventId,...(event.knowledgeRecords||[]).flatMap(k=>[k.eventId,k.factEventId]),...links.flatMap(l=>[l.from,l.to])].filter(Boolean));
+ const ids=new Set([eventId,event.setupEventId,event.reinforcementEventId,event.revealEventId,event.replacementEventId,...(event.requiredKnowledge||[]).map(k=>k.factEventId),...(event.knowledgeRecords||[]).flatMap(k=>[k.eventId,k.factEventId]),...links.flatMap(l=>[l.from,l.to])].filter(Boolean));
  const events=[...ids].sort().map(id=>(data.events||[]).find(e=>e.id===id&&activeRecord(e))||{id,missing:true});
- const characters=[...new Set(events.flatMap(e=>[...(e.characterIds||[]),...(e.knowledgeRecords||[]).map(k=>k.characterId).filter(id=>id&&id!=='reader')]))].sort().map(id=>(data.characters||[]).find(c=>c.id===id&&activeRecord(c))||{id,missing:true});
+ const characters=[...new Set(events.flatMap(e=>[...(e.characterIds||[]),...(e.requiredKnowledge||[]).map(k=>k.characterId),...(e.knowledgeRecords||[]).map(k=>k.characterId).filter(id=>id&&id!=='reader')]))].sort().map(id=>(data.characters||[]).find(c=>c.id===id&&activeRecord(c))||{id,missing:true});
  const sources=[...new Set([...events.map(e=>e.sourceId),event.setupChapterId,event.revealChapterId].filter(Boolean))].sort().map(id=>{const c=chapters.find(c=>c.id===id);return c?{id,revision:c.revision??null,title:c.title??''}:{id,missing:true};});
  return {events:events.map(eventEvidence),links:links.map(eventEvidence).sort((a,b)=>String(a.id).localeCompare(String(b.id))),characters:characters.map(eventEvidence),chapters:sources};
 }
@@ -44,6 +45,7 @@ const auditSource=(data,ref)=>(data[ref.kind]||[]).find(r=>r.id===ref.id&&active
 export function clueNotices(data,event,chapters=[]){
  const issues=[];const add=(code,reason)=>issues.push({code,reason,kind:'Metadata check',confidence:'Deterministic',sourceId:event.id,sourceRevision:event.revision??null});
  if(!event.truth?.trim())add('truth','Underlying truth is not recorded.');
+ for(const item of clueKnowledgeTimingNotices(data,event))add(item.code,item.reason);
  if(!event.setup?.trim()&&!event.setupEventId)add('setup','No setup is recorded. This does not prove the story lacks setup.');
  if(!event.revealEventId)add('payoff','No reveal event is linked. An intentional mystery may remain unresolved.');
  for(const key of ['setupEventId','reinforcementEventId','revealEventId'])if(event[key]&&!auditSource(data,{kind:'events',id:event[key]}))add(key,'Linked '+key.replace('EventId','')+' event is unavailable.');
