@@ -15,4 +15,31 @@ console.log('PASS question impact form through saved application, downstream rev
 b.data.characters=[{id:'hero',name:'Hero'}];location.hash='#book=b&view=dsl&dslview=twists';await renderDSL(q('main'),api,'b');q('[data-knowledge-add=a]').click();const kf=q('dialog form');kf.elements.characterId.value='hero';kf.elements.factEventId.value='b';kf.elements.state.value='possesses_unread';kf.elements.statement.value='Carries the sealed document';kf.elements.sourceNote.value='Given at this event; reading comes later';await kf.onsubmit({preventDefault(){}});assert.equal(b.data.events[0].knowledgeRecords[0].characterId,'hero');assert.equal(b.data.events[0].knowledgeRecords[0].status,'proposal');assert(q('[data-knowledge-edit]'));assert(q('[data-knowledge-event=a]').textContent.includes('Possesses unread evidence'));console.log('PASS actual knowledge proposal form and compact linked display');
 q('[data-knowledge-review]').click();const kr=q('dialog form');kr.elements.decision.value='approved';kr.elements.note.value='Verified possession without reading';await kr.onsubmit({preventDefault(){}});assert.equal(b.data.events[0].knowledgeRecords[0].status,'approved');
 q('[name=knowledgeStatus]').value='proposal';q('[name=knowledgeStatus]').onchange();assert.equal(document.querySelectorAll('[data-knowledge-event]').length,0);q('[name=knowledgeStatus]').value='approved';q('[name=knowledgeStatus]').onchange();assert.equal(document.querySelectorAll('[data-knowledge-event]').length,1);q('[data-knowledge-edit]').click();const editk=q('dialog form');editk.elements.statement.value='Now knows the contents';await editk.onsubmit({preventDefault(){}});assert.equal(b.data.events[0].knowledgeRecords[0].statement,'Carries the sealed document');assert.equal(b.data.events[0].knowledgeRecords[0].proposedRevision.statement,'Now knows the contents');
-console.log('PASS rendered knowledge approval, status filters and protected approved record');dom.window.close();process.exit(0);
+console.log('PASS rendered knowledge approval, status filters and protected approved record');
+
+location.hash='#book=b&view=dsl&dslview=decisions';
+// Answer through the same form shown on the phone. Selection alone is a draft.
+b.data.workshop.questions.push({id:'phone', title:'الخلل ليلة الخروج', options:['الأول','الثاني'],
+ selectionMode:'single', eventIds:[], status:'open'});
+await renderDSL(q('main'),api,'b');
+const form=q('[data-answer-form="phone"]');
+const card=form.closest('article');
+assert.match(card.querySelector('h3').textContent,/العقبة.*الهروب؟/);
+assert.equal(form.closest('details'),null);
+assert.equal(card.querySelector('[data-question-facts]').parentElement.tagName,'DETAILS');
+const beforeWrites=writes;
+form.querySelectorAll('input')[1].click();
+assert.equal(writes,beforeWrites);
+conflict=true;
+await form.onsubmit({preventDefault(){}});
+assert.match(form.querySelector('[role=status]').textContent,/Could not save/);
+assert(form.querySelectorAll('input')[1].checked);
+conflict=false;
+await form.onsubmit({preventDefault(){}});
+assert.equal(writes,beforeWrites+1);
+assert.equal(b.data.workshop.questions.find(item=>item.id==='phone').answer,'الثاني');
+assert(q('[data-save-receipt]').textContent.includes('الثاني'));
+assert(q('[data-pending-answers] [data-answer-form="phone"]'));
+console.log('PASS visible question and choices, explicit save, retry and saved receipt');
+
+dom.window.close();process.exit(0);

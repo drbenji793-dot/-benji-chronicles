@@ -1,6 +1,6 @@
 {
-  "version": 236,
-  "releasedAt": "2026-11-04T21:35:14.033646+00:00",
+  "version": 237,
+  "releasedAt": "2026-11-04T22:29:09.790385+00:00",
   "timezone": "UTC",
-  "note": "Compact aligned Story World controls for phone screens"
+  "note": "Show questions, choices and a direct Save answer action"
 }
