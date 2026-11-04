@@ -1,3 +1,4 @@
+import {requireRetirement} from './source-retirement.js';
 import {clueAudit,clueNotices} from './clue-audit.js';
 import {sourceExportAudit} from './source-export-audit.js';
 import {reviewQueue} from './planning-review.js';
@@ -49,8 +50,9 @@ export function sectionReview(data,section,chapters=[]){
 export function selectedSynopsis(data,{view='short',scope='plan',chapters=[]}={}){
  return synopsisSections(data).filter(s=>s.view===view&&s.scope===scope).map(s=>({...s,review:sectionReview(data,s,chapters)}));
 }
-const eventFields=new Set(['type','truth','belief','setup','outcome','setupEventId','reinforcementEventId','revealEventId','setupChapterId','revealChapterId','replacementEventId','characterIds','knowledgeRecords','requiredKnowledge']);
+const eventFields=new Set(['type','truth','belief','setup','outcome','setupEventId','reinforcementEventId','revealEventId','setupChapterId','revealChapterId','replacementEventId','recordStatus','characterIds','knowledgeRecords','requiredKnowledge']);
 function validClue(data,values,chapters=[],targetId){
+ requireRetirement(data,values,targetId,replacement=>(data.workshop?.toolProposals||[]).some(p=>p.kind==='clue'&&p.targetId===replacement.id&&p.status==='approved'&&p.verification?.status==='verified'&&!(p.appliedSources||p.sources||[]).some(s=>s.kind==='events'&&s.id===targetId)&&toolProposalReview(data,p,{chapters}).ready));
  for(const key of Object.keys(values))if(!eventFields.has(key))throw Error('Unsupported clue field: '+key);
  if(values.type&&!['twist','clue','secret'].includes(values.type))throw Error('Choose twist, clue or secret.');
  for(const key of ['truth','belief','setup','outcome','setupEventId','reinforcementEventId','revealEventId','setupChapterId','revealChapterId','replacementEventId'])if(key in values&&(typeof values[key]!=='string'||values[key].length>30000))throw Error('Invalid clue field: '+key);
@@ -127,20 +129,22 @@ export function reviewToolProposal(data,id,action,context,chapters=[],note=''){
   else if(p.targetId==='full'){d.synopsisMeta={...d.synopsisMeta,full:{text:p.values.text,sources:p.sources,status:'approved'}};}
   else {const s=d.synopsisSections?.find(x=>x.id===p.targetId);if(!s)throw Error('Legacy chapter outlines are read only here. Create a linked synopsis section first.');Object.assign(s,{text:p.values.text,sources:p.sources,status:'approved'});}
   d.workshop.synopsisNeedsReview=true;
-  p.resultSnapshot=copy(p.kind==='clue'?sourceRecord(d,{kind:'events',id:p.targetId}):synopsisSections(d).find(x=>x.id===p.targetId));
-  p.appliedSources=captureSources(d,p.sources.map(({kind,id})=>({kind,id})),chapters);
+  p.resultSnapshot=copy(p.kind==='clue'?d.events.find(e=>e.id===p.targetId):synopsisSections(d).find(x=>x.id===p.targetId));
+  p.appliedSources=p.sources.map(({kind,id})=>p.kind==='clue'&&p.values.recordStatus==='superseded'&&kind==='events'&&id===p.targetId?{kind,id,revision:p.resultSnapshot.revision??null,snapshot:copy(p.resultSnapshot)}:captureSources(d,[{kind,id}],chapters)[0]);
   p.appliedRevision=context.baseRevision+1;p.verification='Awaiting saved source verification';
  }
  p.status=action;p.review={writer:context.writer,note,at:new Date().toISOString(),sourceRevision:context.baseRevision};return d;
 }
 export function toolProposalReview(data,p,{chapters}={}){
- const target=p.kind==='clue'?sourceRecord(data,{kind:'events',id:p.targetId}):synopsisSections(data).find(x=>x.id===p.targetId);
+ const retiredSelf=p.kind==='clue'&&p.status==='approved'&&p.values?.recordStatus==='superseded';
+ if(retiredSelf){try{validClue(data,p.values,chapters||[],p.targetId);}catch(error){return {ready:false,stale:true,reason:error.message};}}
+ const target=p.kind==='clue'?(retiredSelf?(data.events||[]).find(e=>e.id===p.targetId):sourceRecord(data,{kind:'events',id:p.targetId})):synopsisSections(data).find(x=>x.id===p.targetId);
  if(!target||Object.entries(p.values||{}).some(([k,v])=>!same(target[k],v)))return {ready:false,stale:true,reason:'Applied values no longer match. Reopen review.'};
  const sources=p.appliedSources||p.sources||[];
  if(!sources.length)return {ready:false,reason:'Source evidence is unavailable. Prepare a fresh proposal.'};
  for(const s of sources){
   if(s.kind==='chapters'&&!Array.isArray(chapters))return {ready:false,reason:'Chapter sources need to be loaded before verification.'};
-  const current=sourceRecord(data,s,chapters||[]);
+  const current=retiredSelf&&s.kind==='events'&&s.id===p.targetId?target:sourceRecord(data,s,chapters||[]);
   // Legacy self sources used the preapplication snapshot. Compare the recorded result instead.
   const expected=!p.appliedSources&&p.kind==='clue'&&s.kind==='events'&&s.id===p.targetId?p.resultSnapshot:s.snapshot;
   if(!current||!expected||!(s.kind==='chapters'?same(current,expected):sameEvidence(eventEvidence(current),eventEvidence(expected))))return {ready:false,stale:true,reason:'Linked sources changed or are unavailable. Prepare a fresh proposal.'};
