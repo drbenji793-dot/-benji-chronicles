@@ -1,6 +1,6 @@
 {
-  "version": 231,
-  "releasedAt": "2026-11-04T03:42:50.669782+00:00",
+  "version": 232,
+  "releasedAt": "2026-11-04T03:45:47.405821+00:00",
   "timezone": "UTC",
-  "note": "Explicit author repair review and unified expandable Story synopsis"
+  "note": "Remove stale fixed collection count discovered in live navigation review"
 }
