@@ -1,6 +1,6 @@
 {
-  "version": 233,
-  "releasedAt": "2026-11-04T05:20:43.971793+00:00",
+  "version": 234,
+  "releasedAt": "2026-11-04T05:27:04.529098+00:00",
   "timezone": "UTC",
-  "note": "Keep saved book export grids and long text within narrow readers"
+  "note": "Keep collection navigation compact and edition scoped during loading"
 }

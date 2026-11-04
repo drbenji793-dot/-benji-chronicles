@@ -1,3 +1,4 @@
+import {collectionNavigation} from '../src/collection-workspace.js';
 import {JSDOM} from 'jsdom';
 import assert from 'node:assert/strict';
 import {createChroniclesLibrary} from '../src/new-books.js';
@@ -26,4 +27,17 @@ for(const language of ['ar','en']){
 }
 assert.equal(writes,0);assert.equal(entries[0].body,'<p>Original chapter</p>');
 console.log('PASS Arabic and English full navigation across cover, contents, chapters, rules and references; no data writes');
+// Collection navigation is rendered before planning requests finish. It must
+// already offer the shared destinations and preserve the selected edition.
+for(const language of ['ar','en'])for(let story=1;story<=12;story++){
+ for(const route of [{view:'dsl',dslview:'garden'},{view:'brief'},{view:'critique'},{chapter:'1'}]){
+  const params=new URLSearchParams({story:String(story),lang:language,...route});
+  const nav=document.querySelector('.book-navigation');nav.innerHTML=collectionNavigation(story,params);
+  const links=[...nav.querySelectorAll('.ink-tabs a')];
+  assert.deepEqual(links.map(a=>a.textContent),['Story','Chapters','Story World','Review']);
+  for(const link of nav.querySelectorAll('a')){const target=new URLSearchParams(link.hash.slice(1));assert.equal(target.get('story'),String(story));assert.equal(target.get('lang'),language);}
+  assert.equal(nav.querySelector('[aria-current]').textContent,route.chapter?'Chapters':route.view==='dsl'?'Story World':route.view==='brief'?'Story':'Review');
+ }
+}
+console.log('PASS immediate collection navigation for all 12 books, both editions and four destinations');
 dom.window.close();
