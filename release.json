@@ -1,6 +1,6 @@
 {
-  "version": 232,
-  "releasedAt": "2026-11-04T03:45:47.405821+00:00",
+  "version": 233,
+  "releasedAt": "2026-11-04T05:20:43.971793+00:00",
   "timezone": "UTC",
-  "note": "Remove stale fixed collection count discovered in live navigation review"
+  "note": "Keep saved book export grids and long text within narrow readers"
 }
