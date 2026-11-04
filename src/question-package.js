@@ -1,6 +1,6 @@
 import {currentPlanning,activeRecord} from './current-book-brief.js';
 import {planningFingerprint} from './critique-findings.js';
-import {saveQuestionAnswer,protectedDecision,questionState} from './question-lifecycle.js';
+import {saveQuestionAnswer,protectedDecision,questionState,validateQuestionSelection} from './question-lifecycle.js';
 import {writingStandard} from './writing-standards.js';
 const format='chronicles-questions-v1';
 const chapterEvidence=rows=>rows.map(c=>({id:c.id,revision:c.revision,title:c.title,chapter:c.chapter_number})).sort((a,b)=>a.id.localeCompare(b.id));
@@ -26,6 +26,7 @@ export async function validateQuestionResponses(data,p,context,chapters){
   if(r.notes!==undefined&&(typeof r.notes!=='string'||r.notes.length>12000))throw Error('Response notes are too long or invalid.');
   if(!Array.isArray(r.selected)||r.selected.some(x=>!q.options?.includes(x))||new Set(r.selected).size!==r.selected.length)throw Error('Use distinct current answer options.');
   if(q.selectionMode==='single'&&r.selected.length>1)throw Error('This question permits one option only.');
+  validateQuestionSelection(q,{selected:r.selected,written:r.written});
   if(typeof r.written!=='string'||r.written.length>12000||r.answer!==[...r.selected,...(r.written?[r.written]:[])].join('\n'))throw Error('Answer must match the selected options and written response.');
   return {...r,title:q.title,currentAnswer:q.answer||'',questionSnapshot:structuredClone(q)};
  });

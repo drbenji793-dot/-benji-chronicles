@@ -1,6 +1,6 @@
 {
-  "version": 224,
-  "releasedAt": "2026-11-04T02:10:15Z",
+  "version": 225,
+  "releasedAt": "2026-11-04T02:16:34Z",
   "timezone": "UTC",
-  "note": "Stronger saved passage repair verification without automatic edits"
+  "note": "Imported responses honor incompatible answer pairs and bilingual lifecycle verification"
 }
