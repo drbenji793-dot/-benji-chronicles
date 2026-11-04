@@ -1,3 +1,5 @@
+import {clueProseReview,clueProseReviewHTML} from './clue-prose-review.js';
+import {savedParagraphs} from './critique-findings-ui.js';
 import {clueNameReview,clueNameReviewHTML} from './clue-name-review.js';
 import {clueAudit} from './clue-audit.js';
 import {clueProposalImpact,clueProposalImpactHTML} from './clue-impact-preview.js';
@@ -81,7 +83,7 @@ export function sourceToolsUI(c){
    '<p>Replacement: '+h(meta.replacementState)+'</p>'+
    (meta.replacementId?'<p>Replacement ID: '+h(meta.replacementId)+'</p>':'')+
    (meta.replacementTitle?'<p>Current replacement: '+link('events',meta.replacementId)+'</p>':'')+
-   '<p>Links are planning evidence only. A replacement never automatically retires the original or alters manuscript prose.</p>'+btn('Propose source retirement','data-tool-retire="'+h(e.id)+'"')+'</details>';
+   '<p>Links are planning evidence only. A replacement never automatically retires the original or alters manuscript prose.</p>'+btn('Find related prose','data-tool-prose="'+h(e.id)+'"')+btn('Propose source retirement','data-tool-retire="'+h(e.id)+'"')+'</details>';
  }
  function requiredKnowledgeHTML(event){
   const rows=event.requiredKnowledge||[];
@@ -109,6 +111,17 @@ export function sourceToolsUI(c){
  const refs=f=>f.getAll('source').map(v=>{const split=v.indexOf(':');return {kind:v.slice(0,split),id:v.slice(split+1)};});
  function saveForm(m,kind,targetId,values){const source=context();c.submit(m.querySelector('form'),f=>{if(c.branch().revision!==source.baseRevision)throw Error('Source changed. Reopen this editor.');return storeToolProposal(c.model(),makeToolProposal(c.model(),{...source,kind,targetId,values:values(f),sourceRefs:refs(f),reason:String(f.get('reason')),author:c.writer()},source,c.chapters()));},'Save '+kind+' source proposal');}
  function editClue(id){const e=active('events').find(x=>x.id===id);if(!e)return;const m=c.modal('Propose clue changes','<form>'+c.select('type','Classification',{twist:'Twist',clue:'Clue',secret:'Secret'},['twist','clue','secret'].includes(e.type)?e.type:'clue')+Object.entries(labels).map(([k,label])=>c.area(k,label,e[k]||'')).join('')+['setup','reinforcement','reveal'].map(k=>c.select(k+'EventId',k[0].toUpperCase()+k.slice(1)+' event',eventOptions(),e[k+'EventId']||'')).join('')+'<details><summary>Record replacement link</summary><p>Optional planning link. This does not retire a source automatically.</p>'+c.select('replacementEventId','Current replacement event',eventOptions(),e.replacementEventId||'')+'</details>'+'<details><summary>Planned chapter placement</summary><p>Planning references do not prove the clue appears in saved prose.</p>'+c.select('setupChapterId','Planned setup chapter',chapterOptions(),e.setupChapterId||'')+c.select('revealChapterId','Planned reveal chapter',chapterOptions(),e.revealChapterId||'')+'</details><details><summary>Linked characters</summary>'+active('characters').map(x=>'<label><input type="checkbox" name="character" value="'+h(x.id)+'" '+((e.characterIds||[]).includes(x.id)?'checked':'')+'> '+h(x.name)+'</label>').join('')+'</details>'+sourceFields([{kind:'events',id}])+c.area('reason','Reason and unresolved choices','')+end()+'</form>');if(m)saveForm(m,'clue',id,f=>({...Object.fromEntries([...Object.keys(labels),'type','setupEventId','reinforcementEventId','revealEventId','setupChapterId','revealChapterId','replacementEventId'].map(k=>[k,String(f.get(k))])),characterIds:f.getAll('character')}));}
+ async function proseReview(id){
+  const event=active('events').find(e=>e.id===id);if(!event)return;
+  const source=context(),snapshot=JSON.stringify(event);
+  const m=c.modal('Find related saved prose','<form>'+c.select('chapter','Saved chapter',chapterOptions(),event.sourceId||'')+c.field('term','Exact fact wording or name','')+'<p>Flags matching paragraphs for editorial review. This does not approve facts or edit chapters.</p><button type="submit">Find passages</button><p data-prose-status role="status"></p><div data-prose-results></div></form>');if(!m)return;
+  m.querySelector('form').onsubmit=async ev=>{ev.preventDefault();const form=ev.currentTarget,button=form.querySelector('button'),status=form.querySelector('[data-prose-status]'),out=form.querySelector('[data-prose-results]');button.disabled=true;out.innerHTML='';status.textContent='Reading saved chapter…';
+   try{const meta=c.chapters().find(x=>x.id===form.elements.chapter.value);if(!meta)throw Error('Choose a saved chapter.');const term=form.elements.term.value;if(term.trim().length<2)throw Error('Enter at least two characters.');const chapter=await c.readProseChapter(meta);
+    if(!m.isConnected)return;if(c.branch().id!==source.branchId||c.branch().revision!==source.baseRevision||JSON.stringify(active('events').find(e=>e.id===id))!==snapshot)throw Error('Planning changed. Reopen this review.');
+    out.innerHTML=clueProseReviewHTML(clueProseReview(event,chapter,savedParagraphs(chapter.body),term));status.textContent='Saved source checked. Recheck after any edits.';
+   }catch(error){if(m.isConnected)status.textContent=error.message;}finally{button.disabled=false;}
+  };
+ }
  function retireSource(id){
   const e=active('events').find(x=>x.id===id);if(!e)return;
   const m=c.modal('Propose source retirement','<form><p>This removes the old record from current views only after review. The original record, facts and approval history remain in recovery. A verified replacement is required, and current references block retirement. Chapter prose is never changed.</p>'+c.select('replacementEventId','Verified replacement event',eventOptions(),e.replacementEventId||'')+sourceFields([{kind:'events',id}])+c.area('reason','Why this source is superseded','')+end()+'</form>');
@@ -172,6 +185,7 @@ export function sourceToolsUI(c){
   loadPublication(root);
   const requested=typeof location==='undefined'?null:new URLSearchParams(location.hash.slice(1)).get('toolproposal');
   if(requested&&!openedRequest){openedRequest=true;const p=c.model().workshop?.toolProposals?.find(x=>x.id===requested);if(p)queueMicrotask(()=>p.status==='approved'?verify(requested):review(requested));}
+  root.querySelectorAll('[data-tool-prose]').forEach(b=>b.onclick=()=>proseReview(b.dataset.toolProse));
   root.querySelectorAll('[data-tool-retire]').forEach(b=>b.onclick=()=>retireSource(b.dataset.toolRetire));
   root.querySelectorAll('[data-tool-clue]').forEach(b=>b.onclick=()=>editClue(b.dataset.toolClue));root.querySelectorAll('[data-tool-knowledge]').forEach(b=>b.onclick=()=>editKnowledge(b.dataset.toolKnowledge));root.querySelectorAll('[data-tool-required]').forEach(b=>b.onclick=()=>requiredKnowledgeEditor(b.dataset.toolRequired));root.querySelectorAll('[data-tool-synopsis]').forEach(b=>b.onclick=()=>editSynopsis(b.dataset.toolSynopsis));
   root.querySelectorAll('[data-tool-review]').forEach(b=>b.onclick=()=>review(b.dataset.toolReview));root.querySelectorAll('[data-tool-verify]').forEach(b=>b.onclick=()=>verify(b.dataset.toolVerify));root.querySelectorAll('[data-tool-export]').forEach(b=>b.onclick=()=>exportFile(b.dataset.toolExport));root.querySelectorAll('[data-tool-package]').forEach(b=>b.onclick=()=>exportFile(b.dataset.toolPackage,true));root.querySelectorAll('[data-tool-card]').forEach(b=>b.onclick=()=>exportFile('clue',false,b.dataset.toolCard));root.querySelectorAll('[data-tool-share]').forEach(b=>b.onclick=()=>shareFile(b.dataset.toolShare));root.querySelectorAll('[data-tool-import]').forEach(b=>b.onclick=()=>importFile(b.dataset.toolImport));
