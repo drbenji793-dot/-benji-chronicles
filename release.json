@@ -1,6 +1,6 @@
 {
-  "version": 223,
-  "releasedAt": "2026-11-04T02:00:25Z",
+  "version": 224,
+  "releasedAt": "2026-11-04T02:10:15Z",
   "timezone": "UTC",
-  "note": "Review source preflight with names, revision drift and conflict evidence"
+  "note": "Stronger saved passage repair verification without automatic edits"
 }
