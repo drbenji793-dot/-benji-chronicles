@@ -1,6 +1,6 @@
 {
-  "version": 235,
-  "releasedAt": "2026-11-04T21:27:02.133505+00:00",
+  "version": 236,
+  "releasedAt": "2026-11-04T21:35:14.033646+00:00",
   "timezone": "UTC",
-  "note": "Readable Story World records with explicit editing and clear question and clue navigation"
+  "note": "Compact aligned Story World controls for phone screens"
 }
