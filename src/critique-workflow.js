@@ -73,12 +73,18 @@ export async function proposeRepair(data,id,input,context){
  if((target.repairs||[]).some(r=>['proposed','approved'].includes(r.status)))throw Error('Review the existing pending repair before creating another.');
  target.repairs=[...(target.repairs||[]),{id:crypto.randomUUID(),before,after,reason,status:'proposed',chapterRevision:chapter.revision,planningFingerprint:f.planningFingerprint,createdAt:context.at||new Date().toISOString(),writer:context.writer,history:[]}];return out;
 }
-export async function decideRepair(data,id,repairId,{status,note},context){
+export async function decideRepair(data,id,repairId,{status,note,protectionReview,researchVerification},context){
  const f=await currentFinding(data,id,context),r=(f.repairs||[]).find(r=>r.id===repairId);
  if(!r||r.status!=='proposed'||!['approved','rejected','deferred'].includes(status))throw Error('Choose a decision for a pending repair.');
  if(f.status!=='accepted')throw Error('The finding must still be accepted before a repair decision.');
+ if(status==='approved'){
+  if(context.writer!=='Benji')throw Error('Benji must approve an exact repair. Other writers may propose, defer or reject.');
+  if(protectionReview!=='reviewed')throw Error('Explicitly review dialogue, letters, endings and author restrictions before approving this exact repair.');
+  if(f.kind==='Research gap')requireText(researchVerification,'external research verification evidence',4000);
+ }
  const out=structuredClone(data),target=out.editorialFindings.find(f=>f.id===id).repairs.find(r=>r.id===repairId);
  target.status=status;target.history.push({status,note:requireText(note,'decision reason',4000),writer:context.writer,at:context.at||new Date().toISOString()});
+ if(status==='approved')target.authorReview={writer:context.writer,protectionReview,researchVerification:f.kind==='Research gap'?researchVerification.trim():null,at:context.at||new Date().toISOString(),scope:'Exact proposed passage only; no manuscript edit or independent factual certification'};
  target.scope='Repair decision only. Not applied to manuscript.';return out;
 }
 export async function verifyRepair(data,id,repairId,context){
