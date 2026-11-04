@@ -1,6 +1,6 @@
 {
-  "version": 228,
-  "releasedAt": "2026-11-04T03:13:12.662323Z",
+  "version": 229,
+  "releasedAt": "2026-11-04T03:20:06.974506+00:00",
   "timezone": "UTC",
-  "note": "Reviewed source retirement with verified replacement and explicit dependency protection"
+  "note": "Saved chapter prose occurrence review with source revision guards"
 }
