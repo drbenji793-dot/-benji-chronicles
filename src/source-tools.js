@@ -1,4 +1,5 @@
 import {clueAudit,clueNotices} from './clue-audit.js';
+import {sourceExportAudit} from './source-export-audit.js';
 import {reviewQueue} from './planning-review.js';
 import {assertNoApprovalConflicts} from './approval-conflicts.js';
 import {eventEvidence,same as sameEvidence} from './planning-evidence.js';
@@ -48,7 +49,7 @@ export function sectionReview(data,section,chapters=[]){
 export function selectedSynopsis(data,{view='short',scope='plan',chapters=[]}={}){
  return synopsisSections(data).filter(s=>s.view===view&&s.scope===scope).map(s=>({...s,review:sectionReview(data,s,chapters)}));
 }
-const eventFields=new Set(['type','truth','belief','setup','outcome','setupEventId','reinforcementEventId','revealEventId','setupChapterId','revealChapterId','replacementEventId','characterIds','knowledgeRecords']);
+const eventFields=new Set(['type','truth','belief','setup','outcome','setupEventId','reinforcementEventId','revealEventId','setupChapterId','revealChapterId','replacementEventId','characterIds','knowledgeRecords','requiredKnowledge']);
 function validClue(data,values,chapters=[],targetId){
  for(const key of Object.keys(values))if(!eventFields.has(key))throw Error('Unsupported clue field: '+key);
  if(values.type&&!['twist','clue','secret'].includes(values.type))throw Error('Choose twist, clue or secret.');
@@ -57,6 +58,18 @@ function validClue(data,values,chapters=[],targetId){
  if(values.replacementEventId&&(!sourceRecord(data,{kind:'events',id:values.replacementEventId})||values.replacementEventId===targetId))throw Error('Choose a different current replacement event.');
  for(const key of ['setupChapterId','revealChapterId'])if(values[key]&&!chapters.some(c=>c.id===values[key]&&activeRecord(c)))throw Error('Choose an available saved chapter for planned placement.');
  if(values.characterIds&&(!Array.isArray(values.characterIds)||new Set(values.characterIds).size!==values.characterIds.length||values.characterIds.some(id=>!sourceRecord(data,{kind:'characters',id}))))throw Error('Choose current character IDs.');
+ if(values.requiredKnowledge!==undefined){
+  if(!Array.isArray(values.requiredKnowledge)||values.requiredKnowledge.length>20)throw Error('Choose up to 20 explicit knowledge requirements.');
+  const seen=new Set();
+  for(const r of values.requiredKnowledge){
+   if(!r||typeof r!=='object'||!r.factEventId||!r.characterId||!String(r.note||'').trim()||String(r.note).length>1000)throw Error('Provide a holder, fact and short source reason for each required knowledge link.');
+   if(!sourceRecord(data,{kind:'events',id:r.factEventId}))throw Error('Choose a current fact event for required knowledge.');
+   if(r.characterId!=='reader'&&!sourceRecord(data,{kind:'characters',id:r.characterId}))throw Error('Choose a current character for required knowledge.');
+   const key=r.characterId+':'+r.factEventId;
+   if(seen.has(key))throw Error('This scene already requires that fact for the same holder.');
+   seen.add(key);
+  }
+ }
  if(values.knowledgeRecords){
   if(!Array.isArray(values.knowledgeRecords)||values.knowledgeRecords.length>500)throw Error('Invalid knowledge list.');
   const ids=new Set();for(const k of values.knowledgeRecords){
@@ -85,6 +98,7 @@ export function makeToolProposal(data,input,context,chapters=[]){
   add('events',input.values.replacementEventId);
   for(const key of ['setupChapterId','revealChapterId'])add('chapters',input.values[key]);
   for(const id of input.values.characterIds||[])add('characters',id);
+  for(const r of input.values.requiredKnowledge||[]){add('events',r.factEventId);if(r.characterId!=='reader')add('characters',r.characterId);}
   for(const k of input.values.knowledgeRecords||[]){add('events',k.factEventId);add('events',k.eventId);if(k.characterId!=='reader')add('characters',k.characterId);}
  }
  const sources=captureSources(data,refs,chapters);
@@ -147,5 +161,5 @@ export function addSynopsisSection(data,{id=crypto.randomUUID(),title,view,scope
 export function sourcePackage(data,context,{kind,targetId,view='short',scope='plan',chapters=[]}={}){
  const targets=kind==='clue'?clueRecords(data):selectedSynopsis(data,{view,scope,chapters});
  const selected=targetId?targets.filter(x=>x.id===targetId):targets;
- return {format:'chronicles-source-review',version:1,...context,kind,view,scope,exportedAt:new Date().toISOString(),audience:'Writer review; contains spoilers',pendingReviews:{clues:clueAudit(data,chapters).rows.filter(r=>r.notices.length).map(r=>({eventId:r.event.id,notices:r.notices,review:r.review})),events:reviewQueue(data).map(({id,reason})=>({id,reason})),proposals:(data.workshop?.toolProposals||[]).filter(p=>p.bookId===context.bookId&&p.branchId===context.branchId&&p.status==='approved').map(p=>({id:p.id,kind:p.kind,targetId:p.targetId,review:toolProposalReview(data,p,{chapters})}))},targets:copy(selected),sources:{events:copy((data.events||[]).filter(activeRecord)),characters:copy((data.characters||[]).filter(activeRecord)),questions:copy((data.workshop?.questions||[]).filter(activeRecord)),decisions:copy((data.decisions||[]).filter(activeRecord)),chapters:copy(chapters)},instructions:'Return a proposal only. Preserve target IDs, bookId, branchId and baseRevision. Include kind, targetId, author, reason, values and sourceRefs [{kind,id}]. Do not approve, publish or modify manuscript text.'};
+ return {format:'chronicles-source-review',version:1,...context,kind,view,scope,exportedAt:new Date().toISOString(),audience:'Writer review; contains spoilers',sourceAudit:sourceExportAudit(data,chapters),pendingReviews:{clues:clueAudit(data,chapters).rows.filter(r=>r.notices.length).map(r=>({eventId:r.event.id,notices:r.notices,review:r.review})),events:reviewQueue(data).map(({id,reason})=>({id,reason})),proposals:(data.workshop?.toolProposals||[]).filter(p=>p.bookId===context.bookId&&p.branchId===context.branchId&&p.status==='approved').map(p=>({id:p.id,kind:p.kind,targetId:p.targetId,review:toolProposalReview(data,p,{chapters})}))},targets:copy(selected),sources:{events:copy((data.events||[]).filter(activeRecord)),characters:copy((data.characters||[]).filter(activeRecord)),questions:copy((data.workshop?.questions||[]).filter(activeRecord)),decisions:copy((data.decisions||[]).filter(activeRecord)),chapters:copy(chapters.filter(activeRecord))},instructions:'Return a proposal only. Preserve target IDs, bookId, branchId and baseRevision. Include kind, targetId, author, reason, values and sourceRefs [{kind,id}]. Do not approve, publish or modify manuscript text.'};
 }
