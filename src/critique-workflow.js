@@ -1,4 +1,5 @@
 import {writingStandard,writingStandardReference,assertWritingStandard} from './writing-standards.js';
+import {repairVerificationEvidence} from './repair-verification-evidence.js';
 import {createFinding,planningFingerprint,chapterSourceCurrent,normalized} from './critique-findings.js';
 import {activeRecord,currentPlanning} from './current-book-brief.js';
 export const REVIEW_PACKET='chronicles-review-v1';
@@ -84,8 +85,8 @@ export async function verifyRepair(data,id,repairId,context){
  if(!f||f.bookId!==context.bookId||f.branchId!==context.branchId||!r||r.status!=='approved'||f.status!=='accepted')throw Error('An accepted finding and approved repair are required.');
  if(r.planningFingerprint!==await planningFingerprint(data))throw Error('Planning changed. Recheck the repair before verification.');
  const chapter=context.chapters.find(c=>c.id===f.chapterId);
- if(!chapter||chapter.revision<=r.chapterRevision||chapter.paragraphs?.filter(p=>p===r.after).length!==1)throw Error('The approved passage is not uniquely present in a newer saved chapter. Repair remains unverified.');
+ const evidence=repairVerificationEvidence(r,f,chapter);if(!evidence.ok)throw Error('The approved passage is not uniquely present in a newer saved chapter. '+evidence.reason+' Repair remains unverified.');
  const out=structuredClone(data),target=out.editorialFindings.find(f=>f.id===id).repairs.find(r=>r.id===repairId);
- target.status='verified';target.verification={chapterId:chapter.id,chapterRevision:chapter.revision,writer:context.writer,at:context.at||new Date().toISOString(),method:'Exact approved paragraph matched in saved manuscript; broader editorial consequences still require review'};
+ target.status='verified';target.verification={chapterId:chapter.id,chapterRevision:chapter.revision,writer:context.writer,at:context.at||new Date().toISOString(),method:'Exact approved paragraph replaced at reviewed location; original paragraph absent. Broader editorial consequences still require review',paragraph:evidence.verifiedParagraph};
  target.history.push({status:'verified',...target.verification});return out;
 }
