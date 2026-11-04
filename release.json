@@ -1,6 +1,6 @@
 {
-  "version": 226,
-  "releasedAt": "2026-11-04T02:41:01Z",
+  "version": 227,
+  "releasedAt": "2026-11-04T03:03:58.965130Z",
   "timezone": "UTC",
-  "note": "Sourced question creation and before/after protected answer impact review"
+  "note": "Writer clue alias evidence and portable review criteria with preserved author restrictions"
 }
