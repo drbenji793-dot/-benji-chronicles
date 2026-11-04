@@ -1,6 +1,6 @@
 {
-  "version": 234,
-  "releasedAt": "2026-11-04T05:27:04.529098+00:00",
+  "version": 235,
+  "releasedAt": "2026-11-04T21:27:02.133505+00:00",
   "timezone": "UTC",
-  "note": "Keep collection navigation compact and edition scoped during loading"
+  "note": "Readable Story World records with explicit editing and clear question and clue navigation"
 }
