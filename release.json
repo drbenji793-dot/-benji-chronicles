@@ -1,6 +1,6 @@
 {
-  "version": 230,
-  "releasedAt": "2026-11-04T03:33:36.683959+00:00",
+  "version": 231,
+  "releasedAt": "2026-11-04T03:42:50.669782+00:00",
   "timezone": "UTC",
-  "note": "Separate saved narrative synopsis from retained planning compilation"
+  "note": "Explicit author repair review and unified expandable Story synopsis"
 }
