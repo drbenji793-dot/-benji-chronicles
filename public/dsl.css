@@ -27,3 +27,13 @@
 .dsl-panel .dsl-inline>label{flex:1 1 140px;min-width:0;max-width:100%}
 .dsl-panel .dsl-inline select,.dsl-panel .dsl-inline input{max-width:100%}
 .dsl-panel details.dsl-event>summary{cursor:pointer;font-size:14px;padding:6px 0}
+
+/* Compact clue impact reviews, with no horizontal source evidence spill. */
+.dsl-dialog [data-clue-impact]{max-width:100%;min-width:0;box-sizing:border-box;overflow-wrap:anywhere}
+.dsl-dialog [data-clue-impact] details{max-width:100%;min-width:0;box-sizing:border-box}
+.dsl-dialog [data-clue-impact] pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-width:100%;font:12px/1.55 ui-monospace,monospace}
+.dsl-dialog [data-clue-impact] .dsl-diff>div{min-width:0;max-width:100%;box-sizing:border-box}
+@media(max-width:600px){
+ .dsl-dialog [data-clue-impact] .dsl-diff{grid-template-columns:minmax(0,1fr)}
+ .dsl-dialog [data-clue-impact] details{padding:5px 7px}
+}
