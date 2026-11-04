@@ -1,6 +1,6 @@
 {
-  "version": 225,
-  "releasedAt": "2026-11-04T02:16:34Z",
+  "version": 226,
+  "releasedAt": "2026-11-04T02:41:01Z",
   "timezone": "UTC",
-  "note": "Imported responses honor incompatible answer pairs and bilingual lifecycle verification"
+  "note": "Sourced question creation and before/after protected answer impact review"
 }

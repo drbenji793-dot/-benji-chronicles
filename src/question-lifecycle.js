@@ -1,5 +1,6 @@
 import {eventEvidence,same} from './planning-evidence.js';
 import {activeRecord} from './current-book-brief.js';
+import {requireQuestionIntake} from './question-intake.js';
 export const isDeferral=value=>/^(أؤجل القرار|defer|deferred)$/i.test(String(value||'').trim());
 export const questionState=q=>{
  if(['conflict','applied','resolved','rejected','approved'].includes(q.status))return q.status;
@@ -83,7 +84,12 @@ export function editQuestion(data,id,values,{writer,at=new Date().toISOString(),
   if(values.decisionKind&&!['Missing decision','Author preference','Factual inconsistency'].includes(values.decisionKind))throw Error('Choose a supported decision type.');
   if(values.urgency&&!['Low','Normal','High'].includes(values.urgency))throw Error('Choose a supported urgency.');
   const nextRecord={...q,...values,id,updatedBy:writer,updatedAt:at};
-  if(sourceContext){nextRecord.questionContext=sourceContext;nextRecord.questionSources=questionSources(data,nextRecord);}
+  if(!old&&sourceContext?.requireQuestionEvidence){
+   requireQuestionIntake(data,nextRecord,{chapters:sourceContext.chapterSources||[]});
+   if(nextRecord.sourceScope==='brief')nextRecord.sourceBriefSnapshot=String(data.summary||data.storyBrief?.text||'').trim();
+  }
+
+  if(sourceContext){const {chapterSources,requireQuestionEvidence,...safeContext}=sourceContext;nextRecord.questionContext=safeContext;nextRecord.questionSources=questionSources(data,nextRecord);}
   return nextRecord;
  },{allowCreate});
 }
@@ -100,4 +106,4 @@ export function reviseQuestion(data,id,{reason,writer,sourceRevision,at=new Date
 }
 
 export function questionSources(data,q){return [...(q.eventIds||[]).map(id=>({kind:'events',id})),...(q.characterIds||[]).map(id=>({kind:'characters',id}))].map(ref=>({...ref,content:eventEvidence((data[ref.kind]||[]).find(r=>r.id===ref.id&&activeRecord(r))||{id:ref.id,missing:true})}));}
-export function questionSourcesChanged(data,q){return !!q.questionSources&&!same(q.questionSources,questionSources(data,q));}
+export function questionSourcesChanged(data,q){return !!q.questionSources&&!same(q.questionSources,questionSources(data,q))||q.sourceScope==='brief'&&!!q.sourceBriefSnapshot&&q.sourceBriefSnapshot!==String(data.summary||data.storyBrief?.text||'').trim();}
