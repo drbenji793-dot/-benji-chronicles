@@ -18,3 +18,10 @@ assert.equal(r.rows.find(x=>x.id==='approved').revision,3);
 assert.equal(JSON.stringify(data),before);
 assert.deepEqual(sourceInventory().counts,{total:0,active:0,retired:0,classifiedTwists:0,otherActive:0,unclassified:0,conflicts:0});
 console.log('PASS source inventory, exact Twists filter, approval vs proposals, conflicts, retired records, unknown state, unchanged source');
+
+const linked={events:[{id:'event',status:'approved',revision:4,toolReview:{proposalId:'proposal',approvedBy:'Benji',sourceRevision:9}}],workshop:{questions:[{id:'locked',title:'Approved name',status:'resolved',application:{fieldClaims:[{id:'event',fields:{truth:'Original'}}]},revision:3},{id:'pending',title:'Pending choice',status:'deferred',eventIds:['event']},{id:'unrelated',eventIds:['other']},{id:'retired',recordStatus:'superseded',eventIds:['event']}]}};
+const linkedBefore=structuredClone(linked),row=sourceInventory(linked).rows[0];
+assert.deepEqual(row.decisions.map(q=>q.id),['locked','pending']);
+assert.equal(row.decisions[1].status,'deferred');assert.equal(row.approval.sourceRevision,9);
+assert.equal(row.approval.proposalId,'proposal');assert.deepEqual(linked,linkedBefore);
+console.log('PASS inventory explicit author decision references, recorded proposal approval and source revision, pending labels and preserved source');
