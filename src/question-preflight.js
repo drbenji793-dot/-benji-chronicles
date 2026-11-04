@@ -32,7 +32,7 @@ export function questionPreflight(data={},ctx={}){
   ...decisions.filter(d=>['approved','accepted','applied','resolved'].includes(d.status)).map(d=>({id:d.id,title:d.title||d.name||d.prompt||d.id,status:d.status,kind:'decision'}))
  ];
  const warnings=[
-  ...(!links.length&&!question.sourceFindingId?['No explicit event, character, chapter or critique source linked. Select relevant evidence before treating a question as grounded.']:[]),
+  ...(!links.length&&!question.sourceFindingId&&question.sourceScope!=='brief'?['No explicit event, character, chapter or critique source linked. Select relevant evidence before treating a question as grounded.']:[]),
   ...(links.some(l=>l.missing)?['Some linked sources are no longer available.']:[]),
   ...(duplicates.length?['A question with this title already exists. Review its current answer and revision before creating another.']:[]),
   ...(related.length?['Protected related decisions exist. A new answer cannot silently replace them.']:[]),
@@ -53,7 +53,7 @@ export function questionPreflightHTML(info,{href=()=>null}={}){
   '<details><summary>Current Story Brief · saved planning only</summary><p dir="auto" style="white-space:pre-wrap;overflow-wrap:anywhere">'+h(info.brief)+'</p></details>'+
   '<details><summary>Linked source records ('+info.linked.length+')</summary>'+
    info.linked.map(s=>'<p>'+link(s.kind,s.id,s.title)+' · '+h(s.kind)+' · r'+h(s.revision??'Unknown')+' · '+h(s.missing?'Unavailable':s.status)+'</p>').join('')+
-   (!info.linked.length?'<p>No specific source selected yet.</p>':'')+'</details>'+
+   (!info.linked.length?'<p>No specific linked record selected. If the current Story Brief is deliberately chosen as source, it remains a planning reference only.</p>':'')+'</details>'+
   '<details><summary>Protected decisions ('+info.approvedDecisions.length+')</summary>'+
    info.approvedDecisions.map(s=>'<p>'+link(s.kind,s.id,s.title)+' · '+h(s.status)+'</p>').join('')+
    (!info.approvedDecisions.length?'<p>No explicitly approved decisions recorded in the current planning list.</p>':'')+'</details>'+
