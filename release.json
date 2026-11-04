@@ -1,6 +1,6 @@
 {
-  "version": 222,
-  "releasedAt": "2026-11-04T00:44:36Z",
+  "version": 223,
+  "releasedAt": "2026-11-04T02:00:25Z",
   "timezone": "UTC",
-  "note": "Current book question preflight and saved chapter source selection"
+  "note": "Review source preflight with names, revision drift and conflict evidence"
 }
