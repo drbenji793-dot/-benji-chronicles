@@ -8,7 +8,7 @@ import {bookNavigation,selectedBookTool} from './book-navigation.js';
 import {mountBookControls} from './book-controls.js';
 import {SITE_LANGUAGE,createEditionBridge} from './edition-bridge.js';
 import {chapterCards} from './chapter-index.js';
-import {renderCritique,critiqueLink} from './critique.js';
+import {renderCritique} from './critique.js';
 import {storyContents} from './contents.js';
 import {planningId,planningStory,planningLanguage,collectionNavigation} from './collection-workspace.js';
 import {renderDSL} from './dsl.js';
@@ -179,7 +179,7 @@ function updateBookNavigation(){
  const selected=params.get('lang')||lang;const isHome=!location.hash||location.hash==='#';const isCollection=params.has('collection')||params.has('library');
  globalNav.dir='ltr';
  globalNav.innerHTML=(isHome?'<div class="workspace-heading workshop-heading"><h1>Writing Workshop</h1><p>A shared space to write and collaborate.</p></div>':'')+((isHome||isCollection)?'':`<div class="ink-tabs"><a href="#story=${story}&lang=${lang}">Chapters</a><a href="#story=${story}&lang=${lang}&view=storyline">Storyboard</a><a href="#story=${story}&lang=${lang}&view=characters">Characters</a><a href="#story=${story}&lang=${lang}&view=references">References</a><a href="#library&lang=${lang}">Library</a></div><div class="story-aux-nav">${chapters.some(c=>storyNumber(c)===story&&c.language!==lang)?`<a data-language="${lang==='en'?'ar':'en'}" href="#story=${story}&lang=${lang==='en'?'ar':'en'}&chapter=1">Related Story · ${lang==='en'?'Arabic':'English'}</a>`:''}<a href="#story=${story}&lang=${lang}&view=cover">Story cover</a></div>`);
- if(planningId(story,lang)&&!isHome&&!isCollection&&!params.has('book'))globalNav.innerHTML=collectionNavigation(story,params)+critiqueLink('#story='+story+'&lang='+lang);
+ if(planningId(story,lang)&&!isHome&&!isCollection&&!params.has('book'))globalNav.innerHTML=collectionNavigation(story,params);
  globalNav.querySelectorAll('.ink-tabs a').forEach(a=>{const active=a.dataset.language?params.has('chapter')&&selected===a.dataset.language:location.hash===a.getAttribute('href');a.classList.toggle('selected',active);if(active)a.setAttribute('aria-current','page');if(a.dataset.language)a.onclick=e=>{e.preventDefault();go(a.dataset.language,1)}});
  const rules=document.querySelector('.footer-rules a[href*="writing-rules"],.footer-rules a[data-book-rules]');if(rules){rules.hidden=isHome||isCollection;rules.dataset.bookRules='true';rules.textContent=lang==='en'?'Adaptation Rules':'Arabic Book Rules';rules.href=`#story=${story}&lang=${lang}&view=rules`;}
 }
