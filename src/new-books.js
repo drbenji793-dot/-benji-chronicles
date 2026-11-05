@@ -1,3 +1,4 @@
+import {notesShell,mountChapterNotes} from './chapter-notes.js';
 import {renderStoryWorkspace} from './story-workspace.js';
 import {saveBookRelation} from './record-save.js';
 import {saveNoteResolution} from './note-save.js';
@@ -371,14 +372,10 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
           <button id="bottom-edit">Edit</button><button id="bottom-save" class="primary" disabled>Save</button>
           ${rules?'':`<button id="bottom-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button>`}
         </nav>
-        <details class="notes"><summary>Writing notes <span id="chronicles-note-count"></span></summary>
-          <div id="chronicles-notes"></div>
-          <button id="chronicles-quote-note">Note on selected text</button><p id="chronicles-note-quote" dir="auto"></p><textarea id="chronicles-note-body" rows="3" dir="auto" placeholder="A note or idea to revisit…"></textarea>
-          <button class="primary" id="chronicles-add-note">Add note</button>
-        </details>
+        ${notesShell()}
       </section></div><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     const metaBlock=$('.save-meta');
-    metaBlock.insertAdjacentHTML('beforeend',"<fieldset class=\"chapter-writing-settings\" id=\"chapter-writing-settings\" disabled dir=\"ltr\">\n          <legend>Writing method for this saved version</legend>\n          <label>Method<select id=\"chapter-writing-method\"><option value=\"unknown\">Not recorded</option><option value=\"Manual\">Manual</option><option value=\"zk5\">zk5</option><option value=\"zkalam4\">zkalam4</option></select></label>\n          <label>Style guide version<input id=\"chapter-style-version\" maxlength=\"40\" placeholder=\"e.g. v001\"></label>\n          <label>Variant<select id=\"chapter-style-variant\"><option value=\"\">Not specified</option><option value=\"E\">E · Egyptian</option><option value=\"F\">F · Fusha</option></select></label>\n          <p>Use Edit to change these details, then Save. Manual does not use a style guide version.</p>\n        </fieldset>");
+    metaBlock.insertAdjacentHTML('beforeend',"<fieldset class=\"chapter-writing-settings\" id=\"chapter-writing-settings\" disabled dir=\"ltr\">\n          <legend>Writing method for this saved version</legend>\n          <label>Method<select id=\"chapter-writing-method\"><option value=\"unknown\">Not recorded</option><option value=\"Manual\">Manual</option><option value=\"zk5\">zk5</option><option value=\"zk6\">zk6 · approved edition only</option><option value=\"zkalam4\">zkalam4</option></select></label>\n          <label>Style guide version<input id=\"chapter-style-version\" maxlength=\"40\" placeholder=\"e.g. v001\"></label>\n          <label>Variant<select id=\"chapter-style-variant\"><option value=\"\">Not specified</option><option value=\"_am\">_am · Egyptian</option><option value=\"_f\">_f · Fusha</option><option value=\"E\">_am · Egyptian (legacy E)</option><option value=\"F\">_f · Fusha (legacy F)</option></select></label>\n          <p>Use Edit to change these details, then Save. Manual does not use a style guide version.</p>\n        </fieldset>");
     fillWriting(c.writing_meta);
     for(const id of ['chapter-writing-method','chapter-style-version','chapter-style-variant'])$('#'+id).onchange=()=>{if(editing)backup();};
     $('#chapter-writing-method').onchange=()=>{if($('#chapter-writing-method').value==='Manual'){$('#chapter-style-version').value='';$('#chapter-style-variant').value='';}if(editing)backup();};
@@ -411,8 +408,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       $('#extra-print-all').onclick=()=>printEntries(chapterList());
     }
 
-    $('#chronicles-add-note').onclick=addNote;
-    $('#chronicles-quote-note').onclick=()=>{const sel=window.getSelection();if(!sel?.rangeCount||!$('#chronicles-entry-body').contains(sel.anchorNode)||!$('#chronicles-entry-body').contains(sel.focusNode)||!sel.toString().trim()){say('Select a passage from the chapter first.',true);return;}$('#chronicles-note-quote').textContent=sel.toString().slice(0,3000);$('#chronicles-note-body').focus();};
+
     const saved=storage.get(draftKey(c.id));let d;
     try{d=saved?JSON.parse(saved):null}catch{}
     if(d&&d.title!==undefined){
@@ -421,7 +417,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       $('#chronicles-discard').onclick=()=>{if(confirm('Discard this local draft?')){storage.remove(draftKey(c.id));$('#chronicles-save-warning').innerHTML=''}};
     }
     
-    loadNotes(c.id).catch(e=>{say(e.message,true);const retry=document.createElement('button');retry.textContent='Retry notes';retry.onclick=()=>loadNotes(c.id).then(()=>retry.remove()).catch(e=>say(e.message,true));$('.editor-area').append(retry);});workflow.mount({...c,language:book.language},'extra',book.title,()=>editing);const technical=$('.reading-details');if(technical){technical.open=false;$('.editor-area').append(technical);const count=$('.chapter-word-count');if(count)technical.append(count);}
+    mountChapterNotes(document.querySelector('[data-note-panel]'),{api,esc,getWriter,chapter:c,bookURL:link(book.id)}).catch(e=>say(e.message,true));workflow.mount({...c,language:book.language},'extra',book.title,()=>editing);const technical=$('.reading-details');if(technical){technical.open=false;$('.editor-area').append(technical);const count=$('.chapter-word-count');if(count)technical.append(count);}
   }
   async function renderExportPage(briefOnly=false){
     $('#main').innerHTML=header()+'<p>Loading export…</p>';
