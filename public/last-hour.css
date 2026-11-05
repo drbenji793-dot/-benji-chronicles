@@ -211,3 +211,21 @@ html body #main .editor-area>[data-page-technical]{font-size:11px}
  .story-workspace [data-story-source-group] details{padding:4px 6px}
  .story-workspace [data-story-source-group] pre{font-size:11px;line-height:1.55}
 }
+
+/* Shared small triangle for chapter links and expandable technical notes. */
+.technical-details > summary {justify-content:flex-start;gap:.45em;direction:ltr}
+.technical-details > summary > span[aria-hidden="true"] {display:none}
+.technical-details > summary::before,
+.chronicles-chapter-card strong::before {
+ content:"";display:inline-block;flex:none;width:0;height:0;
+ border-top:.28em solid transparent;border-bottom:.28em solid transparent;
+ border-left:.45em solid currentColor;vertical-align:.07em;
+}
+.technical-details[open] > summary::before {transform:rotate(90deg)}
+.chronicles-chapter-card strong::before {margin-inline-end:.45em}
+.chronicles-chapter-card strong:dir(rtl)::before {display:none}
+.chronicles-chapter-card strong:dir(rtl)::after {
+ content:"";display:inline-block;border-top:.28em solid transparent;
+ border-bottom:.28em solid transparent;border-left:.45em solid currentColor;
+ margin-inline-start:.45em;vertical-align:.07em;
+}
