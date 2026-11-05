@@ -1,3 +1,4 @@
+import {storySections} from './story-sections.js';
 import {reviewChapter} from './critique-loader.js';
 import {reviewMetadata} from './critique-loader.js';
 import {makePlanningRecovery,readPlanningRecovery} from './planning-recovery.js';
@@ -44,6 +45,7 @@ export async function renderDSL(main,api,bookId,mode='dsl',context={}){
  let view=params.get('dslview')||'map';
  // Old bookmarks open the live question list, never the frozen workbook.
  if(view==='workbook')view='decisions';
+ if(view==='characters')view='garden';
  const is009=()=>bookId==='66739f5d-2bac-4d75-a4fd-6df93da8ac7e'&&model().sourceDocument?.version==='009';
  let disposeMoves=()=>{};
  let chapterError=null,requestedEventOpened=false;
@@ -119,10 +121,31 @@ export async function renderDSL(main,api,bookId,mode='dsl',context={}){
 
  const garden=bookGarden({loadPlanning:async()=>{if(branch?.partialData){branch={...branch,data:await completePlanningForSave(api,branch,branch.data),partialData:false};}},chapters:()=>chapters,loadChapters:async()=>{const rows=await api(collection?'chronicles_chapters?story_number=eq.'+collection+'&language=eq.'+collectionLanguage+'&select=id,chapter_number,title,revision,body&order=chapter_number.asc':'chronicles_book_entries?book_id=eq.'+(bookId===IBN_BOOK?'c911584d-bd5b-42fe-b41c-a2a456c64d41':bookId)+'&kind=eq.chapter&select=id,chapter_number,title,revision,body&order=chapter_number.asc');chapters=rows;return rows;},download,model,branch:()=>branch,book:()=>book,branches:()=>branches,route,render,modal,close:()=>closeDialog(),field,area,select,submit,editEvent,editLink,editOverview,initialize:initializeFromTemplate,save:async(data,note)=>{if(busy)throw Error('Please wait for the current save.');busy=true;try{await saveData(data,note);}finally{busy=false;}}});
  function render(){if(!current())return;const d=model();
-  if(view==='garden'){root.innerHTML=garden.html();garden.bind(root);if(chapterError){const n=document.createElement('p');n.className='dsl-notice';n.textContent='Chapter links could not load. Your Story World is available. ';const b=document.createElement('button');b.textContent='Retry';b.onclick=async()=>{try{await load();render();}catch(e){status(e.message,true)}};n.append(b);root.prepend(n);}return;}
   if(is009()&&!params.has('dslview'))view='map';
   root.innerHTML='<header class="dsl-top"><div><div class="dsl-kicker">BENJI CHRONICLES · DSL</div><h1>'+(mode==='storyline'?'Readable Storyline':'Dynamic Storyline Studio')+'</h1><p class="dsl-sub">'+h(book.title)+' · Storyline: read the whole story. DSL: plan its events. Chapters: write the manuscript.</p></div><div class="dsl-tools">'+(branch?'<select data-branch aria-label="Choose branch">'+branches.filter(b=>!b.archived||b.id===branch.id).map(b=>'<option value="'+h(b.id)+'" '+(b.id===branch.id?'selected':'')+'>'+h(b.name)+'</option>').join(''):'')+'<span lang="en" dir="ltr" data-dsl-status class="dsl-save">'+(branch?'Saved':'New workspace')+'</span></div></header>';
   if(!project||!branch){root.innerHTML+='<div class="dsl-empty"><p>This book has no DSL workspace yet. Start it from the reusable T001 master, with no borrowed characters or plots.</p><button data-action="initialize">Create novel from T001</button> <button data-action="template-guide">View template modules</button></div>';bind();return;}
+  if(mode==='dsl'&&['synopsis','garden','decisions'].includes(view)){
+   const section=view==='garden'?(params.get('section')==='places'?'places':'characters'):view==='decisions'?'questions':'synopsis';
+   root.classList.add('dsl-compact');
+   root.innerHTML='<header class="story-heading"><h1>Story</h1><p dir="auto">'+h(book.title)+'</p></header>'+storySections(route,section)+'<p data-dsl-status role="status"></p><section class="dsl-panel" dir="ltr">'+(view==='garden'?garden.sectionHTML(section):view==='decisions'?workshop.questionsHTML()+'<details data-saved-decisions><summary>Saved decisions</summary>'+garden.sectionHTML('decisions')+'</details>':sourceTools.synopsisHTML())+'</section>';
+   // Reuse the record editors inside the shared Story shell.
+   root.querySelectorAll('.goe').forEach(panel=>{
+    panel.querySelector('h1')?.remove();panel.querySelector('p[dir="auto"]')?.remove();
+    panel.querySelector('.goe-tabs')?.remove();panel.querySelector('.goe-links')?.remove();
+    panel.querySelector('[data-export-gpt]')?.remove();
+    garden.bind(panel);
+   });
+   const more=root.querySelector('[data-writer-synopsis]');
+   if(more)more.querySelector('summary').insertAdjacentHTML('afterend','<div class="story-more-links"><a href="'+route('brief',{reference:'1'})+'">Planning notes</a><a href="'+route('dsl',{dslview:'paths'})+'">Paths</a><button data-story-import>Import for review</button></div>');
+   root.querySelector('[data-story-import]')?.addEventListener('click',()=>garden.importForReview());
+   if(more)more.insertAdjacentHTML('beforeend','<label>Planning version<select data-branch>'+branches.filter(b=>!b.archived||b.id===branch.id).map(b=>'<option value="'+h(b.id)+'" '+(b.id===branch.id?'selected':'')+'>'+h(b.name)+'</option>').join('')+'</select></label>');
+   bind();
+   if(chapterError){const note=document.createElement('p');note.textContent='Chapter links could not load. ';const retry=document.createElement('button');retry.textContent='Retry';retry.onclick=async()=>{try{await load();render();}catch(e){status(e.message,true)}};note.append(retry);root.append(note);}
+   const requestedEvent=params.get('reviewevent');if(requestedEvent&&!requestedEventOpened){requestedEventOpened=true;workshop.reviewEvent(requestedEvent);}
+   if(params.has('responseproposal')&&!requestedEventOpened){requestedEventOpened=true;root.querySelector('[data-response-review]')?.click();}
+   const focus=params.get('focusid');if(focus){const card=[...root.querySelectorAll('[data-question-card],[data-life]')].find(x=>x.getAttribute('data-question-card')===focus||x.getAttribute('data-life')===focus);card?.scrollIntoView?.({block:'center'});}
+   return;
+  }
   if(bookId===IBN_BOOK&&['storyline','chapters'].includes(mode)){root.innerHTML=machine.html();machine.bind(root);return;}
   if(mode==='storyline'){const pub=project.published;const data=pub?.data||d;root.innerHTML+='<div class="dsl-bar"><div class="dsl-inline"><a class="dsl-btn" href="'+route('dsl')+'">Open DSL</a><button data-action="export-html">HTML</button></div>'+technicalPanel('<p>'+(pub?'Published from '+h(pub.branch_name)+' · r'+pub.branch_revision+' · '+h(when(pub.published_at)):'Imported working preview. Not approved for publication yet.')+'</p>')+'</div>'+readable(data)+'<div class="dsl-notice">Proposals and open questions keep their status labels. Publishing Storyline does not change chapter text.</div>'+footer();bind();return;}
   root.innerHTML+='<details class="dsl-summary"><summary>Story overview · '+activeEvents(d).length+' events</summary><div class="dsl-summary-head"><h2>Synopsis · The whole story</h2><button data-action="overview">Edit synopsis</button></div><p class="dsl-synopsis-text">'+h(d.summary||'Write the premise so your collaborator can understand the story before opening the map.')+'</p><div class="dsl-stats">'+[[activeEvents(d).length+' events','reading'],[d.links.length+' connections','connections'],[d.objects.length+' objects','objects'],[getCharacters(d).length+' characters','characters'],[activeEvents(d).filter(e=>e.status==='proposal'||e.status==='question').length+' proposals and questions','proposals']].map(([label,target])=>'<a class="dsl-tag" href="'+route('dsl',{dslview:target,returnview:view})+'">'+h(label)+'</a>').join('')+author(branch.updated_by)+'</div></details>'+(d.hypothesis?'<p class="dsl-notice"><strong>What if?</strong> '+h(d.hypothesis)+'</p>':'')+
