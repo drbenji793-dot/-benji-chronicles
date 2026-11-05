@@ -8,8 +8,15 @@ for(const [language,file,code,version] of [['ar','Arabic_Voice_ZK6_v001.html','_
  const section=language==='en'?doc.querySelector('#rules'):[...doc.querySelectorAll('section')].find(s=>s.querySelector('h2')?.textContent==='26 operating rules');
  const rules=[...section.querySelectorAll('ol > li')].map(x=>x.textContent.trim());
  standards[language]={code,version,craftBaseline:language==='en'?'v003':'_zk6.0',sourceFile:file,sourceSha256:createHash('sha256').update(raw).digest('hex'),sourceURL:'https://benji-hq.dr-z01.chatgpt.site/standards/'+file,localURL:'/standards/'+file,language,rules,observations:language==='ar'?[...doc.querySelectorAll('#additions p')].map(x=>x.textContent.trim()):[],authority:['Latest explicit author decision for the book or passage','Approved book facts, chronology and character knowledge','Versioned writing standard','Editorial suggestions'],scope:'Writing and critique guidance. It does not approve manuscript wording, select book canon or run an AI service.',register:language==='ar'?'Use the book’s selected E (Egyptian narrative) or F (easy literary fusha). Do not infer the register from _zk6 alone.':'Natural adult American English. _zk5e is not an English proficiency tier.'};
+ // Make the Arabic download independent of HQ scripts and styles.
+ if(language==='ar'){
+  doc.querySelectorAll('link[rel="stylesheet"],script[src]').forEach(x=>x.remove());
+  const css=doc.createElement('style');css.textContent=readFileSync(root+'/shared-standards/v001/zk-ui.css','utf8');doc.head.append(css);
+  doc.body.dataset.filename=file;
+  const header=doc.querySelector('[data-zk-header]');if(header)header.innerHTML='<a class="zk-brand" href="https://benji-hq.dr-z01.chatgpt.site/"><span class="zk-mark">B<small>HQ</small></span><strong>Benji HQ</strong></a><h1>_zk6 · Current writing guide</h1><nav><button data-download>Download HTML</button><a class="button" href="https://benji-hq.dr-z01.chatgpt.site/sources/A001.html">A001</a><a class="button" href="https://benji-hq.dr-z01.chatgpt.site/">HQ Home</a></nav>';
+ }
  // Keep master wording intact; standalone copies route shared references to HQ.
- for(const a of doc.querySelectorAll('a[href]')){const href=a.getAttribute('href');if(!/^(https?:|#|\/)/.test(href))a.setAttribute('href','https://benji-hq.dr-z01.chatgpt.site/standards/'+href);}
+ for(const a of doc.querySelectorAll('a[href]')){const href=a.getAttribute('href');if(!/^(https?:|#)/.test(href))a.setAttribute('href','https://benji-hq.dr-z01.chatgpt.site'+(href.startsWith('/')?href:'/standards/'+href));}
  writeFileSync(root+'/public/standards/'+file,'<!doctype html>\n'+doc.documentElement.outerHTML);
 }
 writeFileSync(root+'/src/writing-standards-data.js','// Extracted from preserved HQ master guides. Do not edit rule text here.\nexport default '+JSON.stringify(standards,null,2)+';\n');
