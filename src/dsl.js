@@ -133,6 +133,9 @@ export async function renderDSL(main,api,bookId,mode='dsl',context={}){
     panel.querySelector('h1')?.remove();panel.querySelector('p[dir="auto"]')?.remove();
     panel.querySelector('.goe-tabs')?.remove();panel.querySelector('.goe-links')?.remove();
     panel.querySelector('[data-export-gpt]')?.remove();
+    const importButton=panel.querySelector('[data-import-review]');
+    if(importButton){importButton.textContent='Import';panel.querySelector('.goe-more')?.replaceWith(importButton);}
+    const addButton=panel.querySelector('[data-add]');if(addButton)addButton.textContent='Add';
     garden.bind(panel);
    });
    const more=root.querySelector('[data-writer-synopsis]');
