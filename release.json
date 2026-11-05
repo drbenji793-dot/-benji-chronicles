@@ -1,6 +1,6 @@
 {
-  "version": 241,
-  "releasedAt": "2026-11-05T00:50:13.843142+00:00",
+  "version": 242,
+  "releasedAt": "2026-11-05T00:54:19.542090+00:00",
   "timezone": "UTC",
-  "note": "Match chapter footer label sizes and book cover disclosure arrows"
+  "note": "Point Arabic chapter arrows left"
 }
