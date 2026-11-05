@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {resolveCurrentHQProtocol,protocolHash} from '../src/hq-protocol.js';
+import {syncCurrentWritingStandard,writingStandard} from '../src/writing-standards.js';
+const map=new Map(),storage={getItem:k=>map.get(k),setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};
+const make=async(version)=>{const family=version.split('.')[0],protocol={version,family,source:'https://benji-hq.dr-z01.chatgpt.site/standards/current.html',foundation:[{title:'26 operating rules',text:'26 operating rules\nZK7.01.\nPreserve inherited content.'}],refinements:[{rule:'New source observation'}]};return {protocol,sha256:await protocolHash(protocol),resolved:version,requested:version};};
+const ar=await make('_zk7.1'),en=await make('_zk5e.2');
+const fetcher=async url=>url.endsWith('/api/protocols')?Response.json({editions:[{version:'_zk6.0',sha256:'old'},{version:en.resolved,sha256:en.sha256},{version:ar.resolved,sha256:ar.sha256}]}):Response.json(url.includes('5e')?en:ar);
+assert.equal((await resolveCurrentHQProtocol('ar',{fetcher,storage})).resolved,'_zk7.1');
+assert.equal((await resolveCurrentHQProtocol('en',{fetcher,storage})).resolved,'_zk5e.2');
+const sync=await syncCurrentWritingStandard('ar',{fetcher,storage});assert.equal(sync.code,'_zk7');assert.deepEqual(sync.observations,['New source observation']);assert.equal(sync.rules[0],'ZK7.01. Preserve inherited content.');assert.equal(sync.hqProtocolSha256,ar.sha256);
+const offline=await resolveCurrentHQProtocol('ar',{storage,fetcher:async()=>{throw Error('offline')}});assert(offline.offline);assert.equal(offline.resolved,'_zk7.1');
+await assert.rejects(()=>resolveCurrentHQProtocol('ar',{storage,fetcher:async url=>url.endsWith('/api/protocols')?Response.json({editions:[{version:ar.resolved,sha256:'bad'}]}):Response.json(ar)}),/verification/);
+await assert.rejects(()=>resolveCurrentHQProtocol('ar',{storage,fetcher:async()=>Response.json({editions:[{version:en.resolved,sha256:en.sha256}]})}),/No current protocol/);
+assert.equal(writingStandard('en').code,'_zk5e');
+console.log('PASS automatic next-major selection, language isolation, source observations, digest verification, no silent substitution and explicit offline state');

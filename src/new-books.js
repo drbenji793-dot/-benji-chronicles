@@ -1,3 +1,4 @@
+import {writingStandardReference} from './writing-standards.js';
 import {notesShell,mountChapterNotes} from './chapter-notes.js';
 import {renderStoryWorkspace} from './story-workspace.js';
 import {saveBookRelation} from './record-save.js';
@@ -329,7 +330,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       (points.length?'<ul>'+points.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>':'')+
       (p.turn?'<p><strong>Purpose</strong><br>'+esc(p.turn)+'</p>':'')+
       (p.next?'<p><strong>Next</strong><br>'+esc(p.next)+'</p>':'')+
-      '<small>Planning only · _zk5 · E</small></div></details>';
+      '<small>Planning only · '+esc(writingStandardReference('ar')?.code||'_zk6')+' · E</small></div></details>';
   }
   function renderEntry(){
     if(!active)return;
@@ -417,7 +418,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       $('#chronicles-discard').onclick=()=>{if(confirm('Discard this local draft?')){storage.remove(draftKey(c.id));$('#chronicles-save-warning').innerHTML=''}};
     }
     
-    mountChapterNotes(document.querySelector('[data-note-panel]'),{api,esc,getWriter,chapter:c,bookURL:link(book.id)}).catch(e=>say(e.message,true));workflow.mount({...c,language:book.language},'extra',book.title,()=>editing);const technical=$('.reading-details');if(technical){technical.open=false;$('.editor-area').append(technical);const count=$('.chapter-word-count');if(count)technical.append(count);}
+    mountChapterNotes(document.querySelector('[data-note-panel]'),{api,esc,getWriter,chapter:c,language:book.language,bookURL:link(book.id)}).catch(e=>say(e.message,true));workflow.mount({...c,language:book.language},'extra',book.title,()=>editing);const technical=$('.reading-details');if(technical){technical.open=false;$('.editor-area').append(technical);const count=$('.chapter-word-count');if(count)technical.append(count);}
   }
   async function renderExportPage(briefOnly=false){
     $('#main').innerHTML=header()+'<p>Loading export…</p>';

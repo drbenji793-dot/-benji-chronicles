@@ -15,7 +15,7 @@ for(const language of ['ar','en']){
  assert(doc.body.textContent.includes('حافيين & سالم'));
  assert(doc.body.textContent.includes('No saved text supplied'));
  assert.equal(doc.body.textContent.includes('_zk5e'),language==='en');
- assert.equal(doc.body.textContent.includes('Arabic voice (_zk5; book selected E or F)'),language==='ar');
+ assert.equal(doc.body.textContent.includes('Arabic voice (_zk6; book selected E or F)'),language==='ar');
  assert.equal(doc.querySelectorAll('.technical-details').length,1);
  assert(doc.body.lastElementChild.matches('.technical-details'));
  assert.equal(doc.body.lastElementChild.open,false);

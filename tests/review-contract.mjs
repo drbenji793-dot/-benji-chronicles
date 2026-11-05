@@ -7,7 +7,7 @@ for(const language of ['ar','en']){
  const before=structuredClone(data),context={bookId:'b',branchId:'br',revision:1,language,writer:'Benji'};
  const packet=await reviewPacket(data,context,[chapter,empty]);
  assert.equal(packet.reviewContract.criteria.length,9);
- assert.equal(packet.reviewContract.writingVoice,language==='ar'?'_zk5':'_zk5e');
+ assert.equal(packet.reviewContract.writingVoice,language==='ar'?'_zk6':'_zk5e');
  assert.equal(packet.currentPlanning.rules,data.rules);
  assert.match(packet.reviewContract.instructions.join(' '),/protected dialogue, letters, endings/);
  assert.match(packet.reviewContract.instructions.join(' '),/Research gap/);

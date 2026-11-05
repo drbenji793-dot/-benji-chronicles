@@ -1,10 +1,11 @@
+import {writingStandardReference} from './writing-standards.js';
 export const reviewCriteria=[
  'Continuity and chronology','Character motivation and agency','Scene purpose and pacing',
  'Dialogue and viewpoint','Language and approved writing voice','Clues and reveal timing',
  'Originality','Ending and emotional payoff','Historical and procedural research'
 ];
 export function reviewContract(language){
- return {version:1,criteria:[...reviewCriteria],writingVoice:language==='ar'?'_zk5':language==='en'?'_zk5e':'Not established',
+ return {version:1,criteria:[...reviewCriteria],writingVoice:writingStandardReference(language)?.code||'Not established',
   instructions:[
    'Review the listed criteria against supplied saved passages only. Do not invent findings to fill every category.',
    'Apply the supplied versioned writingStandard and current book rules. Do not infer a language register or substitute another guide.',
