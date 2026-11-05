@@ -1,0 +1,11 @@
+{
+  "format": "benji-hq-adoption",
+  "version": 5,
+  "packageId": "hq-v005",
+  "packageSha256": "7b3943d974125e17bbd809b9d1be2ced8128cdd7011ca4de9c2360a06b678d07",
+  "adoptedAt": "2026-11-05T12:23:39.230Z",
+  "scope": "Shared guidance and code reference; existing writing baselines and book decisions retained",
+  "source": "https://benji-hq.dr-z01.chatgpt.site",
+  "automaticUpdates": false,
+  "manuscriptWrites": false
+}

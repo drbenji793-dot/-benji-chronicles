@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {JSDOM} from 'jsdom';
+import {renderCritique,changeReviewDisposition,reviewDisposition,chapterReviewLink} from '../src/review-simple.js';
+import {planningFingerprint} from '../src/critique-findings.js';
+import {reviewPacket} from '../src/critique-workflow.js';
+const source=[{id:'ch',revision:3,chapter_number:1,title:'Chapter',body:'<p>Saved original paragraph.</p>'}];
+const base={summary:'untouched',characters:[{id:'person',name:'Salem'}],editorialReviews:[],editorialFindings:[]};
+const state={id:'branch',revision:8,data:structuredClone(base)};let reject=false,patches=0;
+const api=async(path,opts)=>{const q=new URLSearchParams(path.split('?')[1]);if(path.startsWith('chapters'))return source;if(opts){assert.equal(opts.method,'PATCH');assert.equal(q.get('revision'),'eq.'+state.revision);if(reject)return [];patches++;state.data=JSON.parse(opts.body).data;state.revision++;return [structuredClone(state)];}if(path.includes('select=reviews:'))return [{reviews:state.data.editorialReviews,findings:state.data.editorialFindings}];return [structuredClone(state)];};
+const dom=new JSDOM('<main></main>',{url:'https://example.test/#book=book&view=critique'});for(const k of ['window','document','location','MutationObserver','localStorage','FormData'])globalThis[k]=dom.window[k];
+window.confirm=()=>true;globalThis.confirm=()=>true;
+const main=document.querySelector('main'),ctx={bookId:'book',title:'Book',language:'en',sourcePath:'chapters'};
+await renderCritique(main,api,ctx);
+assert.deepEqual([...main.querySelectorAll('button')].map(x=>x.textContent),['Export for review','Add feedback']);
+assert(!main.textContent.includes('Writing standard'));assert(!main.textContent.includes('Saved reports'));
+main.querySelector('[data-add-feedback]').click();let form=main.querySelector('[data-critique-form]');form.elements.title.value='Reader notes';form.elements.feedback.value='A whole report, no technical form.';form.elements.chapterId.value='ch';form.dispatchEvent(new window.Event('input'));await form.onsubmit({preventDefault(){}});
+assert.equal(patches,1);assert.equal(state.data.editorialReviews[0].en,'A whole report, no technical form.');assert.equal(state.data.summary,base.summary);assert.deepEqual(state.data.characters,base.characters);assert(!localStorage.getItem('chronicles-critique-draft:book'));assert(main.textContent.includes('Reader notes'));
+await renderCritique(main,api,ctx);assert(main.textContent.includes('A whole report'));
+await main.querySelector('[data-feedback-list]').onclick({target:main.querySelector('[data-action=kept]')});form=main.querySelector('[data-decision]');await form.onsubmit({preventDefault(){},target:form});assert.equal(state.data.editorialReviews[0].reviewDisposition,'kept');assert(main.querySelector('a[href="#book=book&chapter=1"]'));
+await main.querySelector('[data-feedback-list]').onclick({target:main.querySelector('[data-action=resolved]')});form=main.querySelector('[data-decision]');form.elements.note.value='Read the saved chapter.';form.elements.checked.checked=true;await form.onsubmit({preventDefault(){},target:form});assert.equal(state.data.editorialReviews[0].reviewDisposition,'resolved');assert(!main.querySelector('.review-card'));main.querySelector('[data-completed]').click();assert(main.querySelector('.review-card'));assert.equal(state.data.editorialReviews[0].reviewHistory.length,2);
+// Resolution records author task completion and never invents repair verification.
+assert.equal(state.data.editorialReviews[0].verification,undefined);
+assert.equal(chapterReviewLink('#story=3&lang=en&view=critique&dslbranch=b',2),'#story=3&lang=en&chapter=2');
+// Returned source packet imports only selected, matching evidence.
+const packet=await reviewPacket(state.data,{...ctx,branchId:'branch',revision:state.revision},source.map(c=>({...c,paragraphs:['Saved original paragraph.']})));
+packet.findings=[{chapterId:'ch',chapterRevision:3,paragraph:1,quote:'Saved original paragraph.',title:'Tension',issue:'Needs tension',impact:'Reader attention',repair:'Introduce resistance',kind:'Interpretation',severity:'Minor',confidence:'Medium',recommendation:'Rewrite'}];
+main.querySelector('[data-add-feedback]').click();let input=main.querySelector('[data-review-import]');await input.onchange({target:{files:[{size:100,text:async()=>JSON.stringify(packet)}]}});main.querySelector('[data-choice]').checked=true;await main.querySelector('[data-import-selected]').onclick({target:main.querySelector('[data-import-selected]')});assert.equal(state.data.editorialFindings.length,1);assert.equal(state.data.editorialFindings[0].status,'proposed');
+main.querySelector('[data-close]').click();main.querySelector('[data-add-feedback]').click();form=main.querySelector('[data-critique-form]');form.elements.title.value='Conflict';form.elements.feedback.value='Keep my draft';form.dispatchEvent(new window.Event('input'));reject=true;await form.onsubmit({preventDefault(){}});assert(main.textContent.includes('another device'));assert(localStorage.getItem('chronicles-critique-draft:book').includes('Keep my draft'));
+assert.equal(source[0].body,'<p>Saved original paragraph.</p>');
+dom.window.close();console.log('PASS Razor review: minimal empty page, save/reopen, task decisions, current-source selective import, conflict draft, manuscript preservation');
