@@ -229,3 +229,18 @@ html body #main .editor-area>[data-page-technical]{font-size:11px}
  border-bottom:.28em solid transparent;border-left:.45em solid currentColor;
  margin-inline-start:.45em;vertical-align:.07em;
 }
+
+/* Use the chapter notes label size for all three footer rows. */
+.editor-area details.notes > summary,
+.editor-area .chapter-secondary-tools > summary,
+.editor-area [data-page-technical] > summary {
+ font:400 11px/1.5 system-ui,sans-serif!important;
+}
+html body .managed-book .book-manage .book-options-arrow {
+ display:inline-block;width:0;height:0;font-size:0;
+ border-top:3px solid transparent;border-bottom:3px solid transparent;
+ border-left:5px solid currentColor;
+}
+html body .managed-book .book-manage details[open] .book-options-arrow {
+ transform:rotate(90deg);
+}
