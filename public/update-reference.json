@@ -3,10 +3,10 @@
   "version": 1,
   "edition": "ar",
   "release": {
-    "version": 248,
-    "releasedAt": "2026-11-05T13:01:03.001589+00:00",
+    "version": 249,
+    "releasedAt": "2026-11-05T20:35:34.629847+00:00",
     "timezone": "UTC",
-    "note": "Chapter notes, brown Default author and private voice training sessions with approved edition workflow"
+    "note": "HQ owns private voice training and published writing protocols; Chronicles retrieves verified editions and sends selected feedback"
   },
   "mechanismVersion": 1,
   "commit": null,
