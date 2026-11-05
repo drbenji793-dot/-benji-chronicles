@@ -1,6 +1,6 @@
 {
-  "version": 242,
-  "releasedAt": "2026-11-05T00:54:19.542090+00:00",
+  "version": 243,
+  "releasedAt": "2026-11-05T00:58:38.997281+00:00",
   "timezone": "UTC",
-  "note": "Point Arabic chapter arrows left"
+  "note": "Use one small triangle for all three chapter footer labels"
 }
