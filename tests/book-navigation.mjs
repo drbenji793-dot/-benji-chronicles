@@ -18,9 +18,9 @@ for(const language of ['ar','en']){
   const nav=document.querySelector('.book-navigation');
   assert.equal(nav.hidden,false);
   const tabs=[...nav.querySelectorAll('.ink-tabs a')];
-  assert.deepEqual(tabs.map(a=>a.textContent),['Story','Chapters','Story World','Review']);
+  assert.deepEqual(tabs.map(a=>a.textContent),['Story','Chapters','Review']);
   assert(tabs.every(a=>a.getAttribute('href').startsWith('#book='+id)));
-  assert(tabs[2].getAttribute('href').endsWith('&view=dsl&dslview=garden'));
+  assert(tabs[0].getAttribute('href').endsWith('&view=dsl&dslview=synopsis'));
   if(route.chapter)assert.equal(nav.querySelector('[aria-current]').textContent,'Chapters');
 
  }
@@ -34,9 +34,9 @@ for(const language of ['ar','en'])for(let story=1;story<=12;story++){
   const params=new URLSearchParams({story:String(story),lang:language,...route});
   const nav=document.querySelector('.book-navigation');nav.innerHTML=collectionNavigation(story,params);
   const links=[...nav.querySelectorAll('.ink-tabs a')];
-  assert.deepEqual(links.map(a=>a.textContent),['Story','Chapters','Story World','Review']);
+  assert.deepEqual(links.map(a=>a.textContent),['Story','Chapters','Review']);
   for(const link of nav.querySelectorAll('a')){const target=new URLSearchParams(link.hash.slice(1));assert.equal(target.get('story'),String(story));assert.equal(target.get('lang'),language);}
-  assert.equal(nav.querySelector('[aria-current]').textContent,route.chapter?'Chapters':route.view==='dsl'?'Story World':route.view==='brief'?'Story':'Review');
+  assert.equal(nav.querySelector('[aria-current]').textContent,route.chapter?'Chapters':route.view==='dsl'?'Story':route.view==='brief'?'Story':'Review');
  }
 }
 console.log('PASS immediate collection navigation for all 12 books, both editions and four destinations');

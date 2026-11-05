@@ -185,7 +185,7 @@ export function sourceToolsUI(c){
    if(panel)panel.innerHTML=synopsisSourceMapContent();
   }).catch(()=>{publicationInfo=null;});
  }
- function synopsisHTML(){return reader.html()+'<details data-writer-synopsis><summary>Writer notes</summary>'+planningSynopsisHTML()+'</details>';}
+ function synopsisHTML(){return reader.html()+'<details data-writer-synopsis><summary>More</summary>'+planningSynopsisHTML()+'</details>';}
  function bind(root){
   reader.bind(root);
   loadPublication(root);
