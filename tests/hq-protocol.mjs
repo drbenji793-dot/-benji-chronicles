@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {resolveHQProtocol,protocolHash} from '../src/hq-protocol.js';
+const map=new Map(),storage={getItem:k=>map.get(k),setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};
+const protocol={version:'_zk5.0',family:'_zk5',foundation:[],refinements:[]},sha256=await protocolHash(protocol),payload={protocol,sha256,requested:'_zk5',resolved:'_zk5.0'};
+let r=await resolveHQProtocol('_zk5',{storage,fetcher:async()=>Response.json(payload)});assert.equal(r.offline,false);assert.equal(r.resolved,'_zk5.0');
+r=await resolveHQProtocol('_zk5',{storage,fetcher:async()=>{throw Error('Offline')}});assert.equal(r.offline,true);
+await assert.rejects(()=>resolveHQProtocol('_zk6',{storage,fetcher:async()=>Response.json({},{status:404})}),/not published/);
+await assert.rejects(()=>resolveHQProtocol('_zk5',{storage,fetcher:async()=>Response.json({...payload,sha256:'wrong'})}),/verification/);
+await assert.rejects(()=>resolveHQProtocol('_zk5',{storage,fetcher:async()=>Response.json({},{status:404})}),/not published/);assert.equal(map.size,0);
+await assert.rejects(()=>resolveHQProtocol('bad',{storage}),/Enter a writing code/);
+console.log('HQ protocol exact retrieval, unavailable edition, checksum and offline tests passed');
