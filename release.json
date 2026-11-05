@@ -1,6 +1,6 @@
 {
-  "version": 238,
-  "releasedAt": "2026-11-04T23:34:50.223383+00:00",
+  "version": 239,
+  "releasedAt": "2026-11-05T00:38:11.249115+00:00",
   "timezone": "UTC",
-  "note": "Simplify story planning navigation on both editions"
+  "note": "Consolidate Story reference tools beneath the synopsis"
 }
