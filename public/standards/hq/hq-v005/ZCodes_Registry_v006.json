@@ -1,0 +1,952 @@
+{
+  "version": 6,
+  "updatedAt": "2026-11-05T12:23:23.108048+00:00",
+  "codes": [
+    {
+      "code": "_razor",
+      "aliases": [],
+      "category": "Interface",
+      "meaning": "Use the simplest complete design that helps Benji accomplish his task. One purpose per page, clear actions, compact controls, no duplicate or empty panels. Preserve saved work and source safeguards.",
+      "source": {
+        "title": "Benji approved _razor · 5 November 2026",
+        "url": "/standards/Razor_v001.html"
+      },
+      "status": "Approved",
+      "scope": "Shared websites and future templates; apply to the authorized interface scope.",
+      "href": "/standards/Razor_v001.html"
+    },
+    {
+      "code": "_103",
+      "aliases": [],
+      "category": "Project names",
+      "meaning": "Old kingdom build, reference only.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_a",
+      "aliases": [],
+      "category": "Workflow",
+      "meaning": "Approved. Approve the clearly identified proposal or scope. It does not approve unrelated changes.",
+      "source": {
+        "title": "HQ standards manifest v002 · 3 November 2026",
+        "url": "/standards/Standards_Manifest_v002.json"
+      },
+      "status": "Current",
+      "scope": "Explicit project adoption.",
+      "href": "/standards/Benji_Philosophy_v001.html"
+    },
+    {
+      "code": "_am",
+      "aliases": [],
+      "category": "Writing",
+      "meaning": "Egyptian colloquial Arabic in narration and dialogue. Combine with _zk5 for Benji’s storytelling craft.",
+      "scope": "Explicit choice overrides the saved book register for this requested piece only. Legacy E means _am.",
+      "status": "Current",
+      "source": {
+        "title": "Benji approved language commands · 5 November 2026",
+        "url": "/standards/Arabic_Voice_v004.html#language-selection"
+      }
+    },
+    {
+      "code": "_askme",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Ask with clickable choices, recommended first.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_bad",
+      "aliases": [],
+      "category": "Project names",
+      "meaning": "Benji App Design.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_benji_philly",
+      "aliases": [
+        "_benji_philosophy"
+      ],
+      "category": "Workflow",
+      "meaning": "Governing philosophy. Read before creating or changing a machine.",
+      "source": {
+        "title": "HQ standards manifest v002 · 3 November 2026",
+        "url": "/standards/Standards_Manifest_v002.json"
+      },
+      "status": "Current",
+      "scope": "Explicit project adoption.",
+      "href": "/standards/Benji_Philosophy_v001.html"
+    },
+    {
+      "code": "_bntr",
+      "aliases": [],
+      "category": "Rules and scope",
+      "meaning": "Byte frozen: do not alter even one byte.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_bs",
+      "aliases": [],
+      "category": "Workflow",
+      "meaning": "Brainstorm first. Present analysis and proposed decisions. Do not implement the proposal until authorized.",
+      "source": {
+        "title": "HQ standards manifest v002 · 3 November 2026",
+        "url": "/standards/Standards_Manifest_v002.json"
+      },
+      "status": "Current",
+      "scope": "Explicit project adoption.",
+      "href": "/standards/Benji_Philosophy_v001.html",
+      "earlierMeaning": "Brainstorm and sketch only; build nothing. Numbered lists, clickable questions at end, final line exactly `NOTHING BUILT. Awaiting \"go\".`"
+    },
+    {
+      "code": "_build",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Add to the standing plan; make it larger, more detailed, and retrievable.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_chase",
+      "aliases": [],
+      "category": "Design",
+      "meaning": "Approved compact account page layout reference. Adapt structure without copying financial data.",
+      "source": {
+        "title": "Approved September 2026 addendum",
+        "url": "https://drive.google.com/file/d/1ZnX3GOLIBkW0QSpAcYh-hcmAIsy4ITg0/view"
+      },
+      "status": "Recovered",
+      "scope": "Design reference; preserve project colors and records."
+    },
+    {
+      "code": "_CI",
+      "aliases": [],
+      "category": "Rules and scope",
+      "meaning": "Save in project storage or Drive and give exact name and location.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_cl",
+      "aliases": [],
+      "category": "To verify",
+      "meaning": "Earlier code identified; complete source definition still needs recovery.",
+      "source": {
+        "title": "Earlier references; definition not yet verified",
+        "url": ""
+      },
+      "status": "Needs source",
+      "scope": "Do not apply from this placeholder."
+    },
+    {
+      "code": "_codes",
+      "aliases": [
+        "_zcodes",
+        "_zcodex"
+      ],
+      "category": "Directory",
+      "meaning": "Show the full code registry.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Historical project scope retained; no automatic manuscript application."
+    },
+    {
+      "code": "_color",
+      "aliases": [],
+      "category": "Design",
+      "meaning": "Use the approved appearance palette and contextual status meanings, with explicit labels and legible contrast.",
+      "source": {
+        "title": "Master rule sheet · 10 September 2026",
+        "url": "https://drive.google.com/file/d/1lqBeRWEWIziQDnK9Qew1ZSqsF8klCBDz/view"
+      },
+      "status": "Recovered",
+      "scope": "Apply the selected project palette; preserve approved colors."
+    },
+    {
+      "code": "_coop",
+      "aliases": [],
+      "category": "Cooperation with Claude",
+      "meaning": "Coordinate through shared Drive: `000 workflow → 05 Handoffs and Reviews`. Statuses Posted → Received → Understood → Applied / Blocked. Neither assistant marks the other's status.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_debug",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Diagnostics → Diagnosis → Recommendations → Treatment → Follow-up → Plain English. Test before claiming a fix.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_dome",
+      "aliases": [],
+      "category": "Project names",
+      "meaning": "Dome, formerly The Kingdom.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_edit",
+      "aliases": [],
+      "category": "Design",
+      "meaning": "Review and research a page against Benji's real documents; improve it and give recommendations and limits.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_f",
+      "aliases": [],
+      "category": "Writing",
+      "meaning": "Accessible literary Fusha in narration and dialogue. Combine with _zk5 for Benji’s storytelling craft.",
+      "scope": "Explicit choice overrides the saved book register for this requested piece only. Legacy F means _f. This code no longer means filing.",
+      "status": "Current",
+      "source": {
+        "title": "Benji approved language commands · 5 November 2026",
+        "url": "/standards/Arabic_Voice_v004.html#language-selection"
+      },
+      "earlierMeaning": "Earlier code identified; complete source definition still needs recovery. Historical _f filing references are retained as history, not current commands."
+    },
+    {
+      "code": "_file",
+      "aliases": [],
+      "category": "Workflow",
+      "meaning": "File the identified material in the specified destination and report the actual saved location.",
+      "scope": "Filing command only. Replaces the earlier ambiguous filing use of _f; the former complete definition was not recovered.",
+      "status": "Current",
+      "source": {
+        "title": "Benji approved language commands · 5 November 2026",
+        "url": "/standards/Arabic_Voice_v004.html#language-selection"
+      }
+    },
+    {
+      "code": "_finish",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Complete the whole list and report once at end.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_fix",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Repair and improve the area; fix the capability rather than a symptom.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_frozen",
+      "aliases": [],
+      "category": "Rules and scope",
+      "meaning": "Preserve it and build a candidate beside it.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_go",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Execute agreed scope only. No silent deletion, renaming, privacy change, or publishing. No questions afterward.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_gpt_letter",
+      "aliases": [],
+      "category": "Cooperation",
+      "meaning": "Prepare a dated project handover for another AI, with permissions and clearly labeled suggestions.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Historical project scope retained; no automatic manuscript application."
+    },
+    {
+      "code": "_h",
+      "aliases": [],
+      "category": "To verify",
+      "meaning": "Earlier code identified; complete source definition still needs recovery.",
+      "source": {
+        "title": "Earlier references; definition not yet verified",
+        "url": ""
+      },
+      "status": "Needs source",
+      "scope": "Do not apply from this placeholder."
+    },
+    {
+      "code": "_hold",
+      "aliases": [],
+      "category": "Rules and scope",
+      "meaning": "Freeze named work.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_hood",
+      "aliases": [],
+      "category": "Design",
+      "meaning": "Robinhood style clarity and density without its branding.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_involve",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Fully participate in the named project: design, build, math, implementation, and coordination with Claude. Do not require `_bs` first.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_keep",
+      "aliases": [],
+      "category": "Rules and scope",
+      "meaning": "Save durably.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_lane",
+      "aliases": [],
+      "category": "Rules and scope",
+      "meaning": "Remain in declared scope. `_lane`, `_hold`, `_frozen`, and `_bntr` are not overridden by `_go`.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_live",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Real data only, no samples.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_n",
+      "aliases": [],
+      "category": "Workflow",
+      "meaning": "Notify Claude. Prepare the identified handoff; sending requires an available authorized destination. Never claim it was sent when only prepared.",
+      "source": {
+        "title": "HQ standards manifest v002 · 3 November 2026",
+        "url": "/standards/Standards_Manifest_v002.json"
+      },
+      "status": "Current",
+      "scope": "Explicit project adoption.",
+      "href": "/standards/Work_Remaining_v003.html",
+      "earlierMeaning": "Immediately after a handoff, give Benji one ready to copy alert to Claude with title, reference, folder, link, status, and next action."
+    },
+    {
+      "code": "_own",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Admit the mistake plainly and repair it.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_p",
+      "aliases": [],
+      "category": "Workflow",
+      "meaning": "Publish. Publish the identified approved result, preserving existing audience and scope.",
+      "source": {
+        "title": "HQ standards manifest v002 · 3 November 2026",
+        "url": "/standards/Standards_Manifest_v002.json"
+      },
+      "status": "Current",
+      "scope": "Explicit project adoption.",
+      "href": "/standards/Project_Tracker_v001.html"
+    },
+    {
+      "code": "_progress",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Done / Doing / Blocked / Next.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_proof",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Show verification with tests, screenshots, or numbers.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_ps",
+      "aliases": [],
+      "category": "To verify",
+      "meaning": "Earlier code identified; complete source definition still needs recovery.",
+      "source": {
+        "title": "Earlier references; definition not yet verified",
+        "url": ""
+      },
+      "status": "Needs source",
+      "scope": "Do not apply from this placeholder."
+    },
+    {
+      "code": "_r1",
+      "aliases": [],
+      "category": "Rules and scope",
+      "meaning": "The first rule of the particular project; its meaning is project specific.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Historical project scope retained; no automatic manuscript application."
+    },
+    {
+      "code": "_r2",
+      "aliases": [],
+      "category": "Smart HTML",
+      "meaning": "Treat the project page as the growing, shareable roadmap.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Historical project scope retained; no automatic manuscript application."
+    },
+    {
+      "code": "_renovate",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Excel and improve upon the inspiration.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_rule",
+      "aliases": [],
+      "category": "Rules and scope",
+      "meaning": "Turn the latest instruction into a named, dated, durable rule; repeat it in one sentence.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_scan",
+      "aliases": [],
+      "category": "Rules and scope",
+      "meaning": "Read new documents and identify conflicts and gaps.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_search+",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Research first and answer with sources.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_show",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Provide the actual artifact or file.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_table",
+      "aliases": [],
+      "category": "To verify",
+      "meaning": "Earlier code identified; complete source definition still needs recovery.",
+      "source": {
+        "title": "Earlier references; definition not yet verified",
+        "url": ""
+      },
+      "status": "Needs source",
+      "scope": "Do not apply from this placeholder."
+    },
+    {
+      "code": "_tabs",
+      "aliases": [],
+      "category": "To verify",
+      "meaning": "Earlier code identified; complete source definition still needs recovery.",
+      "source": {
+        "title": "Earlier references; definition not yet verified",
+        "url": ""
+      },
+      "status": "Needs source",
+      "scope": "Do not apply from this placeholder."
+    },
+    {
+      "code": "_talk",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "At most six numbered items.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_teach",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "Prepare a self contained handover.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_tefn",
+      "aliases": [],
+      "category": "Design",
+      "meaning": "Serious iPhone review.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_tok",
+      "aliases": [],
+      "category": "Project names",
+      "meaning": "TikTok persona lane, Benji / Dr. Hilal.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_up5",
+      "aliases": [
+        "_update",
+        "__update"
+      ],
+      "category": "Workflow",
+      "meaning": "Complete, verify, synchronize and lock. Apply only to the authorized project. Verify live source and required recovery evidence before claiming a lock.",
+      "source": {
+        "title": "HQ standards manifest v002 · 3 November 2026",
+        "url": "/standards/Standards_Manifest_v002.json"
+      },
+      "status": "Current",
+      "scope": "Explicit project adoption.",
+      "href": "/standards/Project_Tracker_v001.html"
+    },
+    {
+      "code": "_vibe",
+      "aliases": [],
+      "category": "Design",
+      "meaning": "Match the approved mood.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_why",
+      "aliases": [],
+      "category": "Thinking and execution",
+      "meaning": "State the blocker in one line.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_ww",
+      "aliases": [],
+      "category": "Smart HTML",
+      "meaning": "Update and expand the existing project page.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Historical project scope retained; no automatic manuscript application."
+    },
+    {
+      "code": "_ww2",
+      "aliases": [],
+      "category": "Smart HTML",
+      "meaning": "Use the recorded fixed project page standard.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Historical project scope retained; no automatic manuscript application."
+    },
+    {
+      "code": "_z",
+      "aliases": [],
+      "category": "Design",
+      "meaning": "Alias of `_zbase`.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_zbase",
+      "aliases": [
+        "_base"
+      ],
+      "category": "Design",
+      "meaning": "`_hood + _zdesign + _color + _coop + _edit`. Modes Soft / White / Charcoal / Black; new designs start Soft.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_zdesign",
+      "aliases": [],
+      "category": "Design",
+      "meaning": "Benji's Space Coast / Dr. Z identity. `_zdsign` is the same spelling alias.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Only when invoked; current project decisions take priority."
+    },
+    {
+      "code": "_zdna",
+      "aliases": [],
+      "category": "Design",
+      "meaning": "Approved surface hierarchy, readable compact controls and consistent visual treatment. Apply within the selected project.",
+      "source": {
+        "title": "Approved September 2026 addendum",
+        "url": "https://drive.google.com/file/d/1foRCrcsyMkw6OxgrAB1yW969iEjqZvL2/view"
+      },
+      "status": "Recovered",
+      "scope": "Design reference; preserve project colors and records."
+    },
+    {
+      "code": "_zhtml",
+      "aliases": [
+        "_html"
+      ],
+      "category": "Smart HTML",
+      "meaning": "Create one self contained project HTML with embedded data, export, navigation and version history.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Historical project scope retained; no automatic manuscript application."
+    },
+    {
+      "code": "_zk5",
+      "aliases": [
+        "zk5"
+      ],
+      "category": "Writing",
+      "meaning": "Arabic storytelling craft. Add _am for Egyptian colloquial or _f for accessible Fusha; otherwise use the approved book default. Ask once when no default exists.",
+      "source": {
+        "title": "HQ standards manifest v002 · 3 November 2026",
+        "url": "/standards/Standards_Manifest_v002.json"
+      },
+      "status": "Current",
+      "scope": "Explicit project adoption.",
+      "href": "/standards/Arabic_Voice_v004.html"
+    },
+    {
+      "code": "_zk5e",
+      "aliases": [
+        "_zk5english"
+      ],
+      "category": "Writing",
+      "meaning": "Independent English writing standard v007: eight craft references, natural American English and approved continuity safeguards.",
+      "source": {
+        "title": "HQ standards manifest v002 · 3 November 2026",
+        "url": "/standards/Standards_Manifest_v002.json"
+      },
+      "status": "Current",
+      "scope": "Explicit project adoption.",
+      "href": "/standards/English_Voice_v007.html"
+    },
+    {
+      "code": "_zkalam4",
+      "aliases": [],
+      "category": "To verify",
+      "meaning": "Earlier code identified; complete source definition still needs recovery.",
+      "source": {
+        "title": "Earlier references; definition not yet verified",
+        "url": ""
+      },
+      "status": "Needs source",
+      "scope": "Do not apply from this placeholder."
+    },
+    {
+      "code": "_zrec",
+      "aliases": [
+        "_zrectangle"
+      ],
+      "category": "Workflow",
+      "meaning": "Compact provenance component. Open the grey rectangle for actual saved modification, author, method, version and separate release.",
+      "source": {
+        "title": "HQ standards manifest v002 · 3 November 2026",
+        "url": "/standards/Standards_Manifest_v002.json"
+      },
+      "status": "Current",
+      "scope": "Explicit project adoption.",
+      "href": "/standards/Technical_Rectangle_v001.html"
+    },
+    {
+      "code": "_ztra",
+      "aliases": [
+        "_tra"
+      ],
+      "category": "Workflow",
+      "meaning": "Build or update a project tracker. Scope, tasks, evidence, decisions, release and recovery. Tracker updates alone do not authorize unrelated site changes.",
+      "source": {
+        "title": "HQ standards manifest v002 · 3 November 2026",
+        "url": "/standards/Standards_Manifest_v002.json"
+      },
+      "status": "Current",
+      "scope": "Explicit project adoption.",
+      "href": "/standards/Project_Tracker_v001.html"
+    },
+    {
+      "code": "Code 01",
+      "aliases": [],
+      "category": "To verify",
+      "meaning": "Earlier code identified; complete source definition still needs recovery.",
+      "source": {
+        "title": "Earlier references; definition not yet verified",
+        "url": ""
+      },
+      "status": "Needs source",
+      "scope": "Do not apply from this placeholder."
+    },
+    {
+      "code": "Code 10",
+      "aliases": [],
+      "category": "To verify",
+      "meaning": "Earlier code identified; complete source definition still needs recovery.",
+      "source": {
+        "title": "Earlier references; definition not yet verified",
+        "url": ""
+      },
+      "status": "Needs source",
+      "scope": "Do not apply from this placeholder."
+    },
+    {
+      "code": "Code 6",
+      "aliases": [],
+      "category": "To verify",
+      "meaning": "Earlier code identified; complete source definition still needs recovery.",
+      "source": {
+        "title": "Earlier references; definition not yet verified",
+        "url": ""
+      },
+      "status": "Needs source",
+      "scope": "Do not apply from this placeholder."
+    },
+    {
+      "code": "Code 7",
+      "aliases": [],
+      "category": "To verify",
+      "meaning": "Earlier code identified; complete source definition still needs recovery.",
+      "source": {
+        "title": "Earlier references; definition not yet verified",
+        "url": ""
+      },
+      "status": "Needs source",
+      "scope": "Do not apply from this placeholder."
+    },
+    {
+      "code": "L1",
+      "aliases": [],
+      "category": "Writing",
+      "meaning": "Elevated literary Arabic register; retain readability.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Historical project scope retained; no automatic manuscript application."
+    },
+    {
+      "code": "L2",
+      "aliases": [],
+      "category": "Writing",
+      "meaning": "Accessible Fusha with concrete action and clear adventure pacing.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Historical project scope retained; no automatic manuscript application."
+    },
+    {
+      "code": "L2.1",
+      "aliases": [],
+      "category": "Writing",
+      "meaning": "High Seas refinement: familiar Fusha, connected prose, clear action and preserved atmosphere.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Historical project scope retained; no automatic manuscript application."
+    },
+    {
+      "code": "L2.2",
+      "aliases": [],
+      "category": "Writing",
+      "meaning": "High Seas refinement: scene clarity before compression, retaining L2.1 principles.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Historical project scope retained; no automatic manuscript application."
+    },
+    {
+      "code": "L3",
+      "aliases": [],
+      "category": "Writing",
+      "meaning": "Benji’s natural Egyptian narration and dialogue, grounded in his own supplied writing.",
+      "source": {
+        "title": "Z Codex full registry v07 · 2 October 2026",
+        "url": "https://drive.google.com/file/d/1w0N6tu-KKiQ5W6t9q1HFNcCKqtrTXveZ/view"
+      },
+      "status": "Recovered",
+      "scope": "Historical project scope retained; no automatic manuscript application."
+    }
+  ]
+}

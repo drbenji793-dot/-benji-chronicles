@@ -29,8 +29,8 @@ for(const language of ['ar','en']){
  URL.createObjectURL=b=>(blob=b,'blob:test');URL.revokeObjectURL=()=>{};
  dom.window.HTMLAnchorElement.prototype.click=function(){filename=this.download;};
  const originalTimer=globalThis.setTimeout;globalThis.setTimeout=()=>0;
- await document.querySelector('[data-brief]').onclick();globalThis.setTimeout=originalTimer;
- assert.equal(filename,'Review_Brief_v005.html');assert.equal(blob.type,'text/html;charset=utf-8');
+ await document.querySelector('[data-brief]').onclick(); await document.querySelector('[data-export-form]').onsubmit({preventDefault(){}});globalThis.setTimeout=originalTimer;
+ assert.equal(filename,'Review_Brief_v006.html');assert.equal(blob.type,'text/html;charset=utf-8');
  assert((await blob.text()).startsWith('<!doctype html>'));
  assert.equal(JSON.stringify(chapters),before);
  dom.window.close();
@@ -49,13 +49,13 @@ console.log('Review export: Arabic/English criteria, readable safe HTML, source 
   return path.startsWith('chapters')?[{id:'ch',revision:3,body:'<p>Story preserved</p>'}]:[structuredClone(original)];
  };
  await renderCritique(document.querySelector('main'),api,{bookId:'book',title:'Review',language:'ar',sourcePath:'chapters'});
- const f=document.querySelector('[data-critique-form]');f.elements.title.value='Review';f.elements.ar.value='مراجعة';
+ document.querySelector('[data-add-feedback]').click(); const f=document.querySelector('[data-critique-form]');f.elements.title.value='Review';f.elements.feedback.value='مراجعة';
  await f.onsubmit({preventDefault(){},target:f});
  assert.equal(saved.data.summary,original.data.summary);assert.equal(saved.data.currentUpdate.baseRevision,8);
  assert(saved.data.currentUpdate.changed.some(x=>x.kind==='editorialReviews'));
  assert.equal(saved.data.editorialReviews[0].sources[0].revision,3);
- reject=true;f.elements.ar.value='Second report';f.dispatchEvent(new dom.window.Event('input'));
- await f.onsubmit({preventDefault(){},target:f});
+ reject=true;document.querySelector('[data-add-feedback]').click();const f2=document.querySelector('[data-critique-form]');f2.elements.title.value='Second';f2.elements.feedback.value='Second report';f2.dispatchEvent(new dom.window.Event('input'));
+ await f2.onsubmit({preventDefault(){},target:f2});
  assert(document.querySelector('[data-state]').textContent.includes('another device'));
  assert(localStorage.getItem('chronicles-critique-draft:book').includes('Second report'));
  dom.window.close();

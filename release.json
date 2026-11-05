@@ -1,6 +1,6 @@
 {
-  "version": 246,
-  "releasedAt": "2026-11-05T11:32:11.334856+00:00",
+  "version": 247,
+  "releasedAt": "2026-11-05T12:27:28.249248+00:00",
   "timezone": "UTC",
-  "note": "Compact Add Export Import row with direct review import"
+  "note": "Razor Review: one feedback list, export and add feedback, shared HQ design rule"
 }
