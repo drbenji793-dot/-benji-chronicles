@@ -3,10 +3,10 @@
   "version": 1,
   "edition": "ar",
   "release": {
-    "version": 210,
-    "releasedAt": "2026-11-03T16:26:36Z",
+    "version": 248,
+    "releasedAt": "2026-11-05T13:01:03.001589+00:00",
     "timezone": "UTC",
-    "note": "Read-only source inventory for Twists and Clues"
+    "note": "Chapter notes, brown Default author and private voice training sessions with approved edition workflow"
   },
   "mechanismVersion": 1,
   "commit": null,

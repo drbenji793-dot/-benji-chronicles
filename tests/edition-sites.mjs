@@ -25,7 +25,7 @@ async function fixture(language,hash=''){
  if(name==='chronicles_chapters')data=[{...chapter,id:'ar-main',story_number:12,language:'ar'},{...target,id:'en-main',story_number:12,language:'en'}].filter(r=>!u.searchParams.has('id')||u.searchParams.get('id')==='eq.'+r.id);
  if(name==='chronicles_adaptations')data=[{story_number:12,title:'A Fracture in Time',revision:1}];
  return {ok:true,json:async()=>data};};
- w.eval(bundle.outputFiles[0].text);await wait();return {dom,w,doc,calls,q:s=>doc.querySelector(s)};
+ w.localStorage.setItem('chronicles-writer','Benji');w.eval(bundle.outputFiles[0].text);await wait();return {dom,w,doc,calls,q:s=>doc.querySelector(s)};
 }
 let f=await fixture('ar');
 assert.equal(f.q('.collection-heading').textContent,'Arabic Library');assert(!f.q('.world-gates'));assert(!f.q('.edition-bridge a'));assert(!f.q('#main').textContent.includes('English book'));f.dom.window.close();

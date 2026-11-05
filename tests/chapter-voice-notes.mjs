@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {JSDOM} from 'jsdom';
+import {notesShell,mountChapterNotes,updateChapterNote,renderBookNotes} from '../src/chapter-notes.js';
+const d=new JSDOM('<main>'+notesShell()+'</main>',{url:'https://example.com/#book=b&chapter=1'});Object.assign(globalThis,{window:d.window,document:d.window.document,localStorage:d.window.localStorage,location:d.window.location});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let rows=[],writes=[],chapter={id:'c',title:'Chapter',chapter_number:1,revision:4},writer='Default';
+const api=async(path,o)=>{if(!o)return path.startsWith('chronicles_book_entries')?[chapter]:structuredClone(rows);const data=JSON.parse(o.body);writes.push({path,data});if(o.method==='POST'){rows.push({...data,id:'n',revision:1,created_at:new Date().toISOString()});return;}const q=new URLSearchParams(path.split('?')[1]),n=rows.find(r=>'eq.'+r.id===q.get('id')&&'eq.'+r.entry_id===q.get('entry_id')&&'eq.'+r.revision===q.get('revision'));if(!n)return [];Object.assign(n,data,{revision:n.revision+1});return [structuredClone(n)];};
+const root=document.querySelector('[data-note-panel]');await mountChapterNotes(root,{api,esc,getWriter:()=>writer,chapter,bookURL:'#book=b'});
+const form=root.querySelector('form');form.elements.body.value='<script>raw text</script>';form.querySelector('[value=Voice]').checked=true;await form.onsubmit({preventDefault(){}});
+assert.equal(rows[0].author,'Default');assert.equal(rows[0].source_revision,4);assert(rows[0].note_meta.types.includes('Voice'));assert(!root.querySelector('script'));assert(root.querySelector('[data-training]'));const initial=structuredClone(rows[0]);
+root.querySelector('[data-edit]').click();form.elements.body.value='Edited';writer='Ahmed';await form.onsubmit({preventDefault(){}});assert.equal(rows[0].author,'Default');assert.equal(rows[0].updated_by,'Ahmed');assert.equal(rows[0].body,'Edited');
+await assert.rejects(()=>updateChapterNote(api,'chronicles_book_notes','entry_id',initial,{body:'stale'},'Default'),/another device/);assert.equal(rows[0].body,'Edited');
+await root.querySelector('[data-resolve]').onclick();assert(rows[0].resolved_at);await root.querySelector('[data-resolve]').onclick();assert.equal(rows[0].resolved_at,null);
+const page=document.querySelector('main');await renderBookNotes(page,{api,esc,getWriter:()=>writer,params:new URLSearchParams('book=b')});assert(page.textContent.includes('Edited'));assert(page.querySelector('a[href="#book=b&chapter=1"]'));assert(writes.every(w=>w.path.startsWith('chronicles_book_notes')));
+console.log('PASS Default attribution, escaped notes, multi type, source revision, stable author, conflict guard, resolve/reopen, shared notes section, no manuscript writes');d.window.close();
