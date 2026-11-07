@@ -1,6 +1,6 @@
 {
-  "version": 256,
-  "releasedAt": "2026-11-07T03:47:11+00:00",
+  "version": 257,
+  "releasedAt": "2026-11-07T03:50:33.390890+00:00",
   "timezone": "UTC",
-  "note": "Use the shared manuscript overview for English Chapters navigation"
+  "note": "Guard reviewed planning revision inside combined approval and Ink transfer; preserve current English navigation"
 }

@@ -23,10 +23,10 @@ const {JSDOM}=await import('jsdom');const {createWorkflow}=await import('../src/
 const dom=new JSDOM('<main id="main"><section class="editor-area"><div class="toolbar"></div><p class="save-meta"></p></section></main><dialog id="modal"><h2 id="modal-title"></h2><div id="modal-content"></div></dialog>');
 globalThis.document=dom.window.document;
 dom.window.HTMLDialogElement.prototype.showModal=function(){this.open=true};dom.window.HTMLDialogElement.prototype.close=function(){this.open=false};
-let writes=0,messages=[],workflowRow=[];
+let writes=0,messages=[],workflowRow=[],serverConflict=false;
 saved={...chapter,kind:'chapter',language:'ar',title:'Fixture',body:'دخل صاحبه.'};plan=structuredClone(branch);
 const uiApi=async(path,options)=>{
- if(path.startsWith('rpc/')){writes++;assert.equal(path,'rpc/chronicles_approve_and_transfer');workflowRow=[{approved_revision:4,ink_entry_id:'ink',transferred_revision:4}];return {};}
+ if(path.startsWith('rpc/')){writes++;assert.equal(path,'rpc/chronicles_reviewed_approve_and_transfer');const payload=JSON.parse(options.body);assert.equal(payload.p_branch_id,branch.id);assert.equal(payload.p_branch_revision,plan.revision);if(serverConflict)throw Error('CURRENT_SOURCE: decisions changed. Reopen Review before approval.');workflowRow=[{approved_revision:4,ink_entry_id:'ink',transferred_revision:4}];return {};}
  if(path.startsWith('chronicles_workflow?'))return workflowRow;
  if(path.startsWith('chronicles_book_controls?'))return [{ink_book_id:'target'}];
  if(path.startsWith('ink_entries?'))return path.includes('id=eq.ink')?[{...saved,id:'ink'}]:[];
@@ -40,6 +40,8 @@ await document.querySelector('[data-wf=approve-send]').onclick();
 const checkbox=document.querySelector('#reviewed-send');checkbox.checked=true;checkbox.onchange({target:checkbox});
 plan.revision++;await document.querySelector('#confirm-approve-send').onclick();assert.equal(writes,0);assert(document.querySelector('#approve-send-status').textContent.includes('changed during review'));
 await document.querySelector('[data-wf=approve-send]').onclick();
-const checked=document.querySelector('#reviewed-send');checked.checked=true;checked.onchange({target:checked});await document.querySelector('#confirm-approve-send').onclick();assert.equal(writes,1);
+const checked=document.querySelector('#reviewed-send');checked.checked=true;checked.onchange({target:checked});
+serverConflict=true;await document.querySelector('#confirm-approve-send').onclick();assert.equal(writes,1);assert.equal(workflowRow.length,0);assert(document.querySelector('#approve-send-status').textContent.includes('CURRENT_SOURCE'));assert.equal(document.querySelector('#confirm-approve-send').disabled,false);
+serverConflict=false;await document.querySelector('#confirm-approve-send').onclick();assert.equal(writes,2);assert.equal(workflowRow.length,1);
 dom.window.close();delete globalThis.document;
-console.log('PASS real approval UI: missing name and review drift prevent writes; corrected reviewed source reaches exactly one approval RPC');
+console.log('PASS real approval UI: missing name and review drift prevent writes; server conflict stays visible and corrected reviewed source succeeds on retry');

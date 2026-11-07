@@ -37,7 +37,7 @@ This is shared planning integration, not full server-wide enforcement. Direct SQ
 
 `src/current-version-gate.js` registers the Ibn Al Jabal manuscript against its current nonarchived planning branch. The chapter approval and Ink transfer UI reread the saved chapter and decision records before a write. Combined approval and transfer also compare the branch revision with the one opened for review. Missing sources, changed revisions and the missing approved Chapter 1 name stop the controlled action before the approval RPC.
 
-This gate does not change prose or approve biography, relationship chronology, or the zk6 experiment. Draft saving remains available. Other books retain their existing revision and approval checks until explicitly registered. Direct RPC clients and administrative SQL do not pass through this browser check; a branch update can also race the interval between preflight and RPC. These paths require server enforcement before universal coverage can be claimed.
+This gate does not change prose or approve biography, relationship chronology, or the zk6 experiment. Draft saving remains available. Other books retain their existing revision and approval checks until explicitly registered. The combined registered-book action now carries the reviewed branch revision into the server transaction described below. Separate approval, separate transfer, legacy RPC clients and administrative SQL do not carry that token. Those paths require further integration before universal coverage can be claimed.
 
 Tests exercise missing name, stale chapter, changed decisions, unapproved or retired decisions, unavailable sources and chapter scope. A real approval UI test verifies zero write calls for rejected input and exactly one approval call for a corrected reviewed fixture. Live manuscript Chapter 1 r4 was separately checked and rejected as expected; no manuscript content was changed.
 
@@ -50,3 +50,34 @@ Anonymous-role transaction tests rejected the unnamed chapter and a mismatched a
 Source: `db/current-decision-approval-guard.sql`. Regression: `tests/current-decision-approval.sql`, which always rolls back. Applied migrations: `chronicles_current_decision_approval_guard` and `chronicles_decision_guard_inline_author_spans`. This is exact naming enforcement, not automatic biography, chronology or style approval. Other books and arbitrary content writes remain outside this particular server rule. An administrator who disables triggers can bypass it; this is not a security boundary against database administrators.
 
 Operational rollback: drop the named trigger on `public.chronicles_workflow` and its trigger function through a reviewed migration. Do not remove chapter or workflow recovery history. The browser gate remains a separate layer.
+
+## Reviewed approval transaction
+
+The registered Ibn Al Jabal combined Approve and send action uses
+`chronicles_reviewed_approve_and_transfer`. The client passes the exact planning
+branch ID and revision opened for review. The server locks the saved chapter,
+checks its revision, then locks the registered nonarchived planning branch and
+compares the reviewed revision before calling the existing atomic approval and
+Ink transfer. These locks remain until commit or rollback. A decision update
+between browser preflight and the RPC is rejected. Missing tokens also fail.
+
+The endpoint is additive, SECURITY INVOKER with an empty search path. Existing
+permissions and RLS are unchanged. The existing Chapter 1 naming trigger remains
+active. No manuscript or author approval was persisted by installation or tests.
+
+Tests in `tests/reviewed-approval-transfer.sql` run as anon and roll back. They
+reject stale chapter/branch revisions, absent branch tokens and unnamed prose,
+accept a corrected fixture, force a failure after approval and transfer, verify
+rollback restores both records, and retry successfully. Saving the corrected
+fixture also refreshes linked planning metadata, so the test rereads that branch
+before review. Browser tests verify the exact review token reaches the endpoint
+and a server conflict remains visible without claiming approval success.
+
+Coverage: combined approval and transfer for the registered book. Separate
+approval, separate transfer, old clients and direct calls to legacy endpoints do
+not carry this review token; they retain their existing guards. This is not
+universal transaction enforcement or an authorization identity change. Concurrent
+legacy transactions can still cause a database deadlock abort and require retry;
+no partial approval is committed. Rollback the application to the preceding
+commit if necessary; leaving the additive endpoint installed is harmless. Do not
+delete recovery history.
