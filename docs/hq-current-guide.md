@@ -9,3 +9,7 @@ When HQ is unavailable, only a previously verified language-specific cache is el
 No Jamming: update this integration in place. Historical references in saved chapter notes are factual provenance, not active guide selection. Removal of older standalone files remains a separate pending approval; this change updates current consumers and links.
 
 Validation includes both edition suites, exact source rule/hash comparison, future-major selection, language isolation, corruption rejection, offline fallback, review export checks and live HQ resolution of Arabic _zk6.0 and English _zk5e.0.
+
+## Staged current-source continuation
+
+The pending enforcement branch removes bundled and offline fallback from current work packets and requires Arabic zk7 or a later eligible published edition. Older bundled descriptions above document the previous production integration, not the staged current selector. Exact changes and installation order are recorded in current-version-implementation-handoff.md. No book writing method is silently migrated.

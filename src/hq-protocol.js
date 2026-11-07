@@ -1,7 +1,18 @@
+// Minimum approved Arabic major follows Benji's explicit zk7 update.
+// A minimum is not a frozen current selector: later published editions still resolve.
+export const minimumCurrentMajor={ar:7,en:5};
+export function assertCurrentGuide(data,language,{online=false}={}){
+ const match=String(data?.resolved||'').match(/^_zk([1-9]\d*)(e?)\.(\d+)$/);
+ if(!match||!['ar','en'].includes(language)||(match[2]==='e')!==(language==='en')||Number(match[1])<minimumCurrentMajor[language])throw Object.assign(Error('This guide is historical or belongs to another language. Retrieve the current guide from HQ.'),{invalid:true});
+ if(data.protocol?.version!==data.resolved||data.protocol?.family!==data.resolved.split('.')[0])throw Object.assign(Error('Guide identity does not match its selected edition.'),{invalid:true});
+ if(online&&data.offline)throw Error('HQ could not confirm the current guide. Reconnect before preparing new work.');
+ return data;
+}
+const eligibleEdition=row=>!['draft','experiment','superseded','archived','unapproved'].includes(String(row?.status||'').toLowerCase())&&row?.approved!==false&&row?.published!==false;
 export const HQ='https://benji-hq.dr-z01.chatgpt.site';
 export async function protocolHash(protocol){return [...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(protocol))))].map(x=>x.toString(16).padStart(2,'0')).join('');}
 export async function resolveHQProtocol(code,{fetcher=fetch,storage=globalThis.localStorage}={}){
- if(!/^_zk[1-9]\d*e?(?:\.\d+)?$/.test(code))throw Error('Enter a writing code such as _zk6 or _zk6.1.');
+ if(!/^_zk[1-9]\d*e?(?:\.\d+)?$/.test(code))throw Error('Enter a writing code such as _zk7 or _zk7.1.');
  const key='hq-protocol:'+code;let data;
  try{const r=await fetcher(HQ+'/api/protocols?code='+encodeURIComponent(code),{cache:'no-store',signal:AbortSignal.timeout(12000)});if(r.status===404){try{storage.removeItem(key)}catch{}throw Object.assign(Error('This edition is not published in HQ. Choose another explicitly.'),{unpublished:true});}if(!r.ok)throw Error('HQ is unavailable.');data=await r.json();if(!data.protocol||data.resolved!==data.protocol.version||await protocolHash(data.protocol)!==data.sha256)throw Object.assign(Error('HQ protocol verification failed.'),{invalid:true});try{storage.setItem(key,JSON.stringify(data))}catch{}return {...data,offline:false};
  }catch(e){if(e.unpublished||e.invalid)throw e;try{data=JSON.parse(storage.getItem(key));if(data?.requested===code&&data.resolved===data.protocol?.version&&await protocolHash(data.protocol)===data.sha256)return {...data,offline:true};}catch{}throw Error('HQ is unavailable and no verified copy exists for this code.');}
@@ -16,16 +27,16 @@ export async function resolveCurrentHQProtocol(language,{fetcher=fetch,storage=g
   if(!response.ok)throw Error('HQ is unavailable.');
   const index=await response.json();
   if(!Array.isArray(index.editions))throw Error('HQ index is unavailable.');
-  const rows=index.editions.filter(x=>pattern.test(x.version)).sort((a,b)=>{const x=a.version.match(/\d+/g).map(Number),y=b.version.match(/\d+/g).map(Number);return y[0]-x[0]||y[1]-x[1]});
+  const rows=index.editions.filter(x=>pattern.test(x.version)&&eligibleEdition(x)).sort((a,b)=>{const x=a.version.match(/\d+/g).map(Number),y=b.version.match(/\d+/g).map(Number);return y[0]-x[0]||y[1]-x[1]});
   if(!rows.length)throw Object.assign(Error('No current protocol is published for this language.'),{unpublished:true});
-  const selected=rows[0],data=await resolveHQProtocol(selected.version,{fetcher,storage});
+  const selected=rows[0];if(Number(selected.version.match(/\d+/)[0])<minimumCurrentMajor[language])throw Object.assign(Error('HQ returned a superseded guide. Current guidance must be reconciled before new work.'),{invalid:true});const data=await resolveHQProtocol(selected.version,{fetcher,storage});
   if(data.resolved!==selected.version||data.sha256!==selected.sha256||!pattern.test(data.resolved)||data.protocol.family!==selected.version.split('.')[0])throw Object.assign(Error('HQ current protocol verification failed.'),{invalid:true});
-  const value={...data,currentLanguage:language};
+  const value=assertCurrentGuide({...data,currentLanguage:language,checkedAt:new Date().toISOString()},language);
   try{storage?.setItem(key,JSON.stringify(value))}catch{}
   return value;
  }catch(error){
   if(error.invalid||error.unpublished)throw error;
-  try{const cached=JSON.parse(storage?.getItem(key));if(cached?.currentLanguage===language&&pattern.test(cached.resolved)&&cached.resolved===cached.protocol?.version&&await protocolHash(cached.protocol)===cached.sha256)return {...cached,offline:true};}catch{}
+  try{const cached=JSON.parse(storage?.getItem(key));if(cached?.currentLanguage===language&&pattern.test(cached.resolved)&&cached.resolved===cached.protocol?.version&&await protocolHash(cached.protocol)===cached.sha256)return assertCurrentGuide({...cached,offline:true},language);}catch{}
   throw Error('Current HQ guide unavailable. No verified current copy is saved for this language.');
  }
 }
@@ -44,5 +55,5 @@ export function mountProtocol(root,{chapter,chapterURL,esc,recordRequest,languag
  if(language==='en')form.elements.register.value='English';
  form.onsubmit=async e=>{e.preventDefault();button.disabled=true;status.textContent='Retrieving HQ protocol…';try{resolved=await resolveCurrentHQProtocol(language);form.elements.code.value=resolved.protocol.family;status.textContent=(resolved.offline?'Verified offline copy. Latest HQ status could not be checked. ':'Retrieved from HQ. ')+resolved.resolved;root.querySelector('[data-protocol-details]').innerHTML=`<a target="_blank" rel="noopener" href="${HQ}/api/protocols?code=${encodeURIComponent(resolved.resolved)}">${esc(resolved.resolved)}</a> · <small>${esc(resolved.sha256.slice(0,12))}</small>`;button.disabled=false;}catch(e){resolved=null;status.textContent=e.message;}};
  void form.onsubmit({preventDefault(){}});
- button.onclick=async()=>{if(!resolved)return;if(!form.elements.register.value||!form.elements.points.value.trim())return status.textContent='Choose a register and add a few chapter points first.';if((resolved.protocol.family.includes('e'))!==(form.elements.register.value==='English'))return status.textContent='Choose an English protocol for English, or an Arabic protocol with _am or _f.';button.disabled=true;try{const packet={format:'benji-writing-request',createdAt:new Date().toISOString(),chapter:{id:chapter.id,title:chapter.title,revision:chapter.revision,url:new URL(chapterURL,location.origin+'/').href},requested:resolved.requested,resolved:resolved.resolved,sha256:resolved.sha256,protocol:resolved.protocol,offline:resolved.offline,register:form.elements.register.value,points:form.elements.points.value,bookDecisions:form.elements.decisions.value,instruction:'Use this exact protocol, the supplied chapter points and approved book decisions. Ask for missing manuscript or continuity context. Do not invent approvals or modify previous chapters.'};await recordRequest(packet);downloadJSON(packet,'chapter-writing-request.json');status.textContent='Writing request exported and its protocol reference saved in chapter notes.';}catch(e){status.textContent=e.message;}finally{button.disabled=false;}};
+ button.onclick=async()=>{if(!resolved)return;if(!form.elements.register.value||!form.elements.points.value.trim())return status.textContent='Choose a register and add a few chapter points first.';if((resolved.protocol.family.includes('e'))!==(form.elements.register.value==='English'))return status.textContent='Choose an English protocol for English, or an Arabic protocol with _am or _f.';button.disabled=true;try{const refreshed=assertCurrentGuide(await resolveCurrentHQProtocol(language),language,{online:true});if(refreshed.resolved!==resolved.resolved||refreshed.sha256!==resolved.sha256){resolved=refreshed;form.elements.code.value=refreshed.protocol.family;throw Error('HQ guidance changed. Review the newly loaded guide before exporting.');}resolved=refreshed;const packet={format:'benji-writing-request',createdAt:new Date().toISOString(),chapter:{id:chapter.id,title:chapter.title,revision:chapter.revision,url:new URL(chapterURL,location.origin+'/').href},requested:resolved.requested,resolved:resolved.resolved,sha256:resolved.sha256,protocol:resolved.protocol,offline:resolved.offline,register:form.elements.register.value,points:form.elements.points.value,bookDecisions:form.elements.decisions.value,instruction:'Use this exact protocol, the supplied chapter points and approved book decisions. Ask for missing manuscript or continuity context. Do not invent approvals or modify previous chapters.'};await recordRequest(packet);downloadJSON(packet,'chapter-writing-request.json');status.textContent='Writing request exported and its protocol reference saved in chapter notes.';}catch(e){status.textContent=e.message;}finally{button.disabled=false;}};
 }

@@ -349,7 +349,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       (points.length?'<ul>'+points.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>':'')+
       (p.turn?'<p><strong>Purpose</strong><br>'+esc(p.turn)+'</p>':'')+
       (p.next?'<p><strong>Next</strong><br>'+esc(p.next)+'</p>':'')+
-      '<small>Planning only · '+esc(writingStandardReference('ar')?.code||'_zk6')+' · E</small></div></details>';
+      '<small>Planning only · '+esc(writingStandardReference('ar')?.code||'Current guide unavailable')+' · E</small></div></details>';
   }
   function renderEntry(){
     if(!active)return;
@@ -398,10 +398,11 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ${notesShell()}
       </section></div><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     const settingsHost=bookReading?$('.chapter-method'):$('.save-meta');
-    const activeEnglishMethod=writingStandardReference('en')?.code||'_zk5e';
+    const activeEnglishMethod=writingStandardReference('en')?.code;
+    const activeArabicMethod=writingStandardReference('ar')?.code;
     const methods=bookReading
-      ? `<option value="${esc(activeEnglishMethod)}">${esc(activeEnglishMethod)}</option>`
-      : '<option value="zk5">zk5</option><option value="zk6">zk6 · approved edition only</option><option value="zkalam4">zkalam4</option>';
+      ? (activeEnglishMethod?`<option value="${esc(activeEnglishMethod)}">${esc(activeEnglishMethod)}</option>`:'')
+      : (activeArabicMethod?`<option value="${esc(activeArabicMethod)}">${esc(activeArabicMethod)}</option>`:'');
     settingsHost.insertAdjacentHTML('beforeend',`<fieldset class="chapter-writing-settings" id="chapter-writing-settings" disabled ${bookReading?'hidden':''} dir="ltr">
       ${bookReading?'':'<legend>Writing method for this saved version</legend>'}
       <label>Method<select id="chapter-writing-method"><option value="unknown">Not recorded</option><option value="Manual">Manual</option>${methods}</select></label>

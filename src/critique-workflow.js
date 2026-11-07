@@ -1,12 +1,12 @@
 import {reviewContract} from './review-contract.js';
-import {writingStandard,writingStandardReference,assertWritingStandard} from './writing-standards.js';
+import {loadCurrentWritingStandard,writingStandardReference,assertWritingStandard} from './writing-standards.js';
 import {repairVerificationEvidence} from './repair-verification-evidence.js';
 import {createFinding,planningFingerprint,chapterSourceCurrent,normalized} from './critique-findings.js';
 import {activeRecord,currentPlanning} from './current-book-brief.js';
 export const REVIEW_PACKET='chronicles-review-v1';
 const requireText=(v,label,max=12000)=>{if(typeof v!=='string'||!v.trim()||v.length>max)throw Error('Provide '+label+' within '+max+' characters.');return v.trim();};
 export async function reviewPacket(data,{bookId,branchId,revision,language},chapters){
- return {schema:REVIEW_PACKET,bookId,branchId,planningRevision:revision,exportedAt:new Date().toISOString(),writingStandard:writingStandard(language),reviewContract:reviewContract(language),writingRulesRevision:data.recordStamps?.rules?.revision??null,scope:'Saved chapters supplied here only. Empty paragraph lists mean no saved text. Unsaved edits are excluded.',planningFingerprint:await planningFingerprint(data),language,currentPlanning:currentPlanning(data),origin:'Claude review',instructions:'Follow reviewContract and the supplied writingStandard. Return this JSON with findings filled in. Preserve source IDs, revisions and fingerprint. Each finding needs chapterId, chapterRevision, paragraph (1 based), exact quote, title, issue, impact, repair, kind, severity, confidence and recommendation. No approval or chapter edits. kind: Textual fact / Interpretation / Author preference / Research gap. severity: Minor / Major / Critical. confidence: Low / Medium / High. recommendation: Keep / Rewrite / Cut / Verify. origin: Claude review / GPT self critique / Human review. GPT self critique is not independent validation.',chapters:chapters.map(c=>({id:c.id,title:c.title,revision:c.revision,paragraphs:c.paragraphs})),findings:[]};
+ return {schema:REVIEW_PACKET,bookId,branchId,planningRevision:revision,exportedAt:new Date().toISOString(),writingStandard:await loadCurrentWritingStandard(language),reviewContract:reviewContract(language),writingRulesRevision:data.recordStamps?.rules?.revision??null,scope:'Saved chapters supplied here only. Empty paragraph lists mean no saved text. Unsaved edits are excluded.',planningFingerprint:await planningFingerprint(data),language,currentPlanning:currentPlanning(data),origin:'Claude review',instructions:'Follow reviewContract and the supplied writingStandard. Return this JSON with findings filled in. Preserve source IDs, revisions and fingerprint. Each finding needs chapterId, chapterRevision, paragraph (1 based), exact quote, title, issue, impact, repair, kind, severity, confidence and recommendation. No approval or chapter edits. kind: Textual fact / Interpretation / Author preference / Research gap. severity: Minor / Major / Critical. confidence: Low / Medium / High. recommendation: Keep / Rewrite / Cut / Verify. origin: Claude review / GPT self critique / Human review. GPT self critique is not independent validation.',chapters:chapters.map(c=>({id:c.id,title:c.title,revision:c.revision,paragraphs:c.paragraphs})),findings:[]};
 }
 export function parseReviewPacket(raw){
  if(typeof raw!=='string'||raw.length>2000000)throw Error('Review file must be under 2 MB.');
@@ -16,6 +16,7 @@ export function parseReviewPacket(raw){
  return packet;
 }
 export async function importReview(data,packet,selected,context,chapters){
+ if(packet.writingStandard)await loadCurrentWritingStandard(context.language);
  assertWritingStandard(packet.writingStandard,context.language);
  if(packet.bookId!==context.bookId||packet.branchId!==context.branchId||packet.language!==context.language)throw Error('Review belongs to another book, planning path or language.');
  if(packet.planningFingerprint!==await planningFingerprint(data))throw Error('Planning source changed. Export a current review packet.');
