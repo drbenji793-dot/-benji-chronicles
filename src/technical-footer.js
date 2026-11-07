@@ -2,6 +2,7 @@ import {formatTime} from './revision-stamp.js';
 // Consolidate page metadata without changing saved content or cloning live controls.
 export function mountTechnicalFooter(main,footer){
  if(!main||!footer)return;
+ const editionBridge=footer.parentElement.querySelector(':scope > .edition-bridge');
  const release=footer.querySelector('.technical-details');
  if(!release)return;
  const website=document.createElement('div');website.dataset.websiteDetails='';
@@ -26,7 +27,7 @@ export function mountTechnicalFooter(main,footer){
    // Keep actions under their original delegated event handlers. Only metadata moves.
    const hasChapterStamp=!!source.closest('.editor-area')?.querySelector('.chapter-stamp');
    const controls=[...source.querySelectorAll('form,button,a,input,select,textarea')];
-   for(const control of controls){if(!source.contains(control))continue;const wrapper=(hasChapterStamp&&control.closest('.workflow-panel'))||control.closest('fieldset')||control.closest('form')||control.closest('label')||control;anchor.append(wrapper);}
+   for(const control of controls){if(!source.contains(control)||control.closest('.chapter-stamp'))continue;const wrapper=(hasChapterStamp&&control.closest('.workflow-panel'))||control.closest('fieldset')||control.closest('form')||control.closest('label')||control;anchor.append(wrapper);}
    anchor.hidden=!anchor.childNodes.length;
    if(!anchor.hidden){const summary=document.createElement('summary');summary.textContent=hasChapterStamp?'Chapter tools':'Writing settings and tools';anchor.prepend(summary);}
    const notes=hasChapterStamp&&source.closest('.editor-area')?.querySelector('.chapter-notes');
@@ -37,7 +38,17 @@ export function mountTechnicalFooter(main,footer){
   }
   const workflow=main.querySelector('.library-workflow');
   if(workflow&&!panel.contains(workflow)){const anchor=document.createElement('span');anchor.hidden=true;workflow.before(anchor);entries.push({anchor,content:workflow});panel.append(workflow);}
-  panel.append(website);const host=main.querySelector('.editor-area')||main;if(host.lastElementChild!==panel)host.append(panel);
+  const host=main.querySelector('.editor-area')||main;
+  const chapter=host.querySelector('#chronicles-entry-body,#prose');
+  const wordCount=chapter&&host.querySelector('.chapter-word-count');
+  if(wordCount&&!panel.contains(wordCount))panel.append(wordCount);
+  if(editionBridge){
+   if(chapter&&panel.lastElementChild!==editionBridge)panel.append(editionBridge);
+   else if(!chapter&&editionBridge.nextElementSibling!==footer)footer.before(editionBridge);
+  }
+  const bridgeInPanel=editionBridge?.parentElement===panel?editionBridge:null;
+  if(website.parentElement!==panel||website.nextElementSibling!==bridgeInPanel)panel.insertBefore(website,bridgeInPanel);
+  if(host.lastElementChild!==panel)host.append(panel);
   observer.observe(main,{childList:true,subtree:true});
  }
  refresh();return ()=>observer.disconnect();

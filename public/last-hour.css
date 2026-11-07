@@ -299,3 +299,6 @@ html body #main .book-reading-layout .prose[lang="en"]{
 .chapter-current-guide,.chapter-variant-choices{grid-column:1/-1}
 .chapter-variant-choices{display:flex;flex-wrap:wrap;gap:6px}
 .chapter-variant-choices button{font-size:12px;padding:5px 8px}
+
+.editor-area [data-page-technical] .edition-bridge{padding:8px 12px;margin:0}
+.editor-area [data-page-technical] .chapter-word-count{margin:6px 12px}

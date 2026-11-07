@@ -378,15 +378,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules||bookReading?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
         ${!rules&&book.id===REVIEW_BOOK?planningNotes(c):''}
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
-        <div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div>${technicalPanel(`<div class="save-meta" dir="ltr">${rules?`Book Rules ${version(c.revision)} · ${esc(c.updated_by)} · ${esc(date(c.updated_at))}`:''}${c.writing_meta?.origin?`<p>${esc(c.writing_meta.origin)}</p>`:''}</div>`)}
-        ${!c.body.trim()&&!rules?'<p class="notice" dir="ltr">Chapter text · Not written yet. Press Edit to begin.</p>':''}
-        <hr class="chapter-story-divider" aria-hidden="true"><article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
-        <nav class="chapter-bottom-controls" aria-label="Chapter editing and navigation" dir="ltr">
-          ${rules?'':`<button id="bottom-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button>`}
-          <button id="bottom-edit">Edit</button><button id="bottom-save" class="primary" disabled>Save</button>
-          ${rules?'':`<button id="bottom-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button>`}
-        </nav>
-        <section class="chapter-stamp" aria-label="Saved writing stamp" dir="ltr">
+        ${technicalPanel(`<section class="chapter-stamp" aria-label="Saved writing stamp" dir="ltr">
           ${chapterWritingStamp(c,{esc,language:book.language,version,date})}
           <fieldset class="chapter-writing-settings" id="chapter-writing-settings" disabled hidden>
             <legend>Writing stamp for this revision</legend>
@@ -396,7 +388,14 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
             ${book.language==='ar'?'<div class="chapter-variant-choices"><button type="button" data-writing-variant="_am">_am · <span lang="ar">العامية</span></button><button type="button" data-writing-variant="_f">_f · <span lang="ar">المثقفة</span></button></div>':''}
             <a class="chapter-current-guide" href="${HQ}/standards/${book.language==='ar'?'Arabic_Voice_ZK7_v001.html':'English_Voice_v007.html'}">Current guide in HQ</a>
           </fieldset>
-        </section>
+        </section><div class="save-meta" dir="ltr">${rules?`Book Rules ${version(c.revision)} · ${esc(c.updated_by)} · ${esc(date(c.updated_at))}`:''}${c.writing_meta?.origin?`<p>${esc(c.writing_meta.origin)}</p>`:''}</div><div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div>`)}
+        ${!c.body.trim()&&!rules?'<p class="notice" dir="ltr">Chapter text · Not written yet. Press Edit to begin.</p>':''}
+        <hr class="chapter-story-divider" aria-hidden="true"><article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
+        <nav class="chapter-bottom-controls" aria-label="Chapter editing and navigation" dir="ltr">
+          ${rules?'':`<button id="bottom-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button>`}
+          <button id="bottom-edit">Edit</button><button id="bottom-save" class="primary" disabled>Save</button>
+          ${rules?'':`<button id="bottom-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button>`}
+        </nav>
         ${notesShell()}
       </section></div><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     fillWriting(c.writing_meta);
@@ -456,7 +455,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       $('#chronicles-discard').onclick=()=>{if(confirm('Discard this local draft?')){storage.remove(draftKey(c.id));$('#chronicles-save-warning').innerHTML=''}};
     }
     
-    mountChapterNotes(document.querySelector('[data-note-panel]'),{api,esc,getWriter,chapter:c,language:book.language,bookURL:link(book.id)}).catch(e=>say(e.message,true));workflow.mount({...c,language:book.language},'extra',book.title,()=>editing);const technical=$('.reading-details');if(technical){technical.open=false;$('.editor-area').append(technical);const count=$('.chapter-word-count');if(count)technical.append(count);}
+    mountChapterNotes(document.querySelector('[data-note-panel]'),{api,esc,getWriter,chapter:c,language:book.language,bookURL:link(book.id)}).catch(e=>say(e.message,true));workflow.mount({...c,language:book.language},'extra',book.title,()=>editing);const technical=$('.reading-details');if(technical){technical.open=false;$('.editor-area').append(technical);}
   }
   async function renderExportPage(briefOnly=false){
     $('#main').innerHTML=header()+'<p>Loading export…</p>';
@@ -518,7 +517,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       if(!node.className)node.removeAttribute('class');
     }
     const settings=$('#chapter-writing-settings');
-    settings.disabled=false;settings.hidden=false;fillWriting(d?.writing_meta||active.writing_meta);
+    settings.disabled=false;settings.hidden=false;settings.closest('details').open=true;fillWriting(d?.writing_meta||active.writing_meta);
     $('#chronicles-edit').disabled=true;$('#bottom-edit').disabled=true;$('#bottom-save').disabled=false;
     $('#chronicles-save').disabled=false;
     $('#chronicles-cancel').hidden=false;

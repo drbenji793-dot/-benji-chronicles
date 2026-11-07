@@ -1,6 +1,6 @@
 {
-  "version": 259,
-  "releasedAt": "2026-11-07T21:04:08+00:00",
+  "version": 260,
+  "releasedAt": "2026-11-07T23:25:28+00:00",
   "timezone": "UTC",
-  "note": "Match the Arabic and English writing stamps and chapter tools"
+  "note": "Keep chapter metadata and library links inside Technical details"
 }

@@ -66,11 +66,13 @@ export function createEditionBridge({api,esc,clean,say,getWriter,canLeave}){
   const opposite=SITE_LANGUAGE==='ar'?'en':'ar';
   bar.innerHTML=`<nav class="edition-actions"><span class="edition-label">${SITE_LANGUAGE==='en'?'English':'Arabic'} workspace</span><a href="${SITES[opposite]}">${opposite==='en'?'English':'Arabic'} Library ↗</a></nav>`;
   const key=sourceKey(params);
-  bar.hidden=!!key&&SITE_LANGUAGE==='ar'&&params.get('view')!=='export';
+  const chapter=params.has('chapter');
+  bar.hidden=!!key&&SITE_LANGUAGE==='ar'&&!chapter&&params.get('view')!=='export';
   if(!key){bar.replaceChildren();bar.hidden=true;}
   if(SITE_LANGUAGE==='ar'&&key){
-   const menu=document.createElement('details');menu.className='edition-menu';menu.innerHTML='<summary>English edition</summary><nav class="edition-actions"></nav>';const libraryLink=q('nav a');menu.querySelector('nav').append(libraryLink);bar.replaceChildren(menu);
-   const actions=q('nav');actions.insertAdjacentHTML('beforeend','<button data-send="translation">Translate to English</button><button data-send="adaptation">Create English adaptation</button>');
+   const menu=document.createElement('details');menu.className='edition-menu';menu.innerHTML='<summary>English edition</summary><nav class="edition-actions"></nav>';if(chapter)bar.append(menu);
+   else{menu.querySelector('nav').append(q('nav a'));bar.replaceChildren(menu);}
+   const actions=menu.querySelector('nav');actions.insertAdjacentHTML('beforeend','<button data-send="translation">Translate to English</button><button data-send="adaptation">Create English adaptation</button>');
    bar.querySelectorAll('[data-send]').forEach(b=>b.onclick=()=>send(key,b.dataset.send));
    editions.filter(e=>e.source_key===key).forEach(e=>actions.insertAdjacentHTML('beforeend',`<a href="${SITES.en}#book=${e.target_book_id}">Open English ${esc(e.mode)}</a>`));
   }
