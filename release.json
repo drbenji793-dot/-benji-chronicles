@@ -1,6 +1,6 @@
 {
-  "version": 254,
-  "releasedAt": "2026-11-07T03:29:28.952257+00:00",
+  "version": 255,
+  "releasedAt": "2026-11-07T03:36:26+00:00",
   "timezone": "UTC",
-  "note": "Current decision approval gate with inline author span support and server guard evidence"
+  "note": "Match English chapter controls and Default styling to the Arabic edition"
 }

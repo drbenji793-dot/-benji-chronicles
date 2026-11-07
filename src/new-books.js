@@ -348,7 +348,6 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <a class="reference-link" href="${link(book.id)}">All chapters</a>
       </aside>
       <section class="editor-area" dir="${book.language==='en'?'ltr':'rtl'}">
-        ${bookReading?'<nav class="book-reading-navigation" aria-label="Chapter navigation"></nav><div class="book-reading-options" role="group" aria-label="Reader controls"></div><details class="book-reading-tools"><summary>Edit &amp; tools</summary>':''}
         ${rules?'':partsUI()}
         ${rules?'<p class="reference-note">Book Rules</p>':`<div class="chapter-picker compact-chapter-picker"><div class="book-part-picker" dir="${book.language==='ar'?'rtl':'ltr'}"><select id="extra-chapter-select" aria-label="Choose chapter" dir="${book.language==='ar'?'rtl':'ltr'}">${list.map(x=>`<option value="${x.chapter_number}" ${x.id===c.id?'selected':''}>${String(x.chapter_number).padStart(2,'0')} · ${esc(x.title)}</option>`).join('')}</select><button id="edit-chapter-name" class="part-circle" lang="en" dir="ltr" aria-label="Edit chapter name">Edit</button><button id="picker-add-chapter" class="part-circle part-add" aria-label="Add chapter" title="Add chapter">＋</button></div><div class="chapter-step-controls" dir="ltr"><button id="extra-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button><button id="extra-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button></div></div>`}
         <div class="toolbar" dir="ltr">
@@ -362,7 +361,6 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
           ${rules?'':'<button id="extra-export">PDF / HTML</button><button id="extra-print-all">Print all</button><button id="extra-add-chapter">+ New Chapter</button>'}
           <button id="extra-smaller" aria-label="Smaller text">A−</button><button id="extra-larger" aria-label="Larger text">A+</button>
         </div>
-        ${bookReading?'</details>':''}
         <div id="chronicles-save-warning"></div>${book.id===REVIEW_BOOK?`<nav class="chapter-links" dir="rtl"><a href="#book=${IBN_BOOK}&view=dsl">Chapter events</a> · <a href="https://benji-ink.vercel.app/#book=b81d1e63-6cae-445f-b8e4-a472ea5451d9">Ink edition</a>${(planningData?.storyDraft?.chapters?.find(p=>p.manuscriptEntryId===c.id)?.eventIds||[]).map(id=>`<a class="reference-link" href="#book=${IBN_BOOK}&view=dsl&dslview=map&focuskind=event&focusid=${id}">${esc(planningData.events.find(e=>e.id===id)?.title||'Event')}</a>`).join('')}</nav>`:''}
 
         ${selectedPart?`<p class="chapter-part">${esc(partName(selectedPart))}</p>`:''}
@@ -404,7 +402,6 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     let readingSize=Number(storage.get(sizeKey))||(bookReading?16:17);
     const size=()=>{$('#chronicles-entry-body').style.fontSize=readingSize+'px';storage.set?.(sizeKey,String(readingSize));};size();
     if(bookReading){
-      $('.book-reading-options').append($('#extra-smaller'),$('#extra-larger'));
       const paragraphs=[...$('#chronicles-entry-body').children];
       for(const node of paragraphs){
         if(node.tagName!=='P')continue;
@@ -491,7 +488,6 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   function beginEdit(d,keepPosition=false){
     if(!active||editing)return;
     editing=true;
-    const readingTools=$('.book-reading-tools');if(readingTools)readingTools.open=true;
     for(const node of $('#chronicles-entry-body').querySelectorAll('.reading-scene-break,.reading-voice-memo,.reading-call-sheet')){
       node.classList.remove('reading-scene-break','reading-voice-memo','reading-call-sheet');
       if(!node.className)node.removeAttribute('class');
