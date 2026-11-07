@@ -1,6 +1,6 @@
 {
-  "version": 255,
-  "releasedAt": "2026-11-07T03:36:26+00:00",
+  "version": 256,
+  "releasedAt": "2026-11-07T03:47:11+00:00",
   "timezone": "UTC",
-  "note": "Match English chapter controls and Default styling to the Arabic edition"
+  "note": "Use the shared manuscript overview for English Chapters navigation"
 }

@@ -159,7 +159,8 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     book=books.find(b=>b.id===id);
     if(!book){await load();book=books.find(b=>b.id===id);}
     if(!book)throw Error('Book not found.');const currentBook=await api('chronicles_books?id=eq.'+id+'&select=*&limit=1');if(currentBook.find(b=>b.id===id))book=currentBook.find(b=>b.id===id);const footerRules=document.querySelector('.footer-rules [data-book-rules]');if(footerRules){footerRules.hidden=false;footerRules.textContent='Book Rules';footerRules.href=link(book.id)+'&rules=1';}
-    if(['dsl','storyline','chapters'].includes(params.get('view'))){
+    const manuscriptOverview=book.language==='en'&&params.get('view')==='chapters'&&!params.has('dslview')&&!params.has('dslbranch')&&!params.has('storytab')&&!params.has('draftchapter');
+    if(!manuscriptOverview&&['dsl','storyline','chapters'].includes(params.get('view'))){
       active=null;editing=false;const nav=document.querySelector('.book-navigation');
       if(nav){nav.hidden=false;nav.innerHTML='<div class="ink-tabs">'+bookNavigation(link(book.id),selectedBookTool(params),book.id===IBN_BOOK?'#book='+REVIEW_BOOK:link(book.id))+'</div><div class="story-aux-nav"><a href="'+(book.id===IBN_BOOK?'#book='+REVIEW_BOOK:link(book.id))+'">Back to chapters</a><a href="#library&lang='+book.language+'">Library</a></div>';}
       await renderDSL($('#main'),api,book.id===REVIEW_BOOK?IBN_BOOK:book.id,params.get('view'));return;
@@ -195,7 +196,6 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(params.get('view')==='contents'){active=null;editing=false;$('#main').innerHTML=storyContents(book.title,chapterList(),null,{root:link(book.id),language:book.language,parts,rulesUrl:link(book.id)+'&rules=1',notesUrl:link(book.id)+'&view=dsl',notesLabel:'Planning Notes'});return;}
     if(params.get('view')==='critique'){active=null;editing=false;await renderCritique($('#main'),api,{bookId:book.id===REVIEW_BOOK?IBN_BOOK:book.id,language:book.language,title:book.title,sourceLabel:book.id===IBN_BOOK?'Original archived manuscript':book.id===REVIEW_BOOK?'Current manuscript':'Saved manuscript',sourcePath:'chronicles_book_entries?book_id=eq.'+book.id+'&kind=eq.chapter&select=id,chapter_number,title,body,revision,updated_at&order=chapter_number.asc'});return;}
     if(params.get('view')==='references'){const branches=await api('chronicles_dsl_branches?book_id=eq.'+book.id+'&archived=eq.false&select=data->references&order=updated_at.desc&limit=1');$('#main').innerHTML=header()+'<section class="reference-page"><h1>References</h1><h2>Images &amp; Media</h2><p class="reference-note">Artwork and media developed for this book, with original sources and earlier versions preserved.</p>'+renderBookMedia(book.id,bookArtwork[book.id],esc)+'<h2>Research &amp; Notes</h2><p style="white-space:pre-wrap">'+esc(branches[0]?.references||'Research notes are not recorded yet.')+'</p></section>';return;}
-    if(['dsl','storyline','chapters'].includes(params.get('view'))){active=null;editing=false;await renderDSL($('#main'),api,book.id===REVIEW_BOOK?IBN_BOOK:book.id,params.get('view'));return;}
     const rules=params.get('rules')==='1';
     const no=Number(params.get('chapter'));
     if(rules||params.has('chapter')){
@@ -270,7 +270,15 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     const list=chapterList();
     const lastHour=book.id===LAST_HOUR_BOOK;
     const drafted=list.filter(c=>['full_chapter','revised_full_chapter'].includes(c.writing_meta?.draft_status)).length;
-    $('#main').innerHTML=(lastHour?'':header())+`<section class="reference-page chronicles-book-home" dir="${book.language==='en'?'ltr':'rtl'}">
+    const cards=rows=>chapterCards(rows,{esc,root:link(book.id),date,language:book.language});
+    const unassigned=parts.length?list.filter(c=>!partFor(c.chapter_number)):list;
+    const overviewCards=parts.length
+      ? (unassigned.length?cards(unassigned):'')+parts.map(p=>{
+          const rows=partChapters(p);
+          return rows.length?`<h2>${esc(partName(p))}</h2>`+cards(rows).replace(/<h2>.*?<\/h2>/,''):'';
+        }).join('')
+      : cards(list);
+    $('#main').innerHTML=(lastHour&&showCover?'':header())+`<section class="reference-page chronicles-book-home" dir="${book.language==='en'?'ltr':'rtl'}">
       ${showCover?(book.id===illustratedBook?'<a class="bellwether-entrance" href="'+link(book.id)+'">'+illustratedCover(book)+'</a>':fullBookCover(book,'book-overview-cover')):''}
       <div class="eyebrow">BENJI CHRONICLES · ${book.id===illustratedBook?'American adaptation':'Independent book'}</div>
       ${lastHour&&showCover?'':`<h1 dir="auto">${esc(book.title)}</h1>`}
@@ -283,7 +291,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <a href="${link(book.id)}&view=dsl&dslview=synopsis" class="reference-link">Story</a>
 
       </div>
-      ${partStyles()}<nav class="book-part-list" dir="${book.language==='ar'?'rtl':'ltr'}" aria-label="Book parts"><div class="book-part-heading"><span>Parts</span><button type="button" class="part-circle part-add" id="overview-add-part" aria-label="Add part" title="Add part">＋</button></div>${parts.map(p=>`<div class="book-part-row"><a href="${partChapters(p)[0]?entryLink(partChapters(p)[0]):link(book.id)+'&part='+p.id}"><small>${esc(partOrdinal(p))}</small><strong>${esc(p.title)}</strong></a><button type="button" class="part-circle" lang="en" dir="ltr" data-edit-overview-part="${p.id}" aria-label="Edit ${esc(p.title)}">Edit</button></div>`).join('')}</nav>${parts.length?parts.map(p=>{const rows=partChapters(p);return rows.length?`<h2>${esc(partName(p))}</h2>`+chapterCards(rows,{esc,root:link(book.id),date,language:book.language}).replace(/<h2>.*?<\/h2>/,''):'';}).join(''):chapterCards(list,{esc,root:link(book.id),date,language:book.language})}${lastHour?`<details class="last-hour-story-notes"><summary>Story Notes</summary>${lastHourLinks(book.id)}</details>`:''}${technicalPanel(list.map(c=>`<p><bdi>${esc(c.title)}</bdi> · ${version(c.revision)} · ${esc(c.updated_by||'Writer not recorded')} · ${esc(formatTime(c.updated_at))}</p>`).join(''))}${book.id===REVIEW_BOOK?`<details><summary>Archive</summary><a href="#book=${IBN_BOOK}&archive=1&view=originals">Previous manuscript</a></details>`:''}
+      ${partStyles()}<nav class="book-part-list" dir="${book.language==='ar'?'rtl':'ltr'}" aria-label="Book parts"><div class="book-part-heading"><span>Parts</span><button type="button" class="part-circle part-add" id="overview-add-part" aria-label="Add part" title="Add part">＋</button></div>${parts.map(p=>`<div class="book-part-row"><a href="${partChapters(p)[0]?entryLink(partChapters(p)[0]):link(book.id)+'&part='+p.id}"><small>${esc(partOrdinal(p))}</small><strong>${esc(p.title)}</strong></a><button type="button" class="part-circle" lang="en" dir="ltr" data-edit-overview-part="${p.id}" aria-label="Edit ${esc(p.title)}">Edit</button></div>`).join('')}</nav>${overviewCards}${lastHour?`<details class="last-hour-story-notes"><summary>Story Notes</summary>${lastHourLinks(book.id)}</details>`:''}${technicalPanel(list.map(c=>`<p><bdi>${esc(c.title)}</bdi> · ${version(c.revision)} · ${esc(c.updated_by||'Writer not recorded')} · ${esc(formatTime(c.updated_at))}</p>`).join(''))}${book.id===REVIEW_BOOK?`<details><summary>Archive</summary><a href="#book=${IBN_BOOK}&archive=1&view=originals">Previous manuscript</a></details>`:''}
     </section><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     $('#overview-add-part').onclick=()=>editPart(null);document.querySelectorAll('[data-edit-overview-part]').forEach(el=>el.onclick=()=>editPart(parts.find(p=>p.id===el.dataset.editOverviewPart)));
     $('#chronicles-add-chapter').onclick=showCreateChapter;
