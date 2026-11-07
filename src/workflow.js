@@ -44,7 +44,7 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
    const nav=document.createElement('nav');nav.className='workflow-actions review-workspace-links';nav.setAttribute('aria-label','Planning and rules');
    area.querySelector('.chapter-quick-links')?.remove();
    const rules=document.createElement('a');rules.href='#book='+c.book_id+'&rules=1';rules.textContent='Book Rules';nav.append(rules);details.append(nav);
-   if(!compactEnglish){
+   if(!area.querySelector('.chapter-stamp')&&!compactEnglish){
    const technical=document.createElement('details');technical.innerHTML='<summary>Technical record</summary><p>Chapter version '+esc(version(c.revision))+' · Internal revision '+esc(c.revision)+'</p><p>Entry: '+esc(c.id)+'</p><p>Saved UTC: '+esc(c.updated_at)+'</p><p>Chapter versions start at 101. The style guide has its own version.</p>';
    details.append(technical);
    }

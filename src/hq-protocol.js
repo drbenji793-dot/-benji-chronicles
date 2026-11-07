@@ -11,12 +11,13 @@ export async function resolveCurrentHQProtocol(language,{fetcher=fetch,storage=g
  if(!['ar','en'].includes(language))throw Error('Choose Arabic or English.');
  const pattern=language==='ar'?/^_zk\d+\.\d+$/:/^_zk\d+e\.\d+$/;
  const key='hq-current-protocol:'+language;
+ const eligible=edition=>pattern.test(edition)&&(language==='en'||Number(edition.match(/\d+/)[0])>=7);
  try{
   const response=await fetcher(HQ+'/api/protocols',{cache:'no-store',signal:AbortSignal.timeout(6000)});
   if(!response.ok)throw Error('HQ is unavailable.');
   const index=await response.json();
   if(!Array.isArray(index.editions))throw Error('HQ index is unavailable.');
-  const rows=index.editions.filter(x=>pattern.test(x.version)).sort((a,b)=>{const x=a.version.match(/\d+/g).map(Number),y=b.version.match(/\d+/g).map(Number);return y[0]-x[0]||y[1]-x[1]});
+  const rows=index.editions.filter(x=>eligible(x.version)).sort((a,b)=>{const x=a.version.match(/\d+/g).map(Number),y=b.version.match(/\d+/g).map(Number);return y[0]-x[0]||y[1]-x[1]});
   if(!rows.length)throw Object.assign(Error('No current protocol is published for this language.'),{unpublished:true});
   const selected=rows[0],data=await resolveHQProtocol(selected.version,{fetcher,storage});
   if(data.resolved!==selected.version||data.sha256!==selected.sha256||!pattern.test(data.resolved)||data.protocol.family!==selected.version.split('.')[0])throw Object.assign(Error('HQ current protocol verification failed.'),{invalid:true});
@@ -25,7 +26,7 @@ export async function resolveCurrentHQProtocol(language,{fetcher=fetch,storage=g
   return value;
  }catch(error){
   if(error.invalid||error.unpublished)throw error;
-  try{const cached=JSON.parse(storage?.getItem(key));if(cached?.currentLanguage===language&&pattern.test(cached.resolved)&&cached.resolved===cached.protocol?.version&&await protocolHash(cached.protocol)===cached.sha256)return {...cached,offline:true};}catch{}
+  try{const cached=JSON.parse(storage?.getItem(key));if(cached?.currentLanguage===language&&eligible(cached.resolved)&&cached.resolved===cached.protocol?.version&&await protocolHash(cached.protocol)===cached.sha256)return {...cached,offline:true};}catch{}
   throw Error('Current HQ guide unavailable. No verified current copy is saved for this language.');
  }
 }

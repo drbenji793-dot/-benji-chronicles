@@ -11,7 +11,7 @@ export async function syncCurrentWritingStandard(language,options={}){
   const rules=section?section.text.split(/(?=ZK\d+\.\d+\.)/).slice(1).map(x=>x.replace(/\s+/g,' ').trim()):p.foundation.map(x=>x.text);
   if(!rules.length)throw Error('HQ guide has no rules.');
   Object.assign(standards[language],{code:p.family,version:p.version,craftBaseline:p.version,sourceURL:p.source,sourceSha256:p.sourceSHA256||data.sha256,localURL:p.source,rules,observations:p.refinements.map(x=>x.rule),hqProtocol:p,hqProtocolSha256:data.sha256,connection:data.offline?'Verified offline copy; latest HQ status unavailable':'Current guide verified from HQ'});
- }catch{standards[language].connection='Bundled reference; latest HQ status unavailable';}
+ }catch{standards[language].connection='Historical reference; current HQ guide unavailable';}
  return writingStandard(language);
 }
 export function writingStandard(language){return standards[language]?JSON.parse(JSON.stringify(standards[language])):null;}

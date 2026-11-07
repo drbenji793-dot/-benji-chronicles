@@ -1,6 +1,6 @@
 {
-  "version": 258,
-  "releasedAt": "2026-11-07T20:42:15+00:00",
+  "version": 259,
+  "releasedAt": "2026-11-07T21:04:08+00:00",
   "timezone": "UTC",
-  "note": "Show the saved English writing method and remove duplicate chapter tools"
+  "note": "Match the Arabic and English writing stamps and chapter tools"
 }

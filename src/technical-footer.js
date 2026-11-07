@@ -24,12 +24,13 @@ export function mountTechnicalFooter(main,footer){
    if(card){if(card.lastElementChild!==source)card.append(source);continue;}
    const anchor=document.createElement('details');anchor.dataset.technicalAnchor='';anchor.className='chapter-secondary-tools';anchor.dir='ltr';
    // Keep actions under their original delegated event handlers. Only metadata moves.
-   const englishChapter=!!source.closest('.book-reading-layout');
+   const hasChapterStamp=!!source.closest('.editor-area')?.querySelector('.chapter-stamp');
    const controls=[...source.querySelectorAll('form,button,a,input,select,textarea')];
-   for(const control of controls){if(!source.contains(control))continue;const wrapper=(englishChapter&&control.closest('.workflow-panel'))||control.closest('fieldset')||control.closest('form')||control.closest('label')||control;anchor.append(wrapper);}
+   for(const control of controls){if(!source.contains(control))continue;const wrapper=(hasChapterStamp&&control.closest('.workflow-panel'))||control.closest('fieldset')||control.closest('form')||control.closest('label')||control;anchor.append(wrapper);}
    anchor.hidden=!anchor.childNodes.length;
-   if(!anchor.hidden){const summary=document.createElement('summary');summary.textContent=englishChapter?'Chapter tools':'Writing settings and tools';anchor.prepend(summary);}
-   source.replaceWith(anchor);
+   if(!anchor.hidden){const summary=document.createElement('summary');summary.textContent=hasChapterStamp?'Chapter tools':'Writing settings and tools';anchor.prepend(summary);}
+   const notes=hasChapterStamp&&source.closest('.editor-area')?.querySelector('.chapter-notes');
+   if(notes){notes.after(anchor);source.remove();}else source.replaceWith(anchor);
    const content=document.createElement('div');content.className='technical-section';
    content.append(...[...source.childNodes].filter(n=>n.nodeName!=='SUMMARY'));
    entries.push({anchor,content});panel.append(content);
