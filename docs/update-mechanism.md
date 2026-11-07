@@ -32,3 +32,11 @@ Book controls, book connection edits and writing note resolution now use record 
 ## Remaining work
 
 This is shared planning integration, not full server-wide enforcement. Direct SQL maintenance, chapter/rule save paths outside DSL, externally created records and migration-version discovery still require a further audit. Existing conflicting story decisions remain unresolved. The mechanism cannot automatically decide which contradictory narrative statement is correct. Actual iPhone acceptance remains outstanding.
+
+## Current decision approval gate
+
+`src/current-version-gate.js` registers the Ibn Al Jabal manuscript against its current nonarchived planning branch. The chapter approval and Ink transfer UI reread the saved chapter and decision records before a write. Combined approval and transfer also compare the branch revision with the one opened for review. Missing sources, changed revisions and the missing approved Chapter 1 name stop the controlled action before the approval RPC.
+
+This gate does not change prose or approve biography, relationship chronology, or the zk6 experiment. Draft saving remains available. Other books retain their existing revision and approval checks until explicitly registered. Direct RPC clients and administrative SQL do not pass through this browser check; a branch update can also race the interval between preflight and RPC. These paths require server enforcement before universal coverage can be claimed.
+
+Tests exercise missing name, stale chapter, changed decisions, unapproved or retired decisions, unavailable sources and chapter scope. A real approval UI test verifies zero write calls for rejected input and exactly one approval call for a corrected reviewed fixture. Live manuscript Chapter 1 r4 was separately checked and rejected as expected; no manuscript content was changed.

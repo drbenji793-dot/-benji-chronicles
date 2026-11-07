@@ -1,3 +1,4 @@
+import {currentVersionGate} from './current-version-gate.js';
 import {saveBookControl} from './record-save.js';
 import {mountShelfOrder} from './shelf-order.js';
 export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getIndex,refresh,diffHTML,supplements}) {
@@ -71,16 +72,17 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
  async function combinedApproval(){
   if(!guard())return;if(getWriter()!=='Benji'){say('Choose Benji to approve and send. Other writers can save drafts.',true);return;}
   const latest=(await api('chronicles_book_entries?id=eq.'+c.id+'&select=*'))[0];if(latest?.revision!==c.revision)throw Error('The chapter changed. Open its latest revision before approving.');
+  const sourceReview=await currentVersionGate(api,c,kind);
   await status();const map=(await api('chronicles_book_controls?book_key=eq.'+c.book_id+'&select=ink_book_id'))[0];
   const target=(await api('ink_entries?book_id=eq.'+map.ink_book_id+'&source_meta->>chronicles_source_id=eq.'+c.id+'&select=*'))[0];
   const words=t=>(String(t||'').match(/[\p{L}\p{N}][\p{L}\p{M}\p{N}]*/gu)||[]).length;
   const oldText=w?.approved_body?text(w.approved_body):'',newText=text(c.body);
   show('Review and approve chapter',`<div dir="ltr"><p>${esc(c.title)} · Chronicles revision ${version(c.revision)} · ${words(newText)} words · Change of ${words(newText)-words(oldText)} words since last approval</p><p>This records Benji’s approval and time, then sends this revision to Ink.</p><div dir="${c.language==='ar'?'rtl':'ltr'}">${w?diffHTML(oldText,newText):clean(c.body)}</div>${target&&w?.ink_revision&&target.revision!==w.ink_revision?'<p class="notice">Ink changed since the last transfer. Review the comparison below.</p>':''}<details><summary>Compare with Ink</summary>${diffHTML(text(target?.body||''),newText)}</details><label><input type="checkbox" id="reviewed-send"> I reviewed the text and approve sending it</label><button id="confirm-approve-send" disabled>Confirm approval and send</button><p id="approve-send-status" role="status"></p></div>`);
   $('#reviewed-send').onchange=e=>$('#confirm-approve-send').disabled=!e.target.checked;
-  $('#confirm-approve-send').onclick=async()=>{const b=$('#confirm-approve-send');b.disabled=true;try{await rpc('chronicles_approve_and_transfer',{p_id:c.id,p_revision:c.revision,p_expected_ink_revision:target?.revision||0,p_writer:getWriter()});const saved=(await api('chronicles_workflow?source_id=eq.'+c.id+'&select=*'))[0];const ink=(await api('ink_entries?id=eq.'+saved.ink_entry_id+'&select=*'))[0];if(ink?.body!==c.body||ink.title!==c.title)throw Error('Text verification failed. Check the status again.');$('#modal').close();await status();say('Approved and sent. The text in Ink matches this revision.');}catch(e){$('#approve-send-status').textContent=e.message;b.disabled=false;}};
+  $('#confirm-approve-send').onclick=async()=>{const b=$('#confirm-approve-send');b.disabled=true;try{await currentVersionGate(api,c,kind,sourceReview);await rpc('chronicles_approve_and_transfer',{p_id:c.id,p_revision:c.revision,p_expected_ink_revision:target?.revision||0,p_writer:getWriter()});const saved=(await api('chronicles_workflow?source_id=eq.'+c.id+'&select=*'))[0];const ink=(await api('ink_entries?id=eq.'+saved.ink_entry_id+'&select=*'))[0];if(ink?.body!==c.body||ink.title!==c.title)throw Error('Text verification failed. Check the status again.');$('#modal').close();await status();say('Approved and sent. The text in Ink matches this revision.');}catch(e){$('#approve-send-status').textContent=e.message;b.disabled=false;}};
  }
  panel.querySelector('[data-wf=review]').onclick=async()=>{if(!guard())return;try{await status();show('Review saved version '+version(c.revision),w?`<p>Changes since approved revision ${version(w.approved_revision)}. Current editor: ${esc(c.updated_by)}.</p><h3>Title</h3>${diffHTML(w.approved_title,c.title)}<h3>Text</h3><div dir="${c.language==='en'?'ltr':'rtl'}">${diffHTML(text(w.approved_body),text(c.body))}</div>`:`<p>No approved baseline yet. Review this saved chapter before approving it.</p><h3>${esc(c.title)}</h3><article class="prose" lang="${c.language}" dir="${c.language==='en'?'ltr':'rtl'}">${clean(c.body)}</article>`)}catch(e){say(e.message,true)}};
- panel.querySelector('[data-wf=approve]').onclick=()=>{if(!guard())return;if(getWriter()!=='Benji'){say('Choose Benji to approve this chapter. Ahmed, Guest, and Guest 2 can save edits.',true);return;}show('Approve this revision',`<p>${esc(title)} · ${c.language==='en'?'English':'Arabic'} · ${c.kind==='rules'?'Book Rules':'Chapter '+c.chapter_number} · Revision ${version(c.revision)}</p><p>Approval will be recorded as ${esc(getWriter())}. Later edits will need a new approval.</p><button id="confirm-approval">Approve revision ${version(c.revision)}</button>`);$('#confirm-approval').onclick=async()=>{const b=$('#confirm-approval');b.disabled=true;try{await rpc('chronicles_approve',{p_id:c.id,p_kind:kind,p_revision:c.revision,p_writer:getWriter()});$('#modal').close();await status();say('Revision approved. Ink has not been changed.')}catch(e){say(e.message,true);b.disabled=false}}};
+ panel.querySelector('[data-wf=approve]').onclick=()=>{if(!guard())return;if(getWriter()!=='Benji'){say('Choose Benji to approve this chapter. Ahmed, Guest, and Guest 2 can save edits.',true);return;}show('Approve this revision',`<p>${esc(title)} · ${c.language==='en'?'English':'Arabic'} · ${c.kind==='rules'?'Book Rules':'Chapter '+c.chapter_number} · Revision ${version(c.revision)}</p><p>Approval will be recorded as ${esc(getWriter())}. Later edits will need a new approval.</p><button id="confirm-approval">Approve revision ${version(c.revision)}</button>`);$('#confirm-approval').onclick=async()=>{const b=$('#confirm-approval');b.disabled=true;try{await currentVersionGate(api,c,kind);await rpc('chronicles_approve',{p_id:c.id,p_kind:kind,p_revision:c.revision,p_writer:getWriter()});$('#modal').close();await status();say('Revision approved. Ink has not been changed.')}catch(e){say(e.message,true);b.disabled=false}}};
  panel.querySelector('[data-wf=transfer]').onclick=()=>{if(getWriter()!=='Benji'){say('Choose Benji to transfer an approved chapter.',true);return;}if(guard())transfer(c,kind,status).catch(e=>say(e.message,true))};await status().catch(e=>{if(panel.isConnected)panel.querySelector('.workflow-status').textContent='Status unavailable: '+e.message});
  }
  async function transfer(c,kind,after){
@@ -88,6 +90,7 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
  const table=kind==='main'?'chronicles_chapters':'chronicles_book_entries';
  const current=(await api(table+'?id=eq.'+c.id+'&select=*'))[0];
  if(!current||current.revision!==c.revision)throw Error('This chapter changed. Reopen it and approve the latest revision.');
+ const sourceReview=await currentVersionGate(api,c,kind);
  const w=(await api('chronicles_workflow?source_id=eq.'+c.id+'&select=*'))[0];
  if(w?.approved_revision!==c.revision)throw Error('Approve this chapter first.');
  if(w.transferred_revision===c.revision){await after();return;}
@@ -99,6 +102,7 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
  $('#transfer-cancel').onclick=()=>$('#modal').close();
  $('#transfer-form').onsubmit=async e=>{e.preventDefault();const f=e.target,error=$('#transfer-error');if(changed&&!f.elements.accept.checked){error.textContent='Review and confirm the differences first.';return;}
  const button=f.querySelector('[type=submit]');button.disabled=true;error.textContent='Updating this chapter…';try{
+ await currentVersionGate(api,c,kind,sourceReview);
  await rpc('chronicles_transfer',{p_writer:getWriter(),p_items:[{id:c.id,revision:c.revision,expected_ink_revision:target?.revision||0}],p_supplements:[]});
  $('#modal').close();await after();say(label+' updated in Benji Ink. Ink is up to date.');
  }catch(err){error.textContent=err.message;button.disabled=false}};
