@@ -1,6 +1,6 @@
 {
-  "version": 253,
-  "releasedAt": "2026-11-07T03:21:55.171217+00:00",
+  "version": 254,
+  "releasedAt": "2026-11-07T03:29:28.952257+00:00",
   "timezone": "UTC",
-  "note": "Preserve compact English reader; enforce current decisions before Ibn Al Jabal approval and Ink transfer"
+  "note": "Current decision approval gate with inline author span support and server guard evidence"
 }

@@ -2,7 +2,7 @@
 const registrations={
  'c911584d-bd5b-42fe-b41c-a2a456c64d41':{bookId:'66739f5d-2bac-4d75-a4fd-6df93da8ac7e',branchId:'9a8bd2d8-7cd0-484e-a94d-fbdc90f37bd1'}
 };
-const normalize=t=>String(t||'').normalize('NFKC').replace(/<[^>]*>/g,' ').replace(/[\u064b-\u065f\u0670]/g,'').replace(/\s+/g,' ');
+const normalize=t=>String(t||'').normalize('NFKC').replace(/<[^>]*>/g,'').replace(/[\u064b-\u065f\u0670]/g,'').replace(/\s+/g,' ');
 export async function currentVersionGate(api,chapter,kind,reviewed=null){
  const registration=kind==='extra'&&registrations[chapter.book_id];
  if(!registration)return null; // Unregistered books retain their existing approval workflow.

@@ -40,3 +40,13 @@ This is shared planning integration, not full server-wide enforcement. Direct SQ
 This gate does not change prose or approve biography, relationship chronology, or the zk6 experiment. Draft saving remains available. Other books retain their existing revision and approval checks until explicitly registered. Direct RPC clients and administrative SQL do not pass through this browser check; a branch update can also race the interval between preflight and RPC. These paths require server enforcement before universal coverage can be claimed.
 
 Tests exercise missing name, stale chapter, changed decisions, unapproved or retired decisions, unavailable sources and chapter scope. A real approval UI test verifies zero write calls for rejected input and exactly one approval call for a corrected reviewed fixture. Live manuscript Chapter 1 r4 was separately checked and rejected as expected; no manuscript content was changed.
+
+## Server approval boundary
+
+The `chronicles_current_decision_guard` trigger now protects Chapter 1 approval metadata for the registered Ibn Al Jabal manuscript. It checks the live approved naming decision, requires the name in the saved prose and requires the approval snapshot to match the current chapter. It applies to direct approval RPC and direct workflow writes as well as browser actions. The source rows are locked for the transaction. The function is SECURITY INVOKER with an empty search path; no table privileges or RLS policies were widened.
+
+Anonymous-role transaction tests rejected the unnamed chapter and a mismatched approval snapshot, and accepted a corrected fixture including inline author spans. Every fixture write was rolled back. Manuscript fingerprint before and after: `296ceff5d3b0fa9ecc7d1e5ad562b97e`, 50 entries. There are still zero recorded manuscript approvals. No prose or approval was persisted by testing.
+
+Source: `db/current-decision-approval-guard.sql`. Regression: `tests/current-decision-approval.sql`, which always rolls back. Applied migrations: `chronicles_current_decision_approval_guard` and `chronicles_decision_guard_inline_author_spans`. This is exact naming enforcement, not automatic biography, chronology or style approval. Other books and arbitrary content writes remain outside this particular server rule. An administrator who disables triggers can bypass it; this is not a security boundary against database administrators.
+
+Operational rollback: drop the named trigger on `public.chronicles_workflow` and its trigger function through a reviewed migration. Do not remove chapter or workflow recovery history. The browser gate remains a separate layer.

@@ -6,6 +6,7 @@ let saved=structuredClone(chapter),plan=structuredClone(branch),calls=[];
 const api=async path=>{calls.push(path);return structuredClone(path.startsWith('chronicles_book_entries')?[saved]:plan?[plan]:[])};
 const token=await gate(api,chapter,'extra');assert.equal(token.branchRevision,264);
 assert(calls.some(p=>p.includes('archived=eq.false')));
+saved.body='<span>س</span><span>عد</span> أبو العلا';assert(await gate(api,chapter,'extra'));
 saved.body='دخل صاحبه.';await assert.rejects(gate(api,chapter,'extra'),/missing the approved introduction/);
 saved=structuredClone(chapter);saved.revision=5;await assert.rejects(gate(api,chapter,'extra'),/saved chapter changed/);
 saved=structuredClone(chapter);plan.revision++;await assert.rejects(gate(api,chapter,'extra',token),/changed during review/);
