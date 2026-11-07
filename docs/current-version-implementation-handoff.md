@@ -31,3 +31,7 @@ Chapter method options use the current language guide when confirmed, plus the s
 The protocol request attribution write now calls chronicles_record_protocol_request. The additive SQL source locks the chapter, compares its exact revision and inserts the request note while holding that lock. It records the supplied guide reference, not authentication of HQ approval. Install db/protocol-request-source-guard.sql before deploying the client. No table policies or privileges are widened.
 
 Syntax parsing completed for changed JavaScript. Functional regression suites, database installation, production release and browser acceptance remain pending. In particular, older tests that assumed bundled zk6 as the current guide need replacement fixtures proving current zk7 retrieval and refusal of unavailable guidance. Do not deploy this branch before those checks pass.
+
+## Continuation
+
+Current Book Brief now declares whether its guide is confirmed, distinguishes reference-only exports when unavailable and explicitly grants no approval. Current-guide timestamps reject malformed or future cache values. A guide change during request export clears the displayed reference and requires a fresh load so the user cannot accidentally review the old link while submitting the new version. These changes remain implementation-only pending acceptance.

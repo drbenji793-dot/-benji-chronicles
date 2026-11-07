@@ -15,8 +15,8 @@ export async function syncCurrentWritingStandard(language,options={}){
  return writingStandard(language);
 }
 export function writingStandard(language){
- const s=standards[language];
- if(!s?.currentConfirmed||!s.checkedAt||Date.now()-Date.parse(s.checkedAt)>300000)return null;
+ const s=standards[language],checked=Date.parse(s?.checkedAt),now=Date.now();
+ if(!s?.currentConfirmed||!Number.isFinite(checked)||checked>now+60000||now-checked>300000)return null;
  return JSON.parse(JSON.stringify(s));
 }
 export async function loadCurrentWritingStandard(language,options={}){
