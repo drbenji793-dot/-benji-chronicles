@@ -29,11 +29,21 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   const writingLabel=m=>!m?.method||m.method==='unknown'?'Writing method not recorded':m.method==='Manual'?'Manual · no style guide':m.method+' · '+(m.style_version||'style version not recorded')+(m.variant?' · '+m.variant:'');
   function writingInputs(){
     const current=active?.writing_meta||{};
-    const method=$('#chapter-writing-method')?.value||current.method||'unknown';
-    return {...current,method,style_version:method==='Manual'?'':($('#chapter-style-version')?.value||'').trim(),variant:method==='Manual'?'':($('#chapter-style-variant')?.value||'')};
+    const selector=$('#chapter-writing-method');
+    const method=selector?.value||current.method||'unknown';
+    return {...current,method,style_version:method==='Manual'?'':($('#chapter-style-version')?.value||'').trim(),variant:method==='Manual'?'':($('#chapter-style-variant')?.value??selector?.dataset.savedVariant??'')};
   }
   function fillWriting(m={}){
-    $('#chapter-writing-method').value=m.method||'unknown';$('#chapter-style-version').value=m.style_version||'';$('#chapter-style-variant').value=m.variant||'';
+    const selector=$('#chapter-writing-method'), method=m.method||'unknown';
+    selector.querySelector('[data-saved-method]')?.remove();
+    if(![...selector.options].some(option=>option.value===method)){
+      const option=document.createElement('option');
+      option.value=method;option.textContent=method+' · saved method';option.dataset.savedMethod='';
+      selector.append(option);
+    }
+    selector.value=method;selector.dataset.savedVariant=m.variant||'';
+    $('#chapter-style-version').value=m.style_version||'';
+    const variant=$('#chapter-style-variant');if(variant)variant.value=m.variant||'';
   }
   const $=selector=>document.querySelector(selector);
   const uuid=/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
@@ -365,8 +375,8 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
           <span class="protected" id="chronicles-entry-status">Protected</span>
           <button id="chronicles-copy">Copy</button>
           <button id="chronicles-history">History</button>
-          <button id="chronicles-print">Print</button>
-          ${rules?'':'<button id="extra-export">PDF / HTML</button><button id="extra-print-all">Print all</button><button id="extra-add-chapter">+ New Chapter</button>'}
+          ${bookReading?'':'<button id="chronicles-print">Print</button>'}
+          ${rules?'':'<button id="extra-export">PDF / HTML</button>'}${rules||bookReading?'':'<button id="extra-print-all">Print all</button><button id="extra-add-chapter">+ New Chapter</button>'}
           <button id="extra-smaller" aria-label="Smaller text">A−</button><button id="extra-larger" aria-label="Larger text">A+</button>
         </div>
         <div id="chronicles-save-warning"></div>${book.id===REVIEW_BOOK?`<nav class="chapter-links" dir="rtl"><a href="#book=${IBN_BOOK}&view=dsl">Chapter events</a> · <a href="https://benji-ink.vercel.app/#book=b81d1e63-6cae-445f-b8e4-a472ea5451d9">Ink edition</a>${(planningData?.storyDraft?.chapters?.find(p=>p.manuscriptEntryId===c.id)?.eventIds||[]).map(id=>`<a class="reference-link" href="#book=${IBN_BOOK}&view=dsl&dslview=map&focuskind=event&focusid=${id}">${esc(planningData.events.find(e=>e.id===id)?.title||'Event')}</a>`).join('')}</nav>`:''}
@@ -374,9 +384,10 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ${selectedPart?`<p class="chapter-part">${esc(partName(selectedPart))}</p>`:''}
         ${bookReading?`<p class="book-reading-number">Chapter ${String(c.chapter_number).padStart(2,'0')}</p>`:''}
         <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules||bookReading?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
+        ${bookReading?`<div class="chapter-method" dir="ltr"><p>Method · ${esc(writingLabel(c.writing_meta))}</p></div>`:''}
         ${!rules&&book.id===REVIEW_BOOK?planningNotes(c):''}
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
-        <div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div>${technicalPanel(`<div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Chapter ${version(c.revision)} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}<p>${esc(writingLabel(c.writing_meta))}</p>${c.writing_meta?.origin?`<p>${esc(c.writing_meta.origin)}</p>`:''}</div>`)}
+        <div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div>${technicalPanel(`<div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Chapter ${version(c.revision)} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}${bookReading?'':`<p>${esc(writingLabel(c.writing_meta))}</p>`}${c.writing_meta?.origin?`<p>${esc(c.writing_meta.origin)}</p>`:''}</div>`)}
         ${!c.body.trim()&&!rules?'<p class="notice" dir="ltr">Chapter text · Not written yet. Press Edit to begin.</p>':''}
         <hr class="chapter-story-divider" aria-hidden="true"><article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
         <nav class="chapter-bottom-controls" aria-label="Chapter editing and navigation" dir="ltr">
@@ -386,11 +397,21 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         </nav>
         ${notesShell()}
       </section></div><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
-    const metaBlock=$('.save-meta');
-    metaBlock.insertAdjacentHTML('beforeend',"<fieldset class=\"chapter-writing-settings\" id=\"chapter-writing-settings\" disabled dir=\"ltr\">\n          <legend>Writing method for this saved version</legend>\n          <label>Method<select id=\"chapter-writing-method\"><option value=\"unknown\">Not recorded</option><option value=\"Manual\">Manual</option><option value=\"zk5\">zk5</option><option value=\"zk6\">zk6 · approved edition only</option><option value=\"zkalam4\">zkalam4</option></select></label>\n          <label>Style guide version<input id=\"chapter-style-version\" maxlength=\"40\" placeholder=\"e.g. v001\"></label>\n          <label>Variant<select id=\"chapter-style-variant\"><option value=\"\">Not specified</option><option value=\"_am\">_am · Egyptian</option><option value=\"_f\">_f · Fusha</option><option value=\"E\">_am · Egyptian (legacy E)</option><option value=\"F\">_f · Fusha (legacy F)</option></select></label>\n          <p>Use Edit to change these details, then Save. Manual does not use a style guide version.</p>\n        </fieldset>");
+    const settingsHost=bookReading?$('.chapter-method'):$('.save-meta');
+    const activeEnglishMethod=writingStandardReference('en')?.code||'_zk5e';
+    const methods=bookReading
+      ? `<option value="${esc(activeEnglishMethod)}">${esc(activeEnglishMethod)}</option>`
+      : '<option value="zk5">zk5</option><option value="zk6">zk6 · approved edition only</option><option value="zkalam4">zkalam4</option>';
+    settingsHost.insertAdjacentHTML('beforeend',`<fieldset class="chapter-writing-settings" id="chapter-writing-settings" disabled ${bookReading?'hidden':''} dir="ltr">
+      ${bookReading?'':'<legend>Writing method for this saved version</legend>'}
+      <label>Method<select id="chapter-writing-method"><option value="unknown">Not recorded</option><option value="Manual">Manual</option>${methods}</select></label>
+      <label>Style guide version<input id="chapter-style-version" maxlength="40" placeholder="e.g. v001"></label>
+      ${bookReading?'':`<label>Variant<select id="chapter-style-variant"><option value="">Not specified</option><option value="_am">_am · Egyptian</option><option value="_f">_f · Fusha</option><option value="E">_am · Egyptian (legacy E)</option><option value="F">_f · Fusha (legacy F)</option></select></label><p>Use Edit to change these details, then Save. Manual does not use a style guide version.</p>`}
+    </fieldset>`);
     fillWriting(c.writing_meta);
-    for(const id of ['chapter-writing-method','chapter-style-version','chapter-style-variant'])$('#'+id).onchange=()=>{if(editing)backup();};
-    $('#chapter-writing-method').onchange=()=>{if($('#chapter-writing-method').value==='Manual'){$('#chapter-style-version').value='';$('#chapter-style-variant').value='';}if(editing)backup();};
+    const variantInput=$('#chapter-style-variant');
+    if(variantInput)variantInput.onchange=()=>{if(editing)backup();};
+    $('#chapter-writing-method').onchange=()=>{if($('#chapter-writing-method').value==='Manual'){$('#chapter-style-version').value='';if(variantInput)variantInput.value='';}if(editing)backup();};
     $('#chapter-style-version').oninput=()=>{if(editing)backup();};
     $('#chronicles-exit').onclick=()=>navigate(book.id===IBN_BOOK?'#book='+REVIEW_BOOK:link(book.id));
     $('#chronicles-library').onclick=()=>navigate('#library&lang='+book.language);
@@ -405,7 +426,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     $('#chronicles-cancel').onclick=cancel;
     $('#chronicles-copy').onclick=async()=>{try{await navigator.clipboard.writeText($('#chronicles-reading-title').textContent+'\n\n'+$('#chronicles-entry-body').innerText);say('Text copied.')}catch{say('Select the text and copy it manually.',true)}};
     $('#chronicles-history').onclick=()=>showHistory().catch(e=>say(e.message,true));
-    $('#chronicles-print').onclick=()=>window.print();
+    const printChapter=$('#chronicles-print');if(printChapter)printChapter.onclick=()=>window.print();
     const sizeKey=bookReading?'chronicles-english-book-size':'chronicles-size';
     let readingSize=Number(storage.get(sizeKey))||(bookReading?16:17);
     const size=()=>{$('#chronicles-entry-body').style.fontSize=readingSize+'px';storage.set?.(sizeKey,String(readingSize));};size();
@@ -426,8 +447,11 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       $('#extra-chapter-select').onchange=e=>navigate(link(book.id)+'&chapter='+e.target.value);
       $('#extra-prev').onclick=()=>{const prev=list[list.indexOf(c)-1];if(prev)navigate(entryLink(prev))};
       $('#extra-next').onclick=()=>{const next=list[list.indexOf(c)+1];if(next)navigate(entryLink(next))};
-      $('#extra-export').onclick=()=>showExport(c);$('#extra-add-chapter').onclick=showCreateChapter;
-      $('#extra-print-all').onclick=()=>printEntries(chapterList());
+      $('#extra-export').onclick=()=>showExport(c);
+      if(!bookReading){
+        $('#extra-add-chapter').onclick=showCreateChapter;
+        $('#extra-print-all').onclick=()=>printEntries(chapterList());
+      }
     }
 
 
@@ -500,7 +524,8 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       node.classList.remove('reading-scene-break','reading-voice-memo','reading-call-sheet');
       if(!node.className)node.removeAttribute('class');
     }
-    $('#chapter-writing-settings').disabled=false;fillWriting(d?.writing_meta||active.writing_meta);
+    const settings=$('#chapter-writing-settings');
+    settings.disabled=false;settings.hidden=false;fillWriting(d?.writing_meta||active.writing_meta);
     $('#chronicles-edit').disabled=true;$('#bottom-edit').disabled=true;$('#bottom-save').disabled=false;
     $('#chronicles-save').disabled=false;
     $('#chronicles-cancel').hidden=false;

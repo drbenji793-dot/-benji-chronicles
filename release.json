@@ -1,6 +1,6 @@
 {
-  "version": 257,
-  "releasedAt": "2026-11-07T03:50:33.390890+00:00",
+  "version": 258,
+  "releasedAt": "2026-11-07T20:42:15+00:00",
   "timezone": "UTC",
-  "note": "Guard reviewed planning revision inside combined approval and Ink transfer; preserve current English navigation"
+  "note": "Show the saved English writing method and remove duplicate chapter tools"
 }

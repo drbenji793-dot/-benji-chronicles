@@ -6,7 +6,7 @@ const arBook='11111111-1111-1111-1111-111111111111',enBook='22222222-2222-2222-2
 const books=[{id:arBook,title:'Arabic book',language:'ar',primary_writer:'Benji'},{id:enBook,title:'English book',language:'en',primary_writer:'Benji',related_work:arBook}];
 const editions=[{id:'edition',source_key:arBook,target_book_id:enBook,mode:'translation',instructions:'Keep Cairo'}];
 const chapter={id:'source',source_kind:'extra',book_id:arBook,kind:'chapter',chapter_number:1,title:'الفصل',body:'<p>Arabic source changed</p>',revision:2,updated_by:'Benji',updated_at:'2026-10-30T12:00:00Z'};
-const target={...chapter,id:'target',book_id:enBook,title:'English chapter',body:'<p>Independent English text</p>',revision:1};
+const target={...chapter,id:'target',book_id:enBook,title:'English chapter',body:'<p>Independent English text</p>',writing_meta:{method:'_zk5e',style_version:'v004'},revision:1};
 const source={target_entry_id:'target',edition_id:'edition',source_id:'source',source_revision:1,reviewed_revision:1,source_title:'الفصل',source_body:'<p>Original snapshot</p>'};
 const wait=()=>new Promise(r=>setTimeout(r,160));
 async function fixture(language,hash=''){
@@ -42,10 +42,18 @@ assert.equal(f.q('.universal-steps .benji-chapters-back').textContent,'Chapters'
 assert.equal(f.q('.universal-steps #universal-next').textContent,'›');
 assert(f.q('.toolbar #chronicles-edit'));
 assert(f.q('.toolbar #extra-larger'));
+assert.equal(f.q('.chapter-method p').textContent,'Method · _zk5e · v004');
+assert.equal(f.q('#chapter-writing-method').value,'_zk5e');
+assert.equal(f.q('#chapter-writing-settings').hidden,true);
+assert.equal(f.q('#chapter-style-variant'),null);
+assert.equal(f.q('.chapter-secondary-tools summary').textContent,'Chapter tools');
+assert.equal(f.q('.chapter-secondary-tools [data-wf=transfer]').hidden,true);
+assert.equal(f.q('#chronicles-print,#extra-print-all,#extra-add-chapter'),null);
+assert(f.q('.chapter-secondary-tools #extra-export'));
 f.q('#extra-larger').click();
 assert.equal(f.q('#chronicles-entry-body').style.fontSize,'17px');
 f.q('[data-review-source]').click();await wait();assert(!f.q('.edition-source').textContent.includes('Arabic source updated'));assert.equal(f.q('#chronicles-entry-body').textContent,'Independent English text');
-f.q('#chronicles-edit').click();f.q('#chronicles-entry-body').innerHTML='<p>Revised English text</p>';f.q('#chronicles-save').click();await wait();assert.equal(target.body,'<p>Revised English text</p>');assert.equal(chapter.body,'<p>Arabic source changed</p>');f.q('#chronicles-history').click();await wait();assert(f.q('#modal-content').textContent.includes('Revision')||f.q('#modal-content').textContent.includes('Current'));f.dom.window.close();
+f.q('#chronicles-edit').click();assert.equal(f.q('#chapter-writing-settings').hidden,false);assert.equal(f.q('#chapter-writing-method').value,'_zk5e');f.q('#chronicles-entry-body').innerHTML='<p>Revised English text</p>';f.q('#chronicles-save').click();await wait();assert.equal(target.body,'<p>Revised English text</p>');assert.equal(target.writing_meta.method,'_zk5e');assert.equal(target.writing_meta.style_version,'v004');assert.equal(chapter.body,'<p>Arabic source changed</p>');f.q('#chronicles-history').click();await wait();assert(f.q('#modal-content').textContent.includes('Revision')||f.q('#modal-content').textContent.includes('Current'));f.dom.window.close();
 f=await fixture('en','#book='+enBook+'&view=chapters');
 assert(f.q('.book-navigation a[aria-current="page"]').textContent==='Chapters');
 assert(f.q('#main .crumb').textContent.includes('English book'));

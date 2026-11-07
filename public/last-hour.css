@@ -288,3 +288,11 @@ html body #main .book-reading-layout .prose[lang="en"]{
   font:650 .84em/1.4 system-ui,sans-serif;letter-spacing:.04em;
 }
 .last-hour-story-notes{margin-block:14px}
+
+.chapter-method{max-width:42rem;margin:0 auto 14px;text-align:center;font:12px/1.45 system-ui,sans-serif;color:var(--muted)}
+.chapter-method p{margin:0}
+.chapter-method fieldset:not([hidden]){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:8px 0 0;padding:8px;border:1px solid var(--line);text-align:left}
+.chapter-method fieldset[hidden]{display:none}
+.chapter-method label{display:grid;gap:3px;min-width:0}
+.chapter-method :is(input,select){box-sizing:border-box;width:100%;min-width:0;font:inherit;padding:6px}
+.book-reading-layout .chapter-secondary-tools [hidden]{display:none!important}
