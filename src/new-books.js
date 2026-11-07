@@ -181,7 +181,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
       const selected=params.has('chapter')?'chapters':params.get('dsltool')==='blend'?'blender':params.get('dslview')==='characters'?'characters':view||(params.has('rules')?'rules':'chapters');
       const tabs=[['brief','Story','&view=dsl&dslview=synopsis'],['chapters','Chapters',book.id===IBN_BOOK?'&view=chapters':''],['critique','Review','&view=critique']];
       nav.hidden=false;nav.dir='ltr';
-      nav.innerHTML='<div class="ink-tabs">'+tabs.filter(([id])=>!['dsl','blender','workbook'].includes(id)).map(([id,label,suffix])=>'<a href="'+(book.id===IBN_BOOK&&id==='chapters'?'#book='+REVIEW_BOOK:base+suffix)+'"'+((selected===id||(id==='brief'&&['dsl','characters'].includes(selected)))?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">'+esc(book.title)+'</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
+      nav.innerHTML='<div class="ink-tabs">'+tabs.filter(([id])=>!['dsl','blender','workbook'].includes(id)).map(([id,label,suffix])=>'<a href="'+(book.id===IBN_BOOK&&id==='chapters'?'#book='+REVIEW_BOOK:base+suffix)+'"'+((selected===id||(id==='brief'&&['dsl','characters'].includes(selected)))?' class="selected" aria-current="page"':'')+'>'+label+'</a>').join('')+'</div><div class="story-aux-nav"><a href="'+base+'&view=cover">'+(book.id===LAST_HOUR_BOOK?'Cover':esc(book.title))+'</a><a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a></div>';
       if(book.id===IBN_BOOK||book.id===REVIEW_BOOK){
        nav.classList.add('ibn-navigation');
        const back=document.createElement('nav');back.className='current-back';back.innerHTML='<a href="#library&lang='+book.language+'">'+(book.language==='en'?'English':'Arabic')+' Library</a><a href="'+base+'&view=cover">'+esc(book.title)+'</a>';
@@ -268,12 +268,13 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   }
   function renderOverview(showCover=false){
     const list=chapterList();
-    $('#main').innerHTML=header()+`<section class="reference-page chronicles-book-home" dir="${book.language==='en'?'ltr':'rtl'}">
+    const lastHour=book.id===LAST_HOUR_BOOK;
+    const drafted=list.filter(c=>['full_chapter','revised_full_chapter'].includes(c.writing_meta?.draft_status)).length;
+    $('#main').innerHTML=(lastHour?'':header())+`<section class="reference-page chronicles-book-home" dir="${book.language==='en'?'ltr':'rtl'}">
       ${showCover?(book.id===illustratedBook?'<a class="bellwether-entrance" href="'+link(book.id)+'">'+illustratedCover(book)+'</a>':fullBookCover(book,'book-overview-cover')):''}
       <div class="eyebrow">BENJI CHRONICLES · ${book.id===illustratedBook?'American adaptation':'Independent book'}</div>
-      <h1 dir="auto">${esc(book.title)}</h1>
-      ${lastHourLinks(book.id)}
-      <p class="reference-intro" dir="auto">${esc(book.description||'A space to write a new story.')}</p>
+      ${lastHour&&showCover?'':`<h1 dir="auto">${esc(book.title)}</h1>`}
+      <p class="reference-intro" dir="auto">${lastHour?`${drafted} ${drafted===1?'chapter':'chapters'} drafted`:esc(book.description||'A space to write a new story.')}</p>
       <p class="reference-note">Primary writer: <strong class="${book.primary_writer==='Ahmed'?'chronicles-writer-ahmed':'chronicles-writer-benji'}">${esc(book.primary_writer)}</strong>
          · ${book.collaboration==='shared'?'Shared writing workspace':'Independent book'} · ${book.language==='en'?'English':'Arabic'}</p>
       <div class="chronicles-book-actions">
@@ -282,7 +283,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <a href="${link(book.id)}&view=dsl&dslview=synopsis" class="reference-link">Story</a>
 
       </div>
-      ${partStyles()}<nav class="book-part-list" dir="${book.language==='ar'?'rtl':'ltr'}" aria-label="Book parts"><div class="book-part-heading"><span>Parts</span><button type="button" class="part-circle part-add" id="overview-add-part" aria-label="Add part" title="Add part">＋</button></div>${parts.map(p=>`<div class="book-part-row"><a href="${partChapters(p)[0]?entryLink(partChapters(p)[0]):link(book.id)+'&part='+p.id}"><small>${esc(partOrdinal(p))}</small><strong>${esc(p.title)}</strong></a><button type="button" class="part-circle" lang="en" dir="ltr" data-edit-overview-part="${p.id}" aria-label="Edit ${esc(p.title)}">Edit</button></div>`).join('')}</nav>${parts.length?parts.map(p=>{const rows=partChapters(p);return rows.length?`<h2>${esc(partName(p))}</h2>`+chapterCards(rows,{esc,root:link(book.id),date,language:book.language}).replace(/<h2>.*?<\/h2>/,''):'';}).join(''):chapterCards(list,{esc,root:link(book.id),date,language:book.language})}${technicalPanel(list.map(c=>`<p><bdi>${esc(c.title)}</bdi> · ${version(c.revision)} · ${esc(c.updated_by||'Writer not recorded')} · ${esc(formatTime(c.updated_at))}</p>`).join(''))}${book.id===REVIEW_BOOK?`<details><summary>Archive</summary><a href="#book=${IBN_BOOK}&archive=1&view=originals">Previous manuscript</a></details>`:''}
+      ${partStyles()}<nav class="book-part-list" dir="${book.language==='ar'?'rtl':'ltr'}" aria-label="Book parts"><div class="book-part-heading"><span>Parts</span><button type="button" class="part-circle part-add" id="overview-add-part" aria-label="Add part" title="Add part">＋</button></div>${parts.map(p=>`<div class="book-part-row"><a href="${partChapters(p)[0]?entryLink(partChapters(p)[0]):link(book.id)+'&part='+p.id}"><small>${esc(partOrdinal(p))}</small><strong>${esc(p.title)}</strong></a><button type="button" class="part-circle" lang="en" dir="ltr" data-edit-overview-part="${p.id}" aria-label="Edit ${esc(p.title)}">Edit</button></div>`).join('')}</nav>${parts.length?parts.map(p=>{const rows=partChapters(p);return rows.length?`<h2>${esc(partName(p))}</h2>`+chapterCards(rows,{esc,root:link(book.id),date,language:book.language}).replace(/<h2>.*?<\/h2>/,''):'';}).join(''):chapterCards(list,{esc,root:link(book.id),date,language:book.language})}${lastHour?`<details class="last-hour-story-notes"><summary>Story Notes</summary>${lastHourLinks(book.id)}</details>`:''}${technicalPanel(list.map(c=>`<p><bdi>${esc(c.title)}</bdi> · ${version(c.revision)} · ${esc(c.updated_by||'Writer not recorded')} · ${esc(formatTime(c.updated_at))}</p>`).join(''))}${book.id===REVIEW_BOOK?`<details><summary>Archive</summary><a href="#book=${IBN_BOOK}&archive=1&view=originals">Previous manuscript</a></details>`:''}
     </section><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     $('#overview-add-part').onclick=()=>editPart(null);document.querySelectorAll('[data-edit-overview-part]').forEach(el=>el.onclick=()=>editPart(parts.find(p=>p.id===el.dataset.editOverviewPart)));
     $('#chronicles-add-chapter').onclick=showCreateChapter;
@@ -336,7 +337,8 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     if(!active)return;
     const c=active,rules=c.kind==='rules';selectedPart=rules?null:partFor(c.chapter_number);const list=selectedPart?partChapters(selectedPart):chapterList();
     const selected=rules?'Book Rules':'Chapter '+c.chapter_number;
-    $('#main').innerHTML=`<nav class="crumb" style="position:relative"><strong dir="auto">${esc(book.title)}</strong><a href="${book.id===IBN_BOOK?'#book='+REVIEW_BOOK:link(book.id)}" aria-label="${esc(book.title)} · Chapters" style="position:absolute;inset:0"></a></nav><p class="collection-caption">${book.id===REVIEW_BOOK?'Chapters · Drafts for review':book.language==='ar'?'Arabic Original':'English Original'}</p><div class="workspace chronicles-workspace">
+    const bookReading=!rules&&book.language==='en';
+    $('#main').innerHTML=`<nav class="crumb" style="position:relative"><strong dir="auto">${esc(book.title)}</strong><a href="${book.id===IBN_BOOK?'#book='+REVIEW_BOOK:link(book.id)}" aria-label="${esc(book.title)} · Chapters" style="position:absolute;inset:0"></a></nav><p class="collection-caption">${book.id===REVIEW_BOOK?'Chapters · Drafts for review':book.language==='ar'?'Arabic Original':'English Original'}</p><div class="workspace chronicles-workspace${bookReading?' book-reading-layout':''}">
       <aside class="sidebar" dir="${book.language==='en'?'ltr':'rtl'}">
         <h2>${esc(book.title)}</h2>
         <div class="chapter-list">
@@ -346,6 +348,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <a class="reference-link" href="${link(book.id)}">All chapters</a>
       </aside>
       <section class="editor-area" dir="${book.language==='en'?'ltr':'rtl'}">
+        ${bookReading?'<nav class="book-reading-navigation" aria-label="Chapter navigation"></nav><div class="book-reading-options" role="group" aria-label="Reader controls"></div><details class="book-reading-tools"><summary>Edit &amp; tools</summary>':''}
         ${rules?'':partsUI()}
         ${rules?'<p class="reference-note">Book Rules</p>':`<div class="chapter-picker compact-chapter-picker"><div class="book-part-picker" dir="${book.language==='ar'?'rtl':'ltr'}"><select id="extra-chapter-select" aria-label="Choose chapter" dir="${book.language==='ar'?'rtl':'ltr'}">${list.map(x=>`<option value="${x.chapter_number}" ${x.id===c.id?'selected':''}>${String(x.chapter_number).padStart(2,'0')} · ${esc(x.title)}</option>`).join('')}</select><button id="edit-chapter-name" class="part-circle" lang="en" dir="ltr" aria-label="Edit chapter name">Edit</button><button id="picker-add-chapter" class="part-circle part-add" aria-label="Add chapter" title="Add chapter">＋</button></div><div class="chapter-step-controls" dir="ltr"><button id="extra-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button><button id="extra-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button></div></div>`}
         <div class="toolbar" dir="ltr">
@@ -359,10 +362,12 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
           ${rules?'':'<button id="extra-export">PDF / HTML</button><button id="extra-print-all">Print all</button><button id="extra-add-chapter">+ New Chapter</button>'}
           <button id="extra-smaller" aria-label="Smaller text">A−</button><button id="extra-larger" aria-label="Larger text">A+</button>
         </div>
+        ${bookReading?'</details>':''}
         <div id="chronicles-save-warning"></div>${book.id===REVIEW_BOOK?`<nav class="chapter-links" dir="rtl"><a href="#book=${IBN_BOOK}&view=dsl">Chapter events</a> · <a href="https://benji-ink.vercel.app/#book=b81d1e63-6cae-445f-b8e4-a472ea5451d9">Ink edition</a>${(planningData?.storyDraft?.chapters?.find(p=>p.manuscriptEntryId===c.id)?.eventIds||[]).map(id=>`<a class="reference-link" href="#book=${IBN_BOOK}&view=dsl&dslview=map&focuskind=event&focusid=${id}">${esc(planningData.events.find(e=>e.id===id)?.title||'Event')}</a>`).join('')}</nav>`:''}
 
         ${selectedPart?`<p class="chapter-part">${esc(partName(selectedPart))}</p>`:''}
-        <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
+        ${bookReading?`<p class="book-reading-number">Chapter ${String(c.chapter_number).padStart(2,'0')}</p>`:''}
+        <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules||bookReading?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
         ${!rules&&book.id===REVIEW_BOOK?planningNotes(c):''}
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
         <div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div>${technicalPanel(`<div class="save-meta" dir="ltr">${book.id===OUTSIDE_TIME_BOOK&&c.revision===1?'GPT draft · _zkalam4 · Not approved<br>':''}Chapter ${version(c.revision)} · <span class="${writerLabel(c)}">${esc(c.updated_by)}</span> · ${date(c.updated_at)}<p>${esc(writingLabel(c.writing_meta))}</p>${c.writing_meta?.origin?`<p>${esc(c.writing_meta.origin)}</p>`:''}</div>`)}
@@ -395,8 +400,19 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
     $('#chronicles-copy').onclick=async()=>{try{await navigator.clipboard.writeText($('#chronicles-reading-title').textContent+'\n\n'+$('#chronicles-entry-body').innerText);say('Text copied.')}catch{say('Select the text and copy it manually.',true)}};
     $('#chronicles-history').onclick=()=>showHistory().catch(e=>say(e.message,true));
     $('#chronicles-print').onclick=()=>window.print();
-    let readingSize=Number(storage.get('chronicles-size'))||17;
-    const size=()=>{$('#chronicles-entry-body').style.fontSize=readingSize+'px';storage.set?.('chronicles-size',String(readingSize));};size();
+    const sizeKey=bookReading?'chronicles-english-book-size':'chronicles-size';
+    let readingSize=Number(storage.get(sizeKey))||(bookReading?16:17);
+    const size=()=>{$('#chronicles-entry-body').style.fontSize=readingSize+'px';storage.set?.(sizeKey,String(readingSize));};size();
+    if(bookReading){
+      $('.book-reading-options').append($('#extra-smaller'),$('#extra-larger'));
+      const paragraphs=[...$('#chronicles-entry-body').children];
+      for(const node of paragraphs){
+        if(node.tagName!=='P')continue;
+        if(node.textContent.trim()==='⁂')node.classList.add('reading-scene-break');
+        if(/^voice memo\b/i.test(node.firstElementChild?.textContent||'')&&node.querySelector('br'))node.classList.add('reading-voice-memo');
+        if(/^sam['’]s (?:call )?sheet\b/i.test(node.firstElementChild?.textContent||'')&&node.nextElementSibling?.tagName==='OL')node.classList.add('reading-call-sheet');
+      }
+    }
     $('#extra-smaller').onclick=()=>{readingSize=Math.max(16,readingSize-1);size()};$('#extra-larger').onclick=()=>{readingSize=Math.min(30,readingSize+1);size()};
     if(!rules){
       bindParts();
@@ -475,6 +491,11 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
   function beginEdit(d,keepPosition=false){
     if(!active||editing)return;
     editing=true;
+    const readingTools=$('.book-reading-tools');if(readingTools)readingTools.open=true;
+    for(const node of $('#chronicles-entry-body').querySelectorAll('.reading-scene-break,.reading-voice-memo,.reading-call-sheet')){
+      node.classList.remove('reading-scene-break','reading-voice-memo','reading-call-sheet');
+      if(!node.className)node.removeAttribute('class');
+    }
     $('#chapter-writing-settings').disabled=false;fillWriting(d?.writing_meta||active.writing_meta);
     $('#chronicles-edit').disabled=true;$('#bottom-edit').disabled=true;$('#bottom-save').disabled=false;
     $('#chronicles-save').disabled=false;

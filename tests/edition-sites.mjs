@@ -33,7 +33,14 @@ f=await fixture('en');assert.equal(f.q('.collection-heading').textContent,'Engli
 f=await fixture('ar','#book='+arBook);assert(f.q('[data-send=translation]'));assert(f.q('[data-send=adaptation]'));
 f.q('[data-send=translation]').click();await wait();const form=f.q('#send-english');assert(form);form.elements.title.value='English book';form.querySelector('[name=chapter]').checked=true;form.dispatchEvent(new f.w.Event('submit',{cancelable:true,bubbles:true}));await wait();const sent=f.calls.find(c=>c.name==='chronicles_send_to_english');assert(sent);assert.deepEqual(JSON.parse(sent.opts.body).p_chapters,[{id:'source',revision:2}]);assert(f.q('#edition-send-status a').href.endsWith('#book='+enBook));assert(form.querySelector('[name=chapter]').disabled);f.dom.window.close();
 f=await fixture('en','#book='+enBook+'&chapter=1');assert(f.q('.edition-source').textContent.includes('Arabic source updated'));assert.equal(f.q('#chronicles-entry-body').dir,'ltr');assert.equal(f.q('#chronicles-entry-body').textContent,'Independent English text');assert(f.q('.edition-source').textContent.includes('Original snapshot'));
+assert.equal(f.q('.book-reading-number').textContent,'Chapter 01');
+assert.equal(f.q('#chronicles-entry-body').style.fontSize,'16px');
+assert.equal(f.q('.book-reading-tools').open,false);
+assert(f.q('.book-reading-tools #universal-chapter'));
+assert(f.q('.book-reading-navigation .benji-chapters-back').href.endsWith('&view=contents'));
+f.q('#extra-larger').click();
+assert.equal(f.q('#chronicles-entry-body').style.fontSize,'17px');
 f.q('[data-review-source]').click();await wait();assert(!f.q('.edition-source').textContent.includes('Arabic source updated'));assert.equal(f.q('#chronicles-entry-body').textContent,'Independent English text');
-f.q('#chronicles-edit').click();f.q('#chronicles-entry-body').innerHTML='<p>Revised English text</p>';f.q('#chronicles-save').click();await wait();assert.equal(target.body,'<p>Revised English text</p>');assert.equal(chapter.body,'<p>Arabic source changed</p>');f.q('#chronicles-history').click();await wait();assert(f.q('#modal-content').textContent.includes('Revision')||f.q('#modal-content').textContent.includes('Current'));f.dom.window.close();
+f.q('#chronicles-edit').click();assert.equal(f.q('.book-reading-tools').open,true);f.q('#chronicles-entry-body').innerHTML='<p>Revised English text</p>';f.q('#chronicles-save').click();await wait();assert.equal(target.body,'<p>Revised English text</p>');assert.equal(chapter.body,'<p>Arabic source changed</p>');f.q('#chronicles-history').click();await wait();assert(f.q('#modal-content').textContent.includes('Revision')||f.q('#modal-content').textContent.includes('Current'));f.dom.window.close();
 f=await fixture('en','#story=12&lang=en&chapter=1');assert.equal(f.q('#prose').lang,'en');assert(f.q('a[href="https://benji-chronicles.vercel.app/#story=12&lang=ar"]'));f.dom.window.close();
 console.log('PASS: isolated homes, existing English books, cross-site links, transfer UI with revision approval, source-change review, English editor/save/history and legacy English reader.');
