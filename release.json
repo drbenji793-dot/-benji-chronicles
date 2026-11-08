@@ -1,6 +1,6 @@
 {
-  "version": 265,
-  "releasedAt": "2026-11-08T02:42:41+00:00",
+  "version": 266,
+  "releasedAt": "2026-11-08T02:49:12+00:00",
   "timezone": "UTC",
-  "note": "Keep library actions outside the Technical details release stamp"
+  "note": "Remove the Continue and Trash row from both libraries"
 }

@@ -50,11 +50,11 @@ function assertWriterButtons(f){
 }
 let f=await fixture('ar');
 assertReleaseOnlyFooter(f);
-assert(f.q('.shelf .library-workflow #open-trash'));
-assert(f.q('.shelf .library-workflow #resume-work'));
+assert.equal(f.q('#open-trash'),null);
+assert.equal(f.q('#resume-work'),null);
 assertWriterButtons(f);
 assert.equal(f.q('.collection-heading').textContent,'Arabic Library');assert(!f.q('.world-gates'));assert(!f.q('.edition-bridge a'));assert(!f.q('#main').textContent.includes('English book'));f.dom.window.close();
-f=await fixture('en');assertReleaseOnlyFooter(f);assert(f.q('.shelf .library-workflow #open-trash'));assert(f.q('.shelf .library-workflow #resume-work'));assertWriterButtons(f);assert.equal(f.q('.collection-heading').textContent,'English Library');assert(f.q('#main').textContent.includes('English book'));assert(!f.q('#main').textContent.includes('Arabic book'));assert(!f.q('.edition-bridge a'));f.dom.window.close();
+f=await fixture('en');assertReleaseOnlyFooter(f);assert.equal(f.q('#open-trash'),null);assert.equal(f.q('#resume-work'),null);assertWriterButtons(f);assert.equal(f.q('.collection-heading').textContent,'English Library');assert(f.q('#main').textContent.includes('English book'));assert(!f.q('#main').textContent.includes('Arabic book'));assert(!f.q('.edition-bridge a'));f.dom.window.close();
 f=await fixture('ar','#book='+arBook);assertReleaseOnlyFooter(f);assert(f.q('[data-send=translation]'));assert(f.q('[data-send=adaptation]'));
 f.q('[data-send=translation]').click();await wait();const form=f.q('#send-english');assert(form);form.elements.title.value='English book';form.querySelector('[name=chapter]').checked=true;form.dispatchEvent(new f.w.Event('submit',{cancelable:true,bubbles:true}));await wait();const sent=f.calls.find(c=>c.name==='chronicles_send_to_english');assert(sent);assert.deepEqual(JSON.parse(sent.opts.body).p_chapters,[{id:'source',revision:2}]);assert(f.q('#edition-send-status a').href.endsWith('#book='+enBook));assert(form.querySelector('[name=chapter]').disabled);f.dom.window.close();
 f=await fixture('en','#book='+enBook+'&chapter=1');assert(f.q('.edition-source').textContent.includes('Arabic source updated'));assert.equal(f.q('#chronicles-entry-body').dir,'ltr');assert.equal(f.q('#chronicles-entry-body').textContent,'Independent English text');assert(f.q('.edition-source').textContent.includes('Original snapshot'));
