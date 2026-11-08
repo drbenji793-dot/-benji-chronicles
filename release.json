@@ -1,6 +1,6 @@
 {
-  "version": 266,
-  "releasedAt": "2026-11-08T02:49:12+00:00",
+  "version": 267,
+  "releasedAt": "2026-11-08T03:31:09.220168+00:00",
   "timezone": "UTC",
-  "note": "Remove the Continue and Trash row from both libraries"
+  "note": "Bind Ibn Al Jabal writing requests to current saved planning decisions"
 }

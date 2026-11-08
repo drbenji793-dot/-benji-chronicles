@@ -3,10 +3,10 @@
   "version": 1,
   "edition": "ar",
   "release": {
-    "version": 249,
-    "releasedAt": "2026-11-05T20:35:34.629847+00:00",
+    "version": 267,
+    "releasedAt": "2026-11-08T03:31:09.220168+00:00",
     "timezone": "UTC",
-    "note": "HQ owns private voice training and published writing protocols; Chronicles retrieves verified editions and sends selected feedback"
+    "note": "Bind Ibn Al Jabal writing requests to current saved planning decisions"
   },
   "mechanismVersion": 1,
   "commit": null,
