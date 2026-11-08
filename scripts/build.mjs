@@ -12,11 +12,16 @@ html=html.replace(/<strong>Benji Chronicles(?: English)?<\/strong>/,'<strong>Ben
 html=html.replace(/(name="apple-mobile-web-app-title" content=")[^"]*/, '$1Chronicles '+(language==='en'?'ENG':'AR'));
 html=html.replace(/Benji Chronicles · [^<]*Reader v[^<]*/, 'Benji Chronicles · Reader v'+release.version+' · '+release.releasedAt+' · UTC').replace(/app\.js\?v=\d+/, 'app.js?v='+release.version);
 html=html.replace(/(last-hour|chapter-notes)\.css(?:\?v=\d+)?/g,(_,name)=>name+'.css?v='+release.version);
+const iconBase='/icons/chronicles-'+language;
+html=html.replace(/(<link rel="icon"[^>]*href=")[^"]+/, '$1'+iconBase+'-32.png');
+html=html.replace(/(<link rel="apple-touch-icon" href=")[^"]+/, '$1'+iconBase+'-180.png');
+html=html.replace(/(<img src=")(?:\/compass-icon-192.png|\/icons\/chronicles-(?:ar|en)-192.png)/, '$1'+iconBase+'-192.png');
 await writeFile(path,html);
 const manifest=JSON.parse(await readFile('public/manifest.webmanifest','utf8'));
 manifest.name='Chronicles '+(language==='en'?'ENG':'AR');
 manifest.short_name=manifest.name;
 manifest.background_color='#d9c4ab';
+manifest.icons=[192,512].map(size=>({src:iconBase+'-'+size+'.png',sizes:size+'x'+size,type:'image/png',purpose:'any'}));
 await writeFile('public/manifest.webmanifest',JSON.stringify(manifest,null,2)+'\n');
 console.log('Built Chronicles '+language);
 
