@@ -36,9 +36,9 @@ const storage={get(k){try{return localStorage.getItem(k)}catch{return null}},set
 let story=12;
 let chapters=[],current=null,editing=false,busy=false,lang=SITE_LANGUAGE,seq=0,toastTimer,route='',size=Math.min(34,Math.max(16,Number(storage.get('chronicles-size'))||17));
 const validWriter=s=>typeof s==='string'&&s.trim().length>0&&[...s.trim()].length<=40&&!/[<>\x00-\x1f]/.test(s);
-let writer=['Ahmed','Benji','Guest','Guest 2','Default'].includes(storage.get('chronicles-writer'))?storage.get('chronicles-writer'):'Default';
+let writer='Benji';
 function renderWriters(){document.querySelectorAll('[data-writer]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.writer===writer));b.disabled=busy})}
-function chooseWriter(name){if(busy)return;writer=name;storage.set('chronicles-writer',writer);renderWriters();enableAuthorColors()}
+function chooseWriter(name){if(busy)return;writer=name;renderWriters();enableAuthorColors()}
 document.querySelectorAll('[data-writer]').forEach(b=>b.onclick=()=>chooseWriter(b.dataset.writer));
 renderWriters();
 let showAuthors=storage.get('chronicles-author-colors')!=='false';

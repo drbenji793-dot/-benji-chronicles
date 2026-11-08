@@ -11,7 +11,7 @@ html=html.replace(/<title>.*?<\/title>/,'<title>Benji Chronicles'+(language==='e
 html=html.replace(/<strong>Benji Chronicles(?: English)?<\/strong>/,'<strong>Benji Chronicles'+(language==='en'?' English':'')+'</strong>');
 html=html.replace(/(name="apple-mobile-web-app-title" content=")[^"]*/, '$1Chronicles'+(language==='en'?' English':''));
 html=html.replace(/Benji Chronicles · [^<]*Reader v[^<]*/, 'Benji Chronicles · Reader v'+release.version+' · '+release.releasedAt+' · UTC').replace(/app\.js\?v=\d+/, 'app.js?v='+release.version);
-html=html.replace(/last-hour\.css(?:\?v=\d+)?/g,'last-hour.css?v='+release.version);
+html=html.replace(/(last-hour|chapter-notes)\.css(?:\?v=\d+)?/g,(_,name)=>name+'.css?v='+release.version);
 await writeFile(path,html);
 const manifest=JSON.parse(await readFile('public/manifest.webmanifest','utf8'));
 manifest.name='Benji Chronicles'+(language==='en'?' English':' Arabic');

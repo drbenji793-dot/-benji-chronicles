@@ -25,7 +25,7 @@ async function fixture(language,hash=''){
  if(name==='chronicles_chapters')data=[{...chapter,id:'ar-main',story_number:12,language:'ar'},{...target,id:'en-main',story_number:12,language:'en'}].filter(r=>!u.searchParams.has('id')||u.searchParams.get('id')==='eq.'+r.id);
  if(name==='chronicles_adaptations')data=[{story_number:12,title:'A Fracture in Time',revision:1}];
  return {ok:true,json:async()=>data};};
- w.localStorage.setItem('chronicles-writer','Benji');w.eval(bundle.outputFiles[0].text);await wait();return {dom,w,doc,calls,q:s=>doc.querySelector(s)};
+ w.localStorage.setItem('chronicles-writer','Default');w.eval(bundle.outputFiles[0].text);await wait();return {dom,w,doc,calls,q:s=>doc.querySelector(s)};
 }
 function assertChapterFooter(f,library){
  const panel=f.q('.chapter-bottom-controls + .chapter-notes + .chapter-secondary-tools + [data-page-technical]');
@@ -37,9 +37,15 @@ function assertChapterFooter(f,library){
  assert.equal(f.q('.edition-bridge').hidden,false);
  assert.match(f.q('.edition-bridge a').textContent,new RegExp(library));
 }
+function assertWriterButtons(f){
+ const buttons=[...f.doc.querySelectorAll('.writer-buttons [data-writer]')];
+ assert.deepEqual(buttons.map(button=>button.textContent),['Benji','Ahmed','Guest 1','Guest 2','Default']);
+ assert.deepEqual(buttons.filter(button=>button.getAttribute('aria-pressed')==='true').map(button=>button.textContent),['Benji']);
+}
 let f=await fixture('ar');
+assertWriterButtons(f);
 assert.equal(f.q('.collection-heading').textContent,'Arabic Library');assert(!f.q('.world-gates'));assert(!f.q('.edition-bridge a'));assert(!f.q('#main').textContent.includes('English book'));f.dom.window.close();
-f=await fixture('en');assert.equal(f.q('.collection-heading').textContent,'English Library');assert(f.q('#main').textContent.includes('English book'));assert(!f.q('#main').textContent.includes('Arabic book'));assert(!f.q('.edition-bridge a'));f.dom.window.close();
+f=await fixture('en');assertWriterButtons(f);assert.equal(f.q('.collection-heading').textContent,'English Library');assert(f.q('#main').textContent.includes('English book'));assert(!f.q('#main').textContent.includes('Arabic book'));assert(!f.q('.edition-bridge a'));f.dom.window.close();
 f=await fixture('ar','#book='+arBook);assert(f.q('[data-send=translation]'));assert(f.q('[data-send=adaptation]'));
 f.q('[data-send=translation]').click();await wait();const form=f.q('#send-english');assert(form);form.elements.title.value='English book';form.querySelector('[name=chapter]').checked=true;form.dispatchEvent(new f.w.Event('submit',{cancelable:true,bubbles:true}));await wait();const sent=f.calls.find(c=>c.name==='chronicles_send_to_english');assert(sent);assert.deepEqual(JSON.parse(sent.opts.body).p_chapters,[{id:'source',revision:2}]);assert(f.q('#edition-send-status a').href.endsWith('#book='+enBook));assert(form.querySelector('[name=chapter]').disabled);f.dom.window.close();
 f=await fixture('en','#book='+enBook+'&chapter=1');assert(f.q('.edition-source').textContent.includes('Arabic source updated'));assert.equal(f.q('#chronicles-entry-body').dir,'ltr');assert.equal(f.q('#chronicles-entry-body').textContent,'Independent English text');assert(f.q('.edition-source').textContent.includes('Original snapshot'));
