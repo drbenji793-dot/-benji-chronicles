@@ -465,3 +465,6 @@ body:has(.ibn-navigation) .topbar{padding-top:12px;padding-bottom:12px}body:has(
 .review-dialog .review-check{display:flex;align-items:flex-start;gap:8px}.review-dialog .review-check input{flex:0 0 auto;width:18px;height:18px;margin-top:2px}
 .review-dialog .review-import{border-top:1px solid #b7a48b;margin-top:18px;padding-top:6px}.review-dialog [data-export-ready]{margin-top:12px;font:13px/1.5 system-ui}
 .review-dialog [data-export-ready] a{margin-inline-end:12px;color:inherit}
+
+/* Keep the icon silhouette inside its curved gold frame. */
+.topbar .brand img{border-radius:17%;overflow:hidden}
