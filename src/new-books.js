@@ -1,3 +1,4 @@
+import {chapterBottomControls} from './technical-footer.js';
 import {writingStandardReference} from './writing-standards.js';
 import {HQ} from './hq-protocol.js';
 import {notesShell,mountChapterNotes} from './chapter-notes.js';
@@ -391,11 +392,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         </section><div class="save-meta" dir="ltr">${rules?`Book Rules ${version(c.revision)} · ${esc(c.updated_by)} · ${esc(date(c.updated_at))}`:''}${c.writing_meta?.origin?`<p>${esc(c.writing_meta.origin)}</p>`:''}</div><div class="chapter-word-count" dir="ltr">${countWords(clean(c.body).replace(/<[^>]*>/g,' '))} words</div>`)}
         ${!c.body.trim()&&!rules?'<p class="notice" dir="ltr">Chapter text · Not written yet. Press Edit to begin.</p>':''}
         <hr class="chapter-story-divider" aria-hidden="true"><article id="chronicles-entry-body" class="prose" lang="${book.language}" dir="${book.language==='en'?'ltr':'rtl'}" contenteditable="false">${clean(c.body)}</article>
-        <nav class="chapter-bottom-controls" aria-label="Chapter editing and navigation" dir="ltr">
-          ${rules?'':`<button id="bottom-prev" aria-label="Previous chapter" ${list.indexOf(c)<=0?'disabled':''}>‹</button>`}
-          <button id="bottom-edit">Edit</button><button id="bottom-save" class="primary" disabled>Save</button>
-          ${rules?'':`<button id="bottom-next" aria-label="Next chapter" ${list.indexOf(c)>=list.length-1?'disabled':''}>›</button>`}
-        </nav>
+        ${chapterBottomControls({rules,previous:list.indexOf(c)>0,next:list.indexOf(c)<list.length-1})}
         ${notesShell()}
       </section></div><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     fillWriting(c.writing_meta);
