@@ -1,6 +1,6 @@
 {
-  "version": 263,
-  "releasedAt": "2026-11-08T00:39:19.988Z",
+  "version": 264,
+  "releasedAt": "2026-11-08T01:00:30+00:00",
   "timezone": "UTC",
-  "note": "Enforce current HQ guidance and reviewed chapter source transactions"
+  "note": "Show only the website release in book overview Technical details"
 }

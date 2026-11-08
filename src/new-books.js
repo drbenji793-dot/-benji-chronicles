@@ -6,7 +6,7 @@ import {renderStoryWorkspace} from './story-workspace.js';
 import {saveBookRelation} from './record-save.js';
 import {saveNoteResolution} from './note-save.js';
 import {chapterWritingStamp,mountChapterHistory} from './chapter-history.js';
-import {technicalPanel,formatTime} from './revision-stamp.js';
+import {technicalPanel} from './revision-stamp.js';
 import {revisionStamp} from './revision-stamp.js';
 import {currentPlanning} from './current-book-brief.js';
 import {bookNavigation,selectedBookTool} from './book-navigation.js';
@@ -294,7 +294,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         <a href="${link(book.id)}&view=dsl&dslview=synopsis" class="reference-link">Story</a>
 
       </div>
-      ${partStyles()}<nav class="book-part-list" dir="${book.language==='ar'?'rtl':'ltr'}" aria-label="Book parts"><div class="book-part-heading"><span>Parts</span><button type="button" class="part-circle part-add" id="overview-add-part" aria-label="Add part" title="Add part">＋</button></div>${parts.map(p=>`<div class="book-part-row"><a href="${partChapters(p)[0]?entryLink(partChapters(p)[0]):link(book.id)+'&part='+p.id}"><small>${esc(partOrdinal(p))}</small><strong>${esc(p.title)}</strong></a><button type="button" class="part-circle" lang="en" dir="ltr" data-edit-overview-part="${p.id}" aria-label="Edit ${esc(p.title)}">Edit</button></div>`).join('')}</nav>${overviewCards}${lastHour?`<details class="last-hour-story-notes"><summary>Story Notes</summary>${lastHourLinks(book.id)}</details>`:''}${technicalPanel(list.map(c=>`<p><bdi>${esc(c.title)}</bdi> · ${version(c.revision)} · ${esc(c.updated_by||'Writer not recorded')} · ${esc(formatTime(c.updated_at))}</p>`).join(''))}${book.id===REVIEW_BOOK?`<details><summary>Archive</summary><a href="#book=${IBN_BOOK}&archive=1&view=originals">Previous manuscript</a></details>`:''}
+      ${partStyles()}<nav class="book-part-list" dir="${book.language==='ar'?'rtl':'ltr'}" aria-label="Book parts"><div class="book-part-heading"><span>Parts</span><button type="button" class="part-circle part-add" id="overview-add-part" aria-label="Add part" title="Add part">＋</button></div>${parts.map(p=>`<div class="book-part-row"><a href="${partChapters(p)[0]?entryLink(partChapters(p)[0]):link(book.id)+'&part='+p.id}"><small>${esc(partOrdinal(p))}</small><strong>${esc(p.title)}</strong></a><button type="button" class="part-circle" lang="en" dir="ltr" data-edit-overview-part="${p.id}" aria-label="Edit ${esc(p.title)}">Edit</button></div>`).join('')}</nav>${overviewCards}${lastHour?`<details class="last-hour-story-notes"><summary>Story Notes</summary>${lastHourLinks(book.id)}</details>`:''}${book.id===REVIEW_BOOK?`<details><summary>Archive</summary><a href="#book=${IBN_BOOK}&archive=1&view=originals">Previous manuscript</a></details>`:''}
     </section><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     $('#overview-add-part').onclick=()=>editPart(null);document.querySelectorAll('[data-edit-overview-part]').forEach(el=>el.onclick=()=>editPart(parts.find(p=>p.id===el.dataset.editOverviewPart)));
     $('#chronicles-add-chapter').onclick=showCreateChapter;
