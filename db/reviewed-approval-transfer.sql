@@ -25,7 +25,7 @@ begin
  return public.chronicles_approve_and_transfer(p_id,p_revision,p_expected_ink_revision,p_writer);
 end $$;
 
--- Separate actions use the same reviewed source boundary. Deployment pending tests.
+-- Separate actions use the same reviewed source boundary. Installed with rollback checks.
 create or replace function public.chronicles_reviewed_approve(
  p_id uuid, p_revision integer, p_writer text, p_branch_id uuid, p_branch_revision integer
 ) returns public.chronicles_workflow language plpgsql security invoker set search_path = '' as $$
@@ -54,6 +54,7 @@ create or replace function public.chronicles_reviewed_transfer(
  p_branch_id uuid, p_branch_revision integer
 ) returns jsonb language plpgsql security invoker set search_path = '' as $$
 declare c public.chronicles_book_entries; b public.chronicles_dsl_branches;
+ w public.chronicles_workflow; target public.ink_entries; bid uuid;
 begin
  if p_writer is distinct from 'Benji' then raise exception 'Only Benji can approve and send'; end if;
  select * into c from public.chronicles_book_entries where id=p_id for update;
@@ -70,6 +71,17 @@ begin
  if not found or b.revision is distinct from p_branch_revision then
   raise exception 'CURRENT_SOURCE: decisions changed. Reopen Review before approval.';
  end if;
+ select * into w from public.chronicles_workflow where source_id=c.id for update;
+ if not found or w.approved_revision is distinct from c.revision then raise exception 'Approve this chapter first';end if;
+ select ink_book_id into bid from public.chronicles_book_controls where book_key=c.book_id::text;
+ if bid is null then raise exception 'Ink edition is not connected';end if;
+ select * into target from public.ink_entries where book_id=bid
+ and (id=w.ink_entry_id or source_meta->>'chronicles_source_id'=c.id::text)
+ order by updated_at desc limit 1 for update;
+ if coalesce(target.revision,0) is distinct from p_expected_ink_revision then
+  raise exception 'CONFLICT: Ink changed. Compare again.';
+ end if;
+ if target.id is not null then update public.chronicles_workflow set ink_entry_id=target.id where source_id=c.id;end if;
  return public.chronicles_transfer(
   jsonb_build_array(jsonb_build_object('id',p_id,'revision',p_revision,'expected_ink_revision',p_expected_ink_revision)),
   p_writer,'[]'::jsonb);

@@ -1,4 +1,4 @@
--- Staged only. No installation or content changes are performed by this file.
+-- Additive installation source. Does not rewrite or approve chapter content.
 -- Preserve the existing invoker permissions and normal chapter note policies.
 create or replace function public.chronicles_record_protocol_request(
  p_kind text, p_id uuid, p_revision integer, p_writer text, p_request jsonb
@@ -21,6 +21,10 @@ begin
     or register_name is null or register_name not in ('English','_am','_f')
     or nullif(trim(p_writer),'') is null then
   raise exception 'CURRENT_SOURCE: complete online protocol reference required.';
+ end if;
+ if (register_name='English' and (protocol_version !~ '^_zk[1-9][0-9]*e\.[0-9]+$' or substring(protocol_version from '^_zk([0-9]+)')::numeric<5))
+    or (register_name<>'English' and (protocol_version !~ '^_zk[1-9][0-9]*\.[0-9]+$' or substring(protocol_version from '^_zk([0-9]+)')::numeric<7)) then
+  raise exception 'CURRENT_SOURCE: historical or mismatched protocol reference.';
  end if;
  -- This records the supplied reference, not authentication of HQ approval.
  if p_kind='extra' then

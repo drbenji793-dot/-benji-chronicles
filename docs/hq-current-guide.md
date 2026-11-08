@@ -10,4 +10,4 @@ Chapter writing requests refresh the selected guide before export. Changed versi
 
 The shared chapter layout and writing stamp follow docs/IBN_ELGABAL_PAGE_DESIGN.md. Protocol links preserve historical identity where recorded; current guide links lead to HQ. The complete zk7 Language Lab reference is https://chatgpt.com/library?file_id=libfile_12e5dc5bf3d08191984cf4dd5437632d&account_id=personal.
 
-This document describes the candidate integration. See current-version-implementation-handoff.md for tested scope, installation order and remaining production acceptance. New database endpoints must be installed and tested before deploying their client calls.
+This document describes the candidate integration. See current-version-implementation-handoff.md for tested scope, installation order and remaining production acceptance. The additive request and separate action endpoints are installed and passed rollback checks. Application rollout remains pending.

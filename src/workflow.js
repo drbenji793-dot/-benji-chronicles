@@ -104,7 +104,12 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
  if(w?.approved_revision!==c.revision)throw Error('Approve this chapter first.');
  if(w.transferred_revision===c.revision){await after();return;}
  const id=w.ink_entry_id||c.source_entry_id;
- const target=id?(await api('ink_entries?id=eq.'+id+'&select=*'))[0]:null;
+ let target=id?(await api('ink_entries?id=eq.'+id+'&select=*'))[0]:null;
+ if(sourceReview&&!target){
+  const map=(await api('chronicles_book_controls?book_key=eq.'+c.book_id+'&select=ink_book_id'))[0];
+  if(!map?.ink_book_id)throw Error('Ink edition is not connected');
+  target=(await api('ink_entries?book_id=eq.'+map.ink_book_id+'&source_meta->>chronicles_source_id=eq.'+c.id+'&select=*&order=updated_at.desc&limit=1'))[0]||null;
+ }
  const changed=!!target&&(text(target.body)!==text(c.body)||target.title!==c.title);
  const label=`${c.language==='en'?'English':'Arabic'} ${c.kind==='rules'?'Book Rules':'Chapter '+c.chapter_number}`;
  show('Update this chapter in Benji Ink',`<p>Update <strong>${esc(label)}</strong> in Benji Ink with approved revision <strong>${version(c.revision)}</strong>?</p><p>Only this chapter and language will change. The previous Ink version remains in History. No other chapters or supporting material will be included.</p><form id="transfer-form">${changed?`<details open><summary>Compare with current Ink version</summary><h3>Title</h3>${diffHTML(target.title,c.title)}<h3>Text</h3><div dir="${c.language==='en'?'ltr':'rtl'}">${diffHTML(text(target.body),text(c.body))}</div></details><label><input type="checkbox" name="accept"> I reviewed the differences and want this approved version in Ink.</label>`:''}<div class="workflow-actions"><button type="button" id="transfer-cancel">Cancel</button><button type="submit" class="primary">Confirm Update Ink</button></div><p id="transfer-error" role="alert"></p></form>`);

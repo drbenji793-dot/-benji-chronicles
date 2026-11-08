@@ -1,16 +1,16 @@
 # Current version implementation checkpoint
 
-Status: candidate implementation with isolated release checks passed after reconciliation. Production installation and acceptance remain pending. Benji requested system work without manuscript writing or author prose approval.
+Status: candidate implementation with isolated release checks passed after reconciliation. The three additive database endpoints are installed and their rolled back checks pass. Application production deployment and acceptance remain pending. Benji requested system work without manuscript writing or author prose approval.
 
 ## Added coverage
 
 The separate Approve action now captures the planning source before opening its confirmation, checks it again on submission, and passes it to a server transaction. Separate transfer passes its reviewed token to its own transaction endpoint. Both endpoints lock the chapter and the registered planning branch and delegate to the existing approval or transfer implementation. Combined approval and transfer retain the deployed endpoint.
 
-The SQL file is the complete additive installation source. Do not deploy the client until the new endpoints have been applied and tested. No production migration or content mutation was performed for this checkpoint.
+The SQL file is the complete additive installation source. The separate approval, separate transfer and protocol request endpoints were installed on 8 November 2026. Their anonymous role transaction checks passed. No manuscript or approval fixture was persisted.
 
 ## Pending acceptance
 
-Extend actual UI tests for separate approval and transfer, run anonymous-role transaction and rollback tests for both new endpoints, check direct legacy RPC coverage, then publish both editions. Keep the production release number unchanged until that release.
+Separate action UI and database checks now pass. Direct legacy RPC clients still lack reviewed planning tokens. Production deployment and browser acceptance remain pending. Keep the production release number unchanged until that release.
 
 ## Guide authority
 
@@ -28,9 +28,9 @@ Bundled guidance and offline caches cannot appear as confirmed current guidance 
 
 The shared chapter stamp uses editable provenance fields from the current main branch, not a menu of obsolete guide defaults. Its Arabic register buttons retain _am and _f. The saved historical method is retained on edits unless the user explicitly changes it.
 
-The protocol request attribution write now calls chronicles_record_protocol_request. The additive SQL source locks the chapter, compares its exact revision and inserts the request note while holding that lock. It records the supplied guide reference, not authentication of HQ approval. Install db/protocol-request-source-guard.sql before deploying the client. No table policies or privileges are widened.
+The protocol request attribution write now calls chronicles_record_protocol_request. The additive SQL source locks the chapter, compares its exact revision and inserts the request note while holding that lock. It records the supplied guide reference, not authentication of HQ approval. Installed from db/protocol-request-source-guard.sql; both storage paths passed rollback checks. No table policies or privileges are widened.
 
-The full release suite passed after reconciliation: all 94 configured test scripts and the Arabic/English edition checks. The Arabic production build also passed. Tests now use synthetic published zk7 Arabic and independent English fixtures; bundled guides are checked as historical assets only. Offline, stale, malformed and future current references are rejected. Higher experimental or explicitly unapproved editions are excluded. Database installation, production release and browser acceptance remain pending.
+The full release suite passed after reconciliation: all 94 configured test scripts and the Arabic/English edition checks. The Arabic production build also passed. Tests now use synthetic published zk7 Arabic and independent English fixtures; bundled guides are checked as historical assets only. Offline, stale, malformed and future current references are rejected. Higher experimental or explicitly unapproved editions are excluded. Application production release and browser acceptance remain pending.
 
 ## Continuation
 
@@ -40,6 +40,14 @@ Current Book Brief now declares whether its guide is confirmed, distinguishes re
 
 Books without a planning branch now retrieve current HQ guidance before exporting review HTML. The actual export handler test proves an unavailable guide produces no new download. The approval test awaits the source preflight before using its confirmation, matching the asynchronous UI instead of assuming a synchronous dialog.
 
-No production branch, database, manuscript text or author approval was changed by this candidate continuation.
+No production application branch, manuscript text or author approval was changed. Additive database functions were installed separately.
 
 Validation date: 8 November 2026. Current main reference rechecked at b47ce70a6c7e3814107d5bd8b8c31c8319666809. Remote preview status is independent of these local checks.
+
+## Installed database coverage
+
+Migrations: chronicles_reviewed_separate_actions_and_protocol_requests and chronicles_reviewed_transfer_existing_target. The latter fixes an existing Ink target lookup when workflow mapping is absent, while retaining exact target revision comparison. All endpoints are SECURITY INVOKER with an empty search path. Existing table privileges and row policies are unchanged.
+
+Anonymous role tests in tests/reviewed-separate-actions.sql reject stale chapters, stale or missing planning tokens and the missing approved name; corrected fixtures transfer, roll back fully and retry. tests/protocol-request-source.sql checks both chapter storage paths, rejects stale revision, offline, bad digest, historical Arabic and mismatched registers, and records valid Arabic and English references inside the rollback only. The server records the caller reference; it does not authenticate HQ publication.
+
+Manuscript fingerprint before and after: 296ceff5d3b0fa9ecc7d1e5ad562b97e, 50 entries, zero recorded approvals. Browser regression checks require comparing an existing Ink target before separate transfer and send its exact revision. Both remote builds for preceding candidate 0ef40c56 passed.
