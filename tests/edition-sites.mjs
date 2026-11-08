@@ -101,6 +101,7 @@ assert.equal(f.q('.chapter-secondary-tools summary').textContent,'Chapter tools'
 assert.equal(f.q('[data-page-technical]').open,false);
 assert(f.q('.chapter-secondary-tools #history'));
 assert(f.q('#bottom-save').disabled);
-f.q('#bottom-edit').click();assert(!f.q('#bottom-save').disabled);f.q('#cancel').click();
+f.q('#bottom-edit').click();assert(!f.q('#bottom-save').disabled);f.q('#cancel').click();await wait();
+assert(f.q('.chapter-bottom-controls + .chapter-notes + .chapter-secondary-tools + [data-page-technical]'));
 assert(f.q('a[href="https://benji-chronicles.vercel.app/#story=12&lang=ar"]'));f.dom.window.close();
 console.log('PASS: isolated homes, existing English books, cross-site links, transfer UI with revision approval, source-change review, English editor/save/history and legacy English reader.');
