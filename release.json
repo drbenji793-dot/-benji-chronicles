@@ -1,6 +1,6 @@
 {
-  "version": 262,
-  "releasedAt": "2026-11-08T00:18:53.541Z",
+  "version": 263,
+  "releasedAt": "2026-11-08T00:39:19.988Z",
   "timezone": "UTC",
-  "note": "Apply the Ibn Elgabal chapter layout to both Chronicles readers"
+  "note": "Enforce current HQ guidance and reviewed chapter source transactions"
 }

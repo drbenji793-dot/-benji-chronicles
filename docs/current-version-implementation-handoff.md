@@ -51,3 +51,9 @@ Migrations: chronicles_reviewed_separate_actions_and_protocol_requests and chron
 Anonymous role tests in tests/reviewed-separate-actions.sql reject stale chapters, stale or missing planning tokens and the missing approved name; corrected fixtures transfer, roll back fully and retry. tests/protocol-request-source.sql checks both chapter storage paths, rejects stale revision, offline, bad digest, historical Arabic and mismatched registers, and records valid Arabic and English references inside the rollback only. The server records the caller reference; it does not authenticate HQ publication.
 
 Manuscript fingerprint before and after: 296ceff5d3b0fa9ecc7d1e5ad562b97e, 50 entries, zero recorded approvals. Browser regression checks require comparing an existing Ink target before separate transfer and send its exact revision. Both remote builds for preceding candidate 0ef40c56 passed.
+
+## v263 release preparation
+
+Preceding production on both aliases: b47ce70a6c7e3814107d5bd8b8c31c8319666809, v262. Candidate 91750c4138c1a1f2002c97433a2891b3e685c7fc passed both remote Vercel builds. Both production aliases and main were reread before release preparation. Live HQ resolution returned Arabic _zk7.0 (eba9079fe0ab738175a27ce69a985e5b4882b52cce85b14a45b34d00fcdce106) and English _zk5e.0 (c5614244533152327a2338baa3711ae4077f8b42c098328c89d2afd4c4a07432), online with matching protocol digests.
+
+v263 carries the installed source transactions and guide checks to the application. Verify the production aliases against the resulting release commit before marking rollout live. Rollback application to b47ce70 if needed; retain the additive database functions and all history.
