@@ -1,6 +1,16 @@
 import {formatTime} from './revision-stamp.js';
+export function chapterWritingStamp(record,{esc,language,version,date=formatTime}){
+ const {method,style_version,variant}=record.writing_meta||{};
+ const guide=method==='Manual'?'None':style_version||'Unrecorded';
+ const variants={E:'_am (العامية)',_am:'_am (العامية)',F:'_f (المثقفة)',_f:'_f (المثقفة)'};
+ const label=(language==='ar'&&Object.hasOwn(variants,variant)?variants[variant]:variant)||'Unrecorded';
+ const time=record.saved_at||record.updated_at;
+ const writer=record.saved_by||record.updated_by;
+ return '<p><strong>Saved '+esc(version(record.revision))+'</strong> · '+esc(time?date(time):'Time unrecorded')+(writer?' · '+esc(writer):'')+'</p>'
+  +'<p>Method <strong>'+esc(method&&method!=='unknown'?method:'Unrecorded')+'</strong> · Guide '+esc(guide)+' · Variant <bdi>'+esc(label)+'</bdi></p>';
+}
 // Recovery is explicit: lists contain metadata; saved text loads only on request.
-export async function mountChapterHistory({root,api,entryId,currentRevision,esc,clean,language,isCurrent,onRestore}){
+export async function mountChapterHistory({root,api,entryId,currentRevision,esc,clean,language,version,date,isCurrent,onRestore}){
  const scope='chronicles_book_versions?entry_id=eq.'+encodeURIComponent(entryId);
  root.innerHTML='<p>Read a saved revision or use it as an unsaved draft.</p><div data-revisions></div><p data-history-status role="status"></p><button data-more>Load revisions</button><div data-preview></div>';
  const list=root.querySelector('[data-revisions]'),status=root.querySelector('[data-history-status]'),more=root.querySelector('[data-more]'),preview=root.querySelector('[data-preview]');
@@ -14,7 +24,7 @@ export async function mountChapterHistory({root,api,entryId,currentRevision,esc,
    if(!valid()||ticket!==request)return;
    status.textContent='';
    if(restore){await onRestore(saved);return;}
-   preview.innerHTML='<div class="preview" dir="'+(language==='en'?'ltr':'rtl')+'"><h2 dir="auto">'+esc(saved.title)+'</h2><article class="prose">'+clean(saved.body)+'</article></div>';
+   preview.innerHTML='<div class="preview" dir="'+(language==='en'?'ltr':'rtl')+'"><h2 dir="auto">'+esc(saved.title)+'</h2>'+(version?'<div class="chapter-stamp" dir="ltr">'+chapterWritingStamp(saved,{esc,language,version,date})+'</div>':'')+'<article class="prose">'+clean(saved.body)+'</article></div>';
   }catch(error){if(valid()&&ticket===request){status.textContent=error.message+' ';const retry=document.createElement('button');retry.textContent='Retry';retry.onclick=()=>open(row,restore);status.append(retry);}}
  }
  async function load(){

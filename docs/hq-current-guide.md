@@ -1,15 +1,13 @@
 # Current HQ writing guide
 
-HQ owns the writing protocol for both Chronicles editions. Arabic and English resolve their current published protocol independently from the HQ protocol index at startup and when preparing a writing request. Major and minor edition selection is automatic within the chosen language. Every resolved payload must match its selected version, family and SHA256.
+HQ owns the protocol index. Arabic and English resolve independently before new work packets. Arabic current selection requires zk7 or a later eligible published edition. English follows its own published family. Exact selected version, family and SHA256 must match. Explicit draft, experimental, superseded, archived and unapproved entries are excluded.
 
-Arabic bundled guidance is the complete _zk6 guide, including 26 inherited rules and eight A001 observations. English remains its independent _zk5e guide. Live source observations and the exact protocol accompany the current reference. Review labels derive their code from the resolved guide.
+Book and passage decisions retain their approved scope. Saved chapter methods are historical provenance and are never silently relabeled. Bundled zk6 and zk5e files remain historical references; they are not confirmed current defaults.
 
-When HQ is unavailable, only a previously verified language-specific cache is eligible. Offline and bundled reference states are labeled. An unpublished or invalid response cannot silently substitute another edition. Reading or refreshing guidance never updates manuscripts, book decisions or approved language registers. Current book and passage instructions retain priority.
+Current display references expire after five minutes. Malformed and future timestamps fail closed. An offline verified cache may be read as history but cannot authorize a new current work packet. Review HTML, review JSON and question exports retrieve current guidance. Versioned review imports refresh before comparing references. An unavailable guide blocks preparation with a visible explanation.
 
-No Jamming: update this integration in place. Historical references in saved chapter notes are factual provenance, not active guide selection. Removal of older standalone files remains a separate pending approval; this change updates current consumers and links.
+Chapter writing requests refresh the selected guide before export. Changed version or digest clears the displayed selection and requires another review. Retrieving a guide never modifies manuscripts or approves a proposal.
 
-Validation includes both edition suites, exact source rule/hash comparison, future-major selection, language isolation, corruption rejection, offline fallback, review export checks and live HQ resolution of Arabic _zk6.0 and English _zk5e.0.
+The shared chapter layout and writing stamp follow docs/IBN_ELGABAL_PAGE_DESIGN.md. Protocol links preserve historical identity where recorded; current guide links lead to HQ. The complete zk7 Language Lab reference is https://chatgpt.com/library?file_id=libfile_12e5dc5bf3d08191984cf4dd5437632d&account_id=personal.
 
-## Staged current-source continuation
-
-The pending enforcement branch removes bundled and offline fallback from current work packets and requires Arabic zk7 or a later eligible published edition. Older bundled descriptions above document the previous production integration, not the staged current selector. Exact changes and installation order are recorded in current-version-implementation-handoff.md. No book writing method is silently migrated.
+This document describes the candidate integration. See current-version-implementation-handoff.md for tested scope, installation order and remaining production acceptance. New database endpoints must be installed and tested before deploying their client calls.

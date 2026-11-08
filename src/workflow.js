@@ -35,6 +35,11 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
  const version=n=>kind==='extra'?'v'+(Number(n||1)+100):String(n);const reviewEdition=c.book_id==='c911584d-bd5b-42fe-b41c-a2a456c64d41';const area=$('#main .editor-area');if(!area)return;const compactEnglish=!!area.closest('.book-reading-layout');const customTitle=controls.find(x=>x.book_key===keyOf(c,kind))?.title;if(customTitle){title=customTitle;document.querySelectorAll('#main>.crumb strong,.workspace-heading h2').forEach(el=>el.textContent=customTitle);}area.querySelector('.workflow-panel')?.remove();const panel=document.createElement('section');panel.className='workflow-panel';panel.dir='ltr';let details=area.querySelector('.reading-details')||area.querySelector('.save-meta')?.closest('.technical-details');if(details)details.classList.add('reading-details');if(!details){details=document.createElement('details');details.className='reading-details technical-details';details.dir='ltr';const summary=document.createElement('summary');summary.innerHTML='Current <span aria-hidden="true">⌄</span>';summary.lang='en';summary.dir='ltr';details.append(summary);const meta=area.querySelector('.save-meta');(meta||area.querySelector('.toolbar')).after(details);if(meta)details.append(meta);}details.append(panel);const chapterLinks=area.querySelector('.chapter-links');if(chapterLinks)chapterLinks.remove();
  panel.innerHTML=`<p class="workflow-status" aria-live="polite">Loading approval status…</p><div class="workflow-actions"><button data-wf="review">Review Chapter</button><button data-wf="approve" disabled>Approve Chapter</button><button data-wf="transfer" disabled>Update Ink</button></div>`;
  if(reviewEdition){details.open=false;panel.querySelector('[data-wf=approve]').hidden=true;panel.querySelector('[data-wf=transfer]').hidden=true;const button=document.createElement('button');button.dataset.wf='approve-send';button.textContent='Approve and send to Ink';panel.querySelector('.workflow-actions').append(button);button.onclick=()=>combinedApproval().catch(e=>say(e.message,true));}
+ if(kind==='main'){
+   const tools=document.createElement('div');tools.className='workflow-actions review-extra-tools';
+   for(const id of ['history','print','export-book','print-all']){const button=area.querySelector('#'+id);if(button)tools.append(button);}
+   details.append(tools);
+ }
  if(kind==='extra'){
    details.open=false;
    const tools=document.createElement('div');tools.className='workflow-actions review-extra-tools';tools.setAttribute('aria-label','History and export tools');
@@ -44,7 +49,7 @@ export function createWorkflow({api,esc,clean,storage,say,date,getWriter,getInde
    const nav=document.createElement('nav');nav.className='workflow-actions review-workspace-links';nav.setAttribute('aria-label','Planning and rules');
    area.querySelector('.chapter-quick-links')?.remove();
    const rules=document.createElement('a');rules.href='#book='+c.book_id+'&rules=1';rules.textContent='Book Rules';nav.append(rules);details.append(nav);
-   if(!compactEnglish){
+   if(!area.querySelector('.chapter-stamp')&&!compactEnglish){
    const technical=document.createElement('details');technical.innerHTML='<summary>Technical record</summary><p>Chapter version '+esc(version(c.revision))+' · Internal revision '+esc(c.revision)+'</p><p>Entry: '+esc(c.id)+'</p><p>Saved UTC: '+esc(c.updated_at)+'</p><p>Chapter versions start at 101. The style guide has its own version.</p>';
    details.append(technical);
    }

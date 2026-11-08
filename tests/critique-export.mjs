@@ -1,3 +1,5 @@
+import {installCurrentGuideFixture} from './current-guide-fixture.mjs';
+await installCurrentGuideFixture();
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 import createDOMPurify from 'dompurify';
@@ -15,7 +17,7 @@ for(const language of ['ar','en']){
  assert(doc.body.textContent.includes('حافيين & سالم'));
  assert(doc.body.textContent.includes('No saved text supplied'));
  assert.equal(doc.body.textContent.includes('_zk5e'),language==='en');
- assert.equal(doc.body.textContent.includes('Arabic voice (_zk6; book selected E or F)'),language==='ar');
+ assert.equal(doc.body.textContent.includes('Arabic voice (_zk7; book selected E or F)'),language==='ar');
  assert.equal(doc.querySelectorAll('.technical-details').length,1);
  assert(doc.body.lastElementChild.matches('.technical-details'));
  assert.equal(doc.body.lastElementChild.open,false);
@@ -33,6 +35,11 @@ for(const language of ['ar','en']){
  assert.equal(filename,'Review_Brief_v006.html');assert.equal(blob.type,'text/html;charset=utf-8');
  assert((await blob.text()).startsWith('<!doctype html>'));
  assert.equal(JSON.stringify(chapters),before);
+ // A book without planning must also refresh guidance before HTML export.
+ const online=globalThis.fetch;globalThis.fetch=async()=>{throw Error('offline');};
+ blob=null;await document.querySelector('[data-export-form]').onsubmit({preventDefault(){}});
+ assert.equal(blob,null);assert(document.body.textContent.includes('could not be confirmed'));
+ globalThis.fetch=online;await installCurrentGuideFixture();
  dom.window.close();
 }
 console.log('Review export: Arabic/English criteria, readable safe HTML, source fidelity and download verified.');

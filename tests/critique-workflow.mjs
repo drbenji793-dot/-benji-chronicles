@@ -1,3 +1,5 @@
+import {installCurrentGuideFixture} from './current-guide-fixture.mjs';
+await installCurrentGuideFixture();
 import {recheckFinding,findingContinuityState} from '../src/finding-continuity.js';
 import {pendingWork} from '../src/pending-work.js';
 import assert from 'node:assert/strict';

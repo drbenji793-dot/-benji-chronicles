@@ -1,6 +1,6 @@
 {
-  "version": 258,
-  "releasedAt": "2026-11-07T20:42:15+00:00",
+  "version": 262,
+  "releasedAt": "2026-11-08T00:18:53.541Z",
   "timezone": "UTC",
-  "note": "Show the saved English writing method and remove duplicate chapter tools"
+  "note": "Apply the Ibn Elgabal chapter layout to both Chronicles readers"
 }

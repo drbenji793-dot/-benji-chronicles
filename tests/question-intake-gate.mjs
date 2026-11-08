@@ -1,3 +1,5 @@
+import {installCurrentGuideFixture} from './current-guide-fixture.mjs';
+await installCurrentGuideFixture();
 import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 import {questionPackage} from '../src/question-package.js';

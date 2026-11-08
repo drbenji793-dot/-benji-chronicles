@@ -1,3 +1,4 @@
+import {loadCurrentWritingStandard} from './writing-standards.js';
 import createDOMPurify from 'dompurify';
 import {escapeHTML as h,clone} from './dsl-engine.js';
 import {reviewMetadata,reviewBranch,reviewBodies,reviewChapter,reviewFingerprint} from './critique-loader.js';
@@ -81,6 +82,7 @@ export async function renderCritique(main,api,context){
   const form=el.querySelector('form');form.elements.scope.onchange=()=>{el.querySelector('[data-chapter-selection]').hidden=form.elements.scope.value!=='selected';};
   form.onsubmit=async ev=>{ev.preventDefault();const button=form.querySelector('button');button.disabled=true;try{const ids=form.elements.scope.value==='all'?chapters.map(c=>c.id):[...form.querySelectorAll('[name=chapter]:checked')].map(c=>c.value);if(!ids.length)throw Error('Choose at least one chapter.');const all=await reviewBodies(api,context.sourcePath,chapters,current),full=all.filter(c=>ids.includes(c.id));let packet=null;
    if(branch){const fresh=await api('chronicles_dsl_branches?book_id=eq.'+context.bookId+'&id=eq.'+branch.id+'&revision=eq.'+branch.revision+'&select=data,revision&limit=1');if(!fresh[0])throw Error('Planning changed. Reopen Review before exporting.');packet=await reviewPacket(fresh[0].data,{...context,branchId:branch.id,revision:branch.revision},full.map(c=>({...c,paragraphs:savedParagraphs(c.body)})));}
+   if(!branch)await loadCurrentWritingStandard(context.language);
    if(!current()||!el.isConnected)return;const purify=createDOMPurify(window);let html=reviewBriefHTML({context,chapters:full,fingerprint:reviewFingerprint(full)},body=>purify.sanitize(body,{USE_PROFILES:{html:true}}));
    if(packet)html=html.replace('</body>','<details><summary>For a review file that can be imported</summary><p>Return the JSON below with findings filled in. Keep the source identifiers unchanged. A plain text report may instead be pasted into Add feedback.</p><pre>'+h(JSON.stringify(packet,null,2))+'</pre></details></body>');
    const file=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(file);urls.push(url);const ready=el.querySelector('[data-export-ready]');ready.innerHTML='<a href="'+url+'" download="Review_Brief_v006.html">Download again</a> <a href="'+url+'" target="_blank" rel="noopener">Open file</a>';ready.querySelector('a').click();message(el,'File ready. On iPhone, open it and use Share to save or send it.');

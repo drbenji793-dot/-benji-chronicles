@@ -21,3 +21,7 @@ Read docs/CHRONICLES_CURRENT_SOURCES.md, docs/update-mechanism.md, docs/save-pat
 Arabic and English share this repository. Verify both production commits. Run npm run release:check for implementation changes and preserve the Vercel release gate.
 
 For Ibn Al Jabal, Benji's correction requires سعد أبو العلا to be introduced in Chapter 1 with the agreed background. The later Chapter 1 review is libfile_5441b2b303948191bb12748411cc630a. Check it against the current Book Brief and manuscript before applying prose changes. An old note saying the friend is unnamed is superseded. The zk6 comparison libfile_8be5560ef62481918db2027d9f44e883 remains an experiment until Benji selects it. Do not infer approval of every character-card detail from approval of a name.
+
+## Ibn Elgabal page design
+
+Apply the [Ibn Elgabal Page Design](docs/IBN_ELGABAL_PAGE_DESIGN.md) to every existing and new book in both editions. Use the shared chapter controls and footer for either reader path.

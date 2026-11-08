@@ -11,5 +11,18 @@ const sync=await syncCurrentWritingStandard('ar',{fetcher,storage});assert.equal
 const offline=await resolveCurrentHQProtocol('ar',{storage,fetcher:async()=>{throw Error('offline')}});assert(offline.offline);assert.equal(offline.resolved,'_zk7.1');
 await assert.rejects(()=>resolveCurrentHQProtocol('ar',{storage,fetcher:async url=>url.endsWith('/api/protocols')?Response.json({editions:[{version:ar.resolved,sha256:'bad'}]}):Response.json(ar)}),/verification/);
 await assert.rejects(()=>resolveCurrentHQProtocol('ar',{storage,fetcher:async()=>Response.json({editions:[{version:en.resolved,sha256:en.sha256}]})}),/No current protocol/);
-assert.equal(writingStandard('en').code,'_zk5e');
+assert.equal(writingStandard('en'),null);
+await syncCurrentWritingStandard('en',{fetcher,storage});assert.equal(writingStandard('en').code,'_zk5e');
+await syncCurrentWritingStandard('ar',{storage,fetcher:async()=>{throw Error('offline')}});assert.equal(writingStandard('ar'),null);
 console.log('PASS automatic next-major selection, language isolation, source observations, digest verification, no silent substitution and explicit offline state');
+
+// A newer experiment must not replace the published guide; an old Arabic guide
+// cannot reenter the current path even with a valid digest.
+for(const excluded of [{status:'draft'},{status:'experiment'},{status:'superseded'},{status:'archived'},{status:'unapproved'},{approved:false},{published:false}]){
+ const future=await make('_zk9.0');
+ const guarded=async url=>url.endsWith('/api/protocols')?Response.json({editions:[{version:future.resolved,sha256:future.sha256,...excluded},{version:ar.resolved,sha256:ar.sha256}]}):Response.json(ar);
+ assert.equal((await resolveCurrentHQProtocol('ar',{fetcher:guarded,storage})).resolved,ar.resolved);
+}
+const old=await make('_zk6.0');
+await assert.rejects(()=>resolveCurrentHQProtocol('ar',{storage,fetcher:async url=>Response.json(url.endsWith('/api/protocols')?{editions:[{version:old.resolved,sha256:old.sha256}]}:old)}),/superseded/);
+console.log('PASS newer unapproved guides excluded and valid historical Arabic guide rejected as current');
