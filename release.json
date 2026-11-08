@@ -1,6 +1,6 @@
 {
-  "version": 267,
-  "releasedAt": "2026-11-08T03:31:09.220168+00:00",
+  "version": 268,
+  "releasedAt": "2026-11-08T18:15:26.184706+00:00",
   "timezone": "UTC",
-  "note": "Bind Ibn Al Jabal writing requests to current saved planning decisions"
+  "note": "Organize shared chapter technical details across both editions and every book"
 }

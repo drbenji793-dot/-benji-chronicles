@@ -1,3 +1,4 @@
+import {chapterMetrics} from './chapter-details.js';
 import {formatTime} from './revision-stamp.js';
 export function chapterBottomControls({rules=false,previous=false,next=false}={}){
  return `<nav class="chapter-bottom-controls" aria-label="Chapter editing and navigation" dir="ltr">
@@ -17,7 +18,7 @@ export function mountTechnicalFooter(main,footer){
  const stamp=website.textContent.match(/Reader v(\d+) · (\S+) · UTC/);
  if(stamp)website.textContent='Website version: '+stamp[1]+' · Released: '+formatTime(stamp[2]);
  release.remove();
- let panel;const entries=[];
+ let panel;const entries=[];let metrics;
  const observer=new MutationObserver(refresh);
  function refresh(){
   observer.disconnect();
@@ -48,14 +49,22 @@ export function mountTechnicalFooter(main,footer){
   }
   const wordCount=chapter&&host.querySelector('.chapter-word-count');
   if(wordCount&&!panel.contains(wordCount))panel.append(wordCount);
-  if(editionBridge){
-   if(chapter&&panel.lastElementChild!==editionBridge)panel.append(editionBridge);
-   else if(!chapter&&editionBridge.nextElementSibling!==footer)footer.before(editionBridge);
-  }
-  const bridgeInPanel=editionBridge?.parentElement===panel?editionBridge:null;
-  if(website.parentElement!==panel||website.nextElementSibling!==bridgeInPanel)panel.insertBefore(website,bridgeInPanel);
+  if(chapter){
+   if(!metrics?.isConnected){metrics=document.createElement('section');metrics.className='chapter-detail-group chapter-numbers';metrics.innerHTML='<h3>Chapter numbers</h3><div data-count-slot></div><p data-extra-counts></p>';panel.append(metrics);}
+   if(wordCount&&wordCount.parentElement!==metrics.querySelector('[data-count-slot]'))metrics.querySelector('[data-count-slot]').append(wordCount);
+   const counts=chapterMetrics(chapter),value=counts.characters.toLocaleString('en-US')+' characters · '+counts.paragraphs+' paragraphs';
+   const wordTarget=wordCount?.querySelector('#word-count')||wordCount;const wordLabel=counts.words.toLocaleString('en-US')+' words';if(wordTarget&&wordTarget.textContent!==wordLabel)wordTarget.textContent=wordLabel;
+   if(metrics.querySelector('[data-extra-counts]').textContent!==value)metrics.querySelector('[data-extra-counts]').textContent=value;
+   const activity=panel.querySelector('.chapter-stamp')||panel.querySelector('.technical-section');
+   if(activity&&activity.nextElementSibling!==metrics)activity.after(metrics);
+  }else if(metrics){metrics.remove();metrics=null;}
+  // Edition navigation belongs outside the chapter metadata rectangle.
+  if(editionBridge&&editionBridge.nextElementSibling!==footer)footer.before(editionBridge);
+  if(website.parentElement!==panel||website!==panel.lastElementChild)panel.append(website);
+  website.className='chapter-detail-group website-details';
+  if(!website.querySelector('h3')){const heading=document.createElement('h3');heading.textContent='Website';website.prepend(heading);}
   if(host.lastElementChild!==panel)host.append(panel);
-  observer.observe(main,{childList:true,subtree:true});
+  observer.observe(main,{childList:true,subtree:true,characterData:true});
  }
  refresh();return ()=>observer.disconnect();
 }

@@ -31,17 +31,17 @@ function assertChapterFooter(f,library){
  const panel=f.q('.chapter-bottom-controls + .chapter-notes + .chapter-secondary-tools + [data-page-technical]');
  assert(panel);
  assert.equal(panel.open,false);
- for(const selector of ['.chapter-stamp','#chapter-writing-settings','.chapter-word-count','[data-website-details]','.edition-bridge']){
+ for(const selector of ['.chapter-stamp','#chapter-writing-settings','.chapter-word-count','[data-website-details]']){
   assert(panel.contains(f.q(selector)),selector);
  }
- assert.equal(f.q('.edition-bridge').hidden,false);
+ assert.equal(f.q('.edition-bridge').hidden,false);assert(!panel.contains(f.q('.edition-bridge')));
  assert.match(f.q('.edition-bridge a').textContent,new RegExp(library));
 }
 function assertReleaseOnlyFooter(f){
  const panel=f.q('[data-page-technical]');
  assert.equal(panel.open,false);
  assert.equal(panel.children.length,2);
- assert.match(panel.lastElementChild.textContent,/^Website version: .*Released:/);
+ assert.match(panel.lastElementChild.textContent,/^WebsiteWebsite version: .*Released:/);
 }
 function assertWriterButtons(f){
  const buttons=[...f.doc.querySelectorAll('.writer-buttons [data-writer]')];
@@ -67,7 +67,7 @@ assert.equal(f.q('.universal-steps .benji-chapters-back').textContent,'Chapters'
 assert.equal(f.q('.universal-steps #universal-next').textContent,'›');
 assert(f.q('.toolbar #chronicles-edit'));
 assert(f.q('.toolbar #extra-larger'));
-assert.equal(f.q('.chapter-stamp p + p').textContent,'Method _zk5e · Guide v004 · Variant Unrecorded');
+assert.equal(f.q('.chapter-stamp .chapter-detail-group > p').textContent,'Method _zk5e · Guide v004 · Variant Unrecorded');
 assertChapterFooter(f,'Arabic Library');
 assert.equal(f.q('#chapter-writing-method').value,'_zk5e');
 assert.equal(f.q('#chapter-writing-settings').hidden,true);
@@ -91,7 +91,7 @@ assert(!f.calls.some(c=>c.opts.method==='PATCH'||(c.opts.method==='POST'&&['chro
 f.dom.window.close();
 chapter.writing_meta={method:'zk5',style_version:'v001',variant:'E'};
 f=await fixture('ar','#book='+arBook+'&chapter=1');
-assert.equal(f.q('.chapter-stamp p + p').textContent,'Method zk5 · Guide v001 · Variant _am (العامية)');
+assert.equal(f.q('.chapter-stamp .chapter-detail-group > p').textContent,'Method zk5 · Guide v001 · Variant _am (العامية)');
 assertChapterFooter(f,'English Library');
 f.q('#bottom-edit').click();
 assert(f.q('[data-page-technical]').open);

@@ -1,3 +1,4 @@
+import {chapterActivity} from './chapter-details.js';
 import {formatTime} from './revision-stamp.js';
 export function chapterWritingStamp(record,{esc,language,version,date=formatTime}){
  const {method,style_version,variant}=record.writing_meta||{};
@@ -6,8 +7,8 @@ export function chapterWritingStamp(record,{esc,language,version,date=formatTime
  const label=(language==='ar'&&Object.hasOwn(variants,variant)?variants[variant]:variant)||'Unrecorded';
  const time=record.saved_at||record.updated_at;
  const writer=record.saved_by||record.updated_by;
- return '<p><strong>Saved '+esc(version(record.revision))+'</strong> · '+esc(time?date(time):'Time unrecorded')+(writer?' · '+esc(writer):'')+'</p>'
-  +'<p>Method <strong>'+esc(method&&method!=='unknown'?method:'Unrecorded')+'</strong> · Guide '+esc(guide)+' · Variant <bdi>'+esc(label)+'</bdi></p>';
+ return chapterActivity({...record,updated_at:time,updated_by:writer},{esc,version,date})
+ +'<section class="chapter-detail-group"><h3>Writing details</h3><p>Method <strong>'+esc(method&&method!=='unknown'?method:'Unrecorded')+'</strong> · Guide '+esc(guide)+' · Variant <bdi>'+esc(label)+'</bdi></p></section>';
 }
 // Recovery is explicit: lists contain metadata; saved text loads only on request.
 export async function mountChapterHistory({root,api,entryId,currentRevision,esc,clean,language,version,date,isCurrent,onRestore}){
