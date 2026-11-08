@@ -46,8 +46,6 @@ export function mountTechnicalFooter(main,footer){
    content.append(...[...source.childNodes].filter(n=>n.nodeName!=='SUMMARY'));
    entries.push({anchor,content});panel.append(content);
   }
-  const workflow=main.querySelector('.library-workflow');
-  if(workflow&&!panel.contains(workflow)){const anchor=document.createElement('span');anchor.hidden=true;workflow.before(anchor);entries.push({anchor,content:workflow});panel.append(workflow);}
   const wordCount=chapter&&host.querySelector('.chapter-word-count');
   if(wordCount&&!panel.contains(wordCount))panel.append(wordCount);
   if(editionBridge){

@@ -37,7 +37,7 @@ function assertChapterFooter(f,library){
  assert.equal(f.q('.edition-bridge').hidden,false);
  assert.match(f.q('.edition-bridge a').textContent,new RegExp(library));
 }
-function assertOverviewFooter(f){
+function assertReleaseOnlyFooter(f){
  const panel=f.q('[data-page-technical]');
  assert.equal(panel.open,false);
  assert.equal(panel.children.length,2);
@@ -49,10 +49,13 @@ function assertWriterButtons(f){
  assert.deepEqual(buttons.filter(button=>button.getAttribute('aria-pressed')==='true').map(button=>button.textContent),['Benji']);
 }
 let f=await fixture('ar');
+assertReleaseOnlyFooter(f);
+assert(f.q('.shelf .library-workflow #open-trash'));
+assert(f.q('.shelf .library-workflow #resume-work'));
 assertWriterButtons(f);
 assert.equal(f.q('.collection-heading').textContent,'Arabic Library');assert(!f.q('.world-gates'));assert(!f.q('.edition-bridge a'));assert(!f.q('#main').textContent.includes('English book'));f.dom.window.close();
-f=await fixture('en');assertWriterButtons(f);assert.equal(f.q('.collection-heading').textContent,'English Library');assert(f.q('#main').textContent.includes('English book'));assert(!f.q('#main').textContent.includes('Arabic book'));assert(!f.q('.edition-bridge a'));f.dom.window.close();
-f=await fixture('ar','#book='+arBook);assertOverviewFooter(f);assert(f.q('[data-send=translation]'));assert(f.q('[data-send=adaptation]'));
+f=await fixture('en');assertReleaseOnlyFooter(f);assert(f.q('.shelf .library-workflow #open-trash'));assert(f.q('.shelf .library-workflow #resume-work'));assertWriterButtons(f);assert.equal(f.q('.collection-heading').textContent,'English Library');assert(f.q('#main').textContent.includes('English book'));assert(!f.q('#main').textContent.includes('Arabic book'));assert(!f.q('.edition-bridge a'));f.dom.window.close();
+f=await fixture('ar','#book='+arBook);assertReleaseOnlyFooter(f);assert(f.q('[data-send=translation]'));assert(f.q('[data-send=adaptation]'));
 f.q('[data-send=translation]').click();await wait();const form=f.q('#send-english');assert(form);form.elements.title.value='English book';form.querySelector('[name=chapter]').checked=true;form.dispatchEvent(new f.w.Event('submit',{cancelable:true,bubbles:true}));await wait();const sent=f.calls.find(c=>c.name==='chronicles_send_to_english');assert(sent);assert.deepEqual(JSON.parse(sent.opts.body).p_chapters,[{id:'source',revision:2}]);assert(f.q('#edition-send-status a').href.endsWith('#book='+enBook));assert(form.querySelector('[name=chapter]').disabled);f.dom.window.close();
 f=await fixture('en','#book='+enBook+'&chapter=1');assert(f.q('.edition-source').textContent.includes('Arabic source updated'));assert.equal(f.q('#chronicles-entry-body').dir,'ltr');assert.equal(f.q('#chronicles-entry-body').textContent,'Independent English text');assert(f.q('.edition-source').textContent.includes('Original snapshot'));
 assert.equal(f.q('.book-reading-number').textContent,'Chapter 01');
@@ -78,7 +81,7 @@ assert.equal(f.q('#chronicles-entry-body').style.fontSize,'17px');
 f.q('[data-review-source]').click();await wait();assert(!f.q('.edition-source').textContent.includes('Arabic source updated'));assert.equal(f.q('#chronicles-entry-body').textContent,'Independent English text');
 f.q('#chronicles-edit').click();assert(f.q('[data-page-technical]').open);assert.equal(f.q('#chapter-writing-settings').hidden,false);assert.equal(f.q('#chapter-writing-method').value,'_zk5e');f.q('#chronicles-entry-body').innerHTML='<p>Revised English text</p>';f.q('#chronicles-save').click();await wait();assert.equal(target.body,'<p>Revised English text</p>');assert.equal(target.writing_meta.method,'_zk5e');assert.equal(target.writing_meta.style_version,'v004');assert.equal(chapter.body,'<p>Arabic source changed</p>');f.q('#chronicles-history').click();await wait();assert(f.q('#modal-content').textContent.includes('Revision')||f.q('#modal-content').textContent.includes('Current'));f.dom.window.close();
 f=await fixture('en','#book='+enBook+'&view=chapters');
-assertOverviewFooter(f);
+assertReleaseOnlyFooter(f);
 assert(f.q('.book-navigation a[aria-current="page"]').textContent==='Chapters');
 assert(f.q('#main .crumb').textContent.includes('English book'));
 assert(f.q('#main .chronicles-book-home #chronicles-add-chapter'));

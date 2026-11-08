@@ -1,6 +1,6 @@
 {
-  "version": 264,
-  "releasedAt": "2026-11-08T01:00:30+00:00",
+  "version": 265,
+  "releasedAt": "2026-11-08T02:42:41+00:00",
   "timezone": "UTC",
-  "note": "Show only the website release in book overview Technical details"
+  "note": "Keep library actions outside the Technical details release stamp"
 }
