@@ -1,6 +1,6 @@
 {
-  "version": 270,
-  "releasedAt": "2026-11-09T01:33:39.134817+00:00",
+  "version": 271,
+  "releasedAt": "2026-11-09T02:16:10.710052+00:00",
   "timezone": "UTC",
-  "note": "Keep planning saves bound to their opened source and preserve interrupted drafts"
+  "note": "Bind previews, copies, recovery and exports to their opened planning source"
 }
