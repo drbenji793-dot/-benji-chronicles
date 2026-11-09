@@ -3,10 +3,10 @@
   "version": 1,
   "edition": "ar",
   "release": {
-    "version": 268,
-    "releasedAt": "2026-11-08T18:15:26.184706+00:00",
+    "version": 269,
+    "releasedAt": "2026-11-09T01:23:37.049149+00:00",
     "timezone": "UTC",
-    "note": "Organize shared chapter technical details across both editions and every book"
+    "note": "Use current Vercel HQ for both editions while preserving published guide identities"
   },
   "mechanismVersion": 1,
   "commit": null,

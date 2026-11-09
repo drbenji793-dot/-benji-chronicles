@@ -1,7 +1,7 @@
 import {readFile,mkdir,writeFile,rename,rm} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
-const origin='https://benji-hq.dr-z01.chatgpt.site';
+const origin='https://benji-hq.vercel.app';
 export const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 export function validatePackage(p){
  if(p?.format!=='benji-hq-package'||p.schemaVersion!==1||!Number.isInteger(p.version)||p.version<1||p.id!==`hq-v${String(p.version).padStart(3,'0')}`)throw Error('Unsupported HQ package');

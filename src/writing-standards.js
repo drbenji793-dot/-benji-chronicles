@@ -1,4 +1,4 @@
-import {resolveCurrentHQProtocol,assertCurrentGuide} from './hq-protocol.js';
+import {resolveCurrentHQProtocol,assertCurrentGuide,currentHQSourceURL} from './hq-protocol.js';
 import standards from './writing-standards-data.js';
 import {escapeHTML as h} from './dsl-engine.js';
 export async function syncCurrentWritingStandard(language,options={}){
@@ -6,11 +6,11 @@ export async function syncCurrentWritingStandard(language,options={}){
  try{
   const data=assertCurrentGuide(await resolveCurrentHQProtocol(language,options),language),p=data.protocol;
   if(!Array.isArray(p.foundation)||!p.foundation.length||!Array.isArray(p.refinements))throw Error('Incomplete HQ guide.');
-  const u=new URL(p.source);if(u.origin!=='https://benji-hq.dr-z01.chatgpt.site')throw Error('Unexpected guide source.');
+  const sourceURL=currentHQSourceURL(p.source);
   const section=p.foundation.find(x=>/operating rules/i.test(x.title));
   const rules=section?section.text.split(/(?=ZK\d+\.\d+\.)/).slice(1).map(x=>x.replace(/\s+/g,' ').trim()):p.foundation.map(x=>x.text);
   if(!rules.length)throw Error('HQ guide has no rules.');
-  Object.assign(standards[language],{code:p.family,version:p.version,craftBaseline:p.version,sourceURL:p.source,sourceSha256:p.sourceSHA256||data.sha256,localURL:p.source,rules,observations:p.refinements.map(x=>x.rule),hqProtocol:p,hqProtocolSha256:data.sha256,currentConfirmed:!data.offline,checkedAt:data.checkedAt,connection:data.offline?'Verified offline copy; latest HQ status unavailable':'Current guide verified from HQ'});
+  Object.assign(standards[language],{code:p.family,version:p.version,craftBaseline:p.version,sourceURL,sourceProvenanceURL:p.source,sourceSha256:p.sourceSHA256||data.sha256,localURL:sourceURL,rules,observations:p.refinements.map(x=>x.rule),hqProtocol:p,hqProtocolSha256:data.sha256,currentConfirmed:!data.offline,checkedAt:data.checkedAt,connection:data.offline?'Verified offline copy; latest HQ status unavailable':'Current guide verified from HQ'});
  }catch(error){standards[language].currentConfirmed=false;standards[language].connection='Current guide unavailable: '+error.message;}
  return writingStandard(language);
 }

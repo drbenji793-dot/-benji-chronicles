@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {resolveCurrentHQProtocol,protocolHash} from '../src/hq-protocol.js';
+import {resolveCurrentHQProtocol,protocolHash,HQ,currentHQSourceURL} from '../src/hq-protocol.js';
 import {syncCurrentWritingStandard,writingStandard} from '../src/writing-standards.js';
 const map=new Map(),storage={getItem:k=>map.get(k),setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};
 const make=async(version)=>{const family=version.split('.')[0],protocol={version,family,source:'https://benji-hq.dr-z01.chatgpt.site/standards/current.html',foundation:[{title:'26 operating rules',text:'26 operating rules\nZK7.01.\nPreserve inherited content.'}],refinements:[{rule:'New source observation'}]};return {protocol,sha256:await protocolHash(protocol),resolved:version,requested:version};};
@@ -26,3 +26,14 @@ for(const excluded of [{status:'draft'},{status:'experiment'},{status:'supersede
 const old=await make('_zk6.0');
 await assert.rejects(()=>resolveCurrentHQProtocol('ar',{storage,fetcher:async url=>Response.json(url.endsWith('/api/protocols')?{editions:[{version:old.resolved,sha256:old.sha256}]}:old)}),/superseded/);
 console.log('PASS newer unapproved guides excluded and valid historical Arabic guide rejected as current');
+
+assert.equal(HQ,'https://benji-hq.vercel.app');
+assert.equal(sync.sourceURL,HQ+'/standards/current.html');
+assert.equal(sync.sourceProvenanceURL,ar.protocol.source);
+assert.equal(await protocolHash(ar.protocol),ar.sha256);
+for(const source of ['https://example.com/guide','https://benji-hq.vercel.app.evil.test/guide','https://user@benji-hq.vercel.app/guide'])assert.throws(()=>currentHQSourceURL(source),/Unexpected/);
+assert.equal(currentHQSourceURL(HQ+'/zk7.html'),HQ+'/zk7.html');
+const requests=[];
+await resolveCurrentHQProtocol('ar',{storage,fetcher:async url=>{requests.push(url);return fetcher(url);}});
+assert(requests.length>=2);assert(requests.every(url=>new URL(url).origin===HQ));
+console.log('PASS active HQ migration, historical digest preservation and rejected foreign guide sources');

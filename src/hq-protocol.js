@@ -9,7 +9,14 @@ export function assertCurrentGuide(data,language,{online=false}={}){
  return data;
 }
 const eligibleEdition=row=>!['draft','experiment','superseded','archived','unapproved'].includes(String(row?.status||'').toLowerCase())&&row?.approved!==false&&row?.published!==false;
-export const HQ='https://benji-hq.dr-z01.chatgpt.site';
+export const HQ='https://benji-hq.vercel.app';
+// Historical protocol bytes remain unchanged so their published digest stays valid.
+const legacyHQ='https://benji-hq.dr-z01.chatgpt.site';
+export function currentHQSourceURL(source){
+ const url=new URL(source);
+ if(![HQ,legacyHQ].includes(url.origin)||url.username||url.password)throw Error('Unexpected guide source.');
+ return HQ+url.pathname+url.search+url.hash;
+}
 export async function protocolHash(protocol){return [...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(protocol))))].map(x=>x.toString(16).padStart(2,'0')).join('');}
 export async function resolveHQProtocol(code,{fetcher=fetch,storage=globalThis.localStorage}={}){
  if(!/^_zk[1-9]\d*e?(?:\.\d+)?$/.test(code))throw Error('Enter a writing code such as _zk7 or _zk7.1.');

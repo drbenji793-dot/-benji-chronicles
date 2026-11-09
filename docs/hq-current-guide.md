@@ -21,3 +21,9 @@ This is request preparation, not prose approval. Other books retain their existi
 Installation evidence for v267: `chronicles_protocol_request_planning_context` updates the existing invoker RPC without changing grants or RLS. Rollback tests cover both chapter storage paths, missing planning tokens, stale planning revisions, exact returned decisions and valid requests. Test notes are rolled back. Manuscript fingerprint remained `97e152d15f1bfb2aab0068cfaebb4087`. Application rollback alone leaves old registered-book request exports blocked; restore the prior RPC definition from the preceding source commit only as an explicitly reviewed rollback.
 
 Publication status: automatic approval review rejected the main branch push because explicit approval of that production mutation is required. The previous RPC definition was restored exactly and verified after the successful rollback tests, so live v266 remains compatible. This implementation is a tested local candidate, not deployed coverage. After approval, recheck main, reinstall the planning-context migration, publish the reconciled candidate to both editions, then verify live sources and update the HQ registry.
+
+## Vercel HQ connection repair, 9 November 2026
+
+Current HQ is https://benji-hq.vercel.app. Runtime protocol requests, training transfers, rules redirects and current guide navigation use this origin. Protocol source fields remain immutable historical provenance; the current link is mapped only from the exact known HQ origins after digest validation. Foreign origins are rejected. Arabic requires eligible zk7 or later and English resolves independently.
+
+The preceding candidate and rejection notes are dated rollout history, not a current deployment claim. Release 268 was verified on both production aliases at 6d6b810d7746020d19b638fb17d087c24b2f56e5 before this repair. No manuscript, planning decision or author approval is changed by this connection repair.
