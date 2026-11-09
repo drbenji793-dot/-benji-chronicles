@@ -3,10 +3,10 @@
   "version": 1,
   "edition": "ar",
   "release": {
-    "version": 272,
-    "releasedAt": "2026-11-09T02:32:39.610160+00:00",
+    "version": 273,
+    "releasedAt": "2026-11-09T02:44:41.363859+00:00",
     "timezone": "UTC",
-    "note": "Keep workbook imports bound to the latest reviewed file and unchanged source"
+    "note": "Verify Story World exchange and reader synopsis delivery against live sources"
   },
   "mechanismVersion": 1,
   "commit": null,

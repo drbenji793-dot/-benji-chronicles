@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';import {readerSynopsisUI} from '../src/reader-synopsis.js';
+for(const language of ['ar','en'])for(const kind of ['copy','export','share'])for(const interruption of ['none','remote','branch','selection','content','closed']){
+ const dom=new JSDOM('<main></main>'),root=dom.window.document.querySelector('main');let branch={id:'a',revision:7},data={title:'Public title',secret:'PRIVATE SECRET',readerSynopsis:{[language]:{short:'Public synopsis',medium:'Other synopsis'}}},outputs=[],release;
+ Object.defineProperty(globalThis,'navigator',{configurable:true,value:{clipboard:{writeText:async text=>outputs.push(text)},share:async value=>outputs.push(value.text)}});
+ const c={bookId:'b',model:()=>data,branch:()=>branch,language,select:(n,l,choices,v)=>'<select name="'+n+'">'+Object.keys(choices).map(k=>'<option '+(k===v?'selected':'')+' value="'+k+'">'+k+'</option>').join('')+'</select>',verifySource:async source=>{assert.deepEqual(source,{bookId:'b',branchId:'a',revision:7});await new Promise(r=>release=r);if(interruption==='remote')throw Error('Remote source changed');},download:text=>outputs.push(text),render:()=>{root.innerHTML=ui.html();ui.bind(root);}};
+ const ui=readerSynopsisUI(c);c.render();root.querySelector('[data-reader-'+kind+']').click();await new Promise(r=>setTimeout(r,0));
+ if(interruption==='branch')branch={id:'b',revision:7};if(interruption==='content')data.readerSynopsis[language].short='Changed';if(interruption==='closed')root.replaceChildren();if(interruption==='selection'){const el=root.querySelector('[data-reader-length]');el.value='medium';el.dispatchEvent(new dom.window.Event('change'));}
+ release();await new Promise(r=>setTimeout(r,0));assert.equal(outputs.length,interruption==='none'?1:0);if(outputs.length){assert.match(outputs[0],/Public synopsis/);assert.doesNotMatch(outputs[0],/PRIVATE SECRET/);}dom.window.close();
+}
+console.log('PASS both languages: copy/export/share verified before delivery, changed branch/content/selection and remote failure blocked, private notes excluded');

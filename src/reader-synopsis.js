@@ -17,15 +17,27 @@ export function readerSynopsisUI(c){
   const status=t=>{const p=root.querySelector('[data-reader-status]');if(p)p.textContent=t;};
   root.querySelector('[data-reader-length]')?.addEventListener('change',e=>{length=e.target.value;c.render();});
   root.querySelector('[data-reader-language]')?.addEventListener('change',e=>{language=e.target.value;c.render();});
-  root.querySelector('[data-reader-export]')?.addEventListener('click',()=>c.download(readerSynopsisHTML(value()),'Book_Synopsis_'+language+'_'+length+'.html','text/html;charset=utf-8'));
-  root.querySelector('[data-reader-copy]')?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(text());status('Synopsis copied.');}catch{status('Copy unavailable. Use Export HTML.');}});
-  root.querySelector('[data-reader-share]')?.addEventListener('click',async()=>{try{if(!navigator.share){status('Sharing unavailable. Use Copy or Export HTML.');return;}await navigator.share({title:value().title,text:text()});status('Synopsis shared.');}catch(e){status(e.name==='AbortError'?'Sharing cancelled.':'Sharing failed. Use Copy or Export HTML.');}});
+  const panel=root.querySelector('[data-reader-synopsis]'),opened=c.branch(),openedId=opened?.id,openedRevision=opened?.revision;let preparing=false;
+  async function deliver(kind){
+   if(preparing)return;preparing=true;const controls=[...panel.querySelectorAll('[data-reader-export],[data-reader-copy],[data-reader-share]')];controls.forEach(b=>b.disabled=true);
+   const snapshot=structuredClone(value()),selectedLanguage=language,selectedLength=length;
+   const current=()=>{if(!panel.isConnected||c.isCurrent?.()===false||c.branch()?.id!==openedId||c.branch()?.revision!==openedRevision||language!==selectedLanguage||length!==selectedLength||JSON.stringify(value())!==JSON.stringify(snapshot))throw Error('Synopsis source or selection changed. Reopen and try again.');};
+   try{
+    current();await c.verifySource?.({bookId:c.bookId,branchId:openedId,revision:openedRevision});current();
+    const plain=snapshot.title+'\n\n'+snapshot.text;if(!snapshot.text)throw Error('No reader synopsis saved.');
+    if(kind==='export'){c.download(readerSynopsisHTML(snapshot),'Book_Synopsis_'+selectedLanguage+'_'+selectedLength+'.html','text/html;charset=utf-8');status('Synopsis export prepared.');}
+    if(kind==='copy'){await navigator.clipboard.writeText(plain);if(panel.isConnected)status('Synopsis copied.');}
+    if(kind==='share'){if(!navigator.share)throw Error('Sharing unavailable. Use Copy or Export HTML.');await navigator.share({title:snapshot.title,text:plain});if(panel.isConnected)status('Synopsis shared.');}
+   }catch(e){if(panel.isConnected)status(e.name==='AbortError'?'Sharing cancelled.':e.message||'Delivery failed. Reopen and try again.');}
+   finally{preparing=false;controls.forEach(b=>b.disabled=!value().text);}
+  }
+  for(const kind of ['export','copy','share'])root.querySelector('[data-reader-'+kind+']')?.addEventListener('click',()=>deliver(kind));
   root.querySelector('[data-reader-edit]')?.addEventListener('click',()=>{
-   const revision=c.branch().revision,editLanguage=language,editLength=length,v=value();
+   const branchId=c.branch().id,revision=c.branch().revision,editLanguage=language,editLength=length,v=value();
    const m=c.modal('Edit '+synopsisLengths[length].toLowerCase()+' synopsis','<form>'+c.field('title','Book title',v.title)+c.area('text','Reader synopsis',v.text,10)+'<p class="dsl-form-status" role="status"></p><button type="submit">Save synopsis</button></form>');
    if(!m)return;m.querySelector('textarea').dir=language==='ar'?'rtl':'ltr';
    c.submit(m.querySelector('form'),f=>{
-    if(c.branch().revision!==revision)throw Error('The book changed. Reopen the synopsis before saving.');
+    if(c.branch().id!==branchId||c.branch().revision!==revision)throw Error('The book changed. Reopen the synopsis before saving.');
     const prose=String(f.get('text')).trim();if(!prose)throw Error('Write a synopsis before saving.');
     const d=structuredClone(c.model());d.readerSynopsis={...d.readerSynopsis,[editLanguage]:{...d.readerSynopsis?.[editLanguage],title:String(f.get('title')).trim(),[editLength]:prose}};return d;
    },'Edit reader synopsis');
