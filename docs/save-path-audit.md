@@ -75,3 +75,9 @@ https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_
 Recovery checkpoint: application commit 03706aad333d5a9902f2af8954c0cd1cc847c0e0.
 An application rollback can retain these additive columns and triggers. Do not
 remove recorded history as part of an application rollback.
+
+## Source identity repair, 9 November 2026
+
+Shared planning saves capture branch identity and revision before asynchronous loading, recheck before writing and before adopting the response, and retain local recovery drafts when navigation or an unexpected response makes completion uncertain. Shared forms are bound to the source opened for editing. An explicitly requested missing branch now fails instead of selecting another branch. Tests exercise the real form handlers in Arabic and English, interruptions before and during requests, response identity mismatch and unchanged recovery content.
+
+This restores part of the unavailable local candidate 5e7b980. Its other preview, export, setup and recovery changes have not been recovered and are not claimed as deployed. Administrative writes and unregistered source relationships remain outside these UI checks.

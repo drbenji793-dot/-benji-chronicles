@@ -13,7 +13,8 @@ export async function loadPlanning(api,{bookId,branchId,collection,language='ar'
  ]);
  for(const i of [0,1,3])if(results[i].status==='rejected')throw results[i].reason;
  const [projects,branches,,books]=results.map(r=>r.status==='fulfilled'?r.value:[]);
- const selected=branches.find(b=>b.id===branchId)||branches.find(b=>!b.archived);
+ const selected=branchId?branches.find(b=>b.id===branchId):branches.find(b=>!b.archived);
+ if(branchId&&!selected)throw Error('The requested planning branch is unavailable. Choose a current branch explicitly.');
  let branch=null;
  if(selected){const projection=[...GARDEN_FIELDS,'workshop'].map(k=>k+':data->'+k).join(',');const rows=await api('chronicles_dsl_branches?'+scope+'&id=eq.'+encodeURIComponent(selected.id)+'&select='+BRANCH_META+','+(full?'data,base_snapshot':projection)+'&limit=1');branch=rows[0];if(!branch)throw Error('Selected planning revision is unavailable. Retry.');
  if(!full&&!branch.data){const data={};for(const k of [...GARDEN_FIELDS,'workshop']){if(branch[k]!=null)data[k]=branch[k];delete branch[k];}branch={...branch,data,partialData:true};}}
