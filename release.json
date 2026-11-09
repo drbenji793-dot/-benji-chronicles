@@ -1,6 +1,6 @@
 {
-  "version": 271,
-  "releasedAt": "2026-11-09T02:16:10.710052+00:00",
+  "version": 272,
+  "releasedAt": "2026-11-09T02:32:39.610160+00:00",
   "timezone": "UTC",
-  "note": "Bind previews, copies, recovery and exports to their opened planning source"
+  "note": "Keep workbook imports bound to the latest reviewed file and unchanged source"
 }
