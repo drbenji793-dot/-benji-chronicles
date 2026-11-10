@@ -1,6 +1,6 @@
 // Mandatory shared navigation for existing and future book routes.
 export function bookNavigation(root, selected, chaptersURL=root, notesView='decisions') {
- const tabs=[['brief','Story',root+'&view=dsl&dslview=synopsis'],['chapters','Chapters',chaptersURL],['critique','Review',root+'&view=critique']];
+ const tabs=[['brief','Story',root+'&view=dsl&dslview=synopsis'],['chapters','Chapters',chaptersURL],['critique','Review',root+'&view=critique'],['export','Export',root+'&view=export']];
  return tabs.map(([id,label,href])=>'<a data-book-tool="'+id+'" href="'+href+'" class="'+(id==='garden'?'garden-entrance ':'')+(selected===id?'selected':'')+'"'+(selected===id?' aria-current="page"':'')+'>'+label+'</a>').join('');
 }
 export function selectedBookTool(params){

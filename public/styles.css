@@ -433,7 +433,7 @@ body:has(.ibn-navigation) .topbar{padding-top:12px;padding-bottom:12px}body:has(
 @media(max-width:360px){#main .universal-control-row select{font-size:12px}#main .benji-part-row a{gap:8px;padding:8px}#main .benji-part-row strong{font-size:14px}}
 
 /* Mandatory six button template. Row order matches Benji's reference. */
-.book-navigation.shared-book-navigation .ink-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px;direction:ltr}
+.book-navigation.shared-book-navigation .ink-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px;direction:ltr}
 .book-navigation.shared-book-navigation .ink-tabs a{order:0!important;min-width:0;min-height:44px;font-size:14px;padding:10px 5px;white-space:normal;box-sizing:border-box}
 
 .writer-buttons [data-writer="Guest 2"]{color:#75449b;background:#eee2f5;border-color:#b79aca}.show-author-colors .author-guest2{color:#75449b!important}.note.guest2{border-inline-start:3px solid #75449b}.prose span.author-guest2{display:inline;letter-spacing:normal}
@@ -466,3 +466,5 @@ body:has(.ibn-navigation) .topbar{padding-top:12px;padding-bottom:12px}body:has(
 
 /* Keep the icon silhouette inside its curved gold frame. */
 .topbar .brand img{border-radius:17%;overflow:hidden}
+
+@media(max-width:600px){body .book-navigation.shared-book-navigation .ink-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}}

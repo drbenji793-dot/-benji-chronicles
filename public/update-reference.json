@@ -3,10 +3,10 @@
   "version": 1,
   "edition": "ar",
   "release": {
-    "version": 273,
-    "releasedAt": "2026-11-09T02:44:41.363859+00:00",
+    "version": 274,
+    "releasedAt": "2026-11-10T18:15:10.544850+00:00",
     "timezone": "UTC",
-    "note": "Verify Story World exchange and reader synopsis delivery against live sources"
+    "note": "Expose book Export and add selected package PDF downloads"
   },
   "mechanismVersion": 1,
   "commit": null,
