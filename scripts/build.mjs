@@ -12,10 +12,10 @@ html=html.replace(/<strong>Benji Chronicles(?: English)?<\/strong>/,'<strong>Ben
 html=html.replace(/(name="apple-mobile-web-app-title" content=")[^"]*/, '$1Chronicles '+(language==='en'?'ENG':'AR'));
 html=html.replace(/Benji Chronicles · [^<]*Reader v[^<]*/, 'Benji Chronicles · Reader v'+release.version+' · '+release.releasedAt+' · UTC').replace(/app\.js\?v=\d+/, 'app.js?v='+release.version);
 html=html.replace(/(last-hour|chapter-notes)\.css(?:\?v=\d+)?/g,(_,name)=>name+'.css?v='+release.version);
-const iconBase=language==='ar'?'/icons/chronicles-ar-gear-v2':'/icons/chronicles-en';
+const iconBase=language==='ar'?'/icons/chronicles-ar-gear-v3':'/icons/chronicles-en';
 html=html.replace(/(<link rel="icon"[^>]*href=")[^"]+/, '$1'+iconBase+'-32.png');
 html=html.replace(/(<link rel="apple-touch-icon" href=")[^"]+/, '$1'+iconBase+'-180.png');
-html=html.replace(/(<img src=")(?:\/compass-icon-192.png|\/icons\/chronicles-(?:ar(?:-gear-v2)?|en)-192.png)/, '$1'+iconBase+'-192.png');
+html=html.replace(/(<img src=")(?:\/compass-icon-192.png|\/icons\/chronicles-(?:ar(?:-gear-v3)?|en)-192.png)/, '$1'+iconBase+'-192.png');
 await writeFile(path,html);
 const manifest=JSON.parse(await readFile('public/manifest.webmanifest','utf8'));
 manifest.name='Chronicles '+(language==='en'?'ENG':'AR');
