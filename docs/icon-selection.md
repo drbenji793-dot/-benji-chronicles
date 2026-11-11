@@ -1,7 +1,7 @@
 # Selected Chronicles icons
 
-Arabic: Benji approved the dimensional gold cog wheel surrounding a fountain pen nib on deep emerald green on 11 November 2026. English retains the gold fountain pen nib selected previously. This approval changes Arabic branding only.
+Arabic uses the approved dimensional gold gear and fountain pen on emerald green. Benji requested removal of the black outer rim on 10 November 2026. The v2 asset fills the canvas with opaque gold to the outer edges, preventing transparent padding from appearing as a dark surround in Home Screen rendering. The site rounds its displayed icon; iOS applies its own mask. English retains its existing icon.
 
-Arabic assets use the chronicles-ar-gear-v1 filename family at 32, 180, 192 and 512 pixels. The page header, favicon, Apple touch icon and web manifest select the same artwork. All four outer corners are transparent; emerald is confined within the rounded gold frame. Versioned asset URLs avoid reuse of the preceding feather image in browser caches. Existing iOS Home Screen shortcuts may retain their installed icon until re-added.
+Current Arabic filenames: chronicles-ar-gear-v2 at 32, 180, 192 and 512 pixels. Header, favicon, Apple touch icon and manifest use v2. Existing installed shortcuts may need to be removed and added again to refresh cached artwork. Actual iPhone acceptance remains to be checked by Benji.
 
-Recovery source: 0b0a79bbcbfa5cda1d6c1d1429aedfb0d3c9f1c7. No manuscript, book data, language rules, English icon or layout changes. The shared header retains its 17% rounded clip. Site release remains 274; this is an Arabic icon asset revision.
+Recovery: ef327d252dfcbc9883ed8cdaffd81ef1e2d1f56f contains v1. No book content or English branding changes. Release remains 274.
