@@ -1,6 +1,6 @@
 {
-  "version": 275,
-  "releasedAt": "2026-11-12T03:57:59Z",
+  "version": 274,
+  "releasedAt": "2026-11-10T18:15:10.544850+00:00",
   "timezone": "UTC",
-  "note": "Introduce Ibn Al Jabal chapter questions for chapters 1 and 2 as author reviewed planning drafts"
+  "note": "Expose book Export and add selected package PDF downloads"
 }
