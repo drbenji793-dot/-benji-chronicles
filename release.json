@@ -1,6 +1,6 @@
 {
-  "version": 274,
-  "releasedAt": "2026-11-10T18:15:10.544850+00:00",
+  "version": 276,
+  "releasedAt": "2026-11-12T13:08:28.936Z",
   "timezone": "UTC",
-  "note": "Expose book Export and add selected package PDF downloads"
+  "note": "English UI and compact technical details; consistent left aligned disclosure dots with right pointing arrows in both Chronicles language editions"
 }
