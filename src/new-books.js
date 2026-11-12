@@ -1,3 +1,4 @@
+import {ibnChapterQuestionHTML,mountIbnChapterQuestions} from './ibn-chapter-questions.js';
 import {chapterBottomControls} from './technical-footer.js';
 import {writingStandardReference} from './writing-standards.js';
 import {HQ} from './hq-protocol.js';
@@ -379,6 +380,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ${bookReading?`<p class="book-reading-number">Chapter ${String(c.chapter_number).padStart(2,'0')}</p>`:''}
         <h1 class="chapter-title" id="chronicles-reading-title" dir="auto">${rules||bookReading?'':String(c.chapter_number).padStart(2,'0')+' · '}${esc(c.title)}</h1>
         ${!rules&&book.id===REVIEW_BOOK?planningNotes(c):''}
+        ${!rules&&book.id===REVIEW_BOOK?ibnChapterQuestionHTML({chapterNumber:c.chapter_number,chapterTitle:c.title,chapterId:c.id}):''}
         <input id="chronicles-entry-title" class="chapter-title-input" maxlength="200" dir="auto" hidden>
         ${technicalPanel(`<section class="chapter-stamp" aria-label="Saved writing stamp" dir="ltr">
           ${chapterWritingStamp(c,{esc,language:book.language,version,date})}
@@ -397,6 +399,7 @@ export function createChroniclesLibrary({api,esc,clean,storage,say,getWriter,nav
         ${notesShell()}
       </section></div><footer>Benji Chronicles · Benji &amp; Almostasherq</footer>`;
     fillWriting(c.writing_meta);
+    if(!rules&&book.id===REVIEW_BOOK)mountIbnChapterQuestions(document.querySelector('[data-ibn-questions]'),{chapterNumber:c.chapter_number,chapterTitle:c.title,chapterId:c.id,revision:c.revision});
     const settings=$('#chapter-writing-settings');
     settings.oninput=backup;
     settings.querySelectorAll('[data-writing-variant]').forEach(button=>button.onclick=()=>{
