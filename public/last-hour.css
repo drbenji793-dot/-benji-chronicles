@@ -304,3 +304,8 @@ html body #main .book-reading-layout .prose[lang="en"]{
 .editor-area [data-page-technical] .chapter-word-count{margin:6px 12px}
 
 @media(max-width:600px){body .book-navigation.shared-book-navigation .ink-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+/* Shelf cleanup approved 12 November 2026, shared by both editions. */
+html body .shelf-arrange{display:none!important}
+html body #main > .shelf{padding-bottom:36px}
+html body #main > .shelf ~ [data-page-technical]{width:66.6667%;max-width:66.6667%;margin:8px auto;box-sizing:border-box}
