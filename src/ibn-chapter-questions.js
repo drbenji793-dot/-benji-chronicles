@@ -1,5 +1,5 @@
-import chapterOne from './ibn-chapter1-questions.json';
-import chapterTwo from './ibn-chapter2-questions.json';
+import chapterOne from './ibn-chapter1-questions.json' with {type:'json'};
+import chapterTwo from './ibn-chapter2-questions.json' with {type:'json'};
 
 // Draft planning questions. These are NOT manuscript content or approved story decisions.
 // The first two chapters are the controlled trial; later chapters await their own grounded blocks.
