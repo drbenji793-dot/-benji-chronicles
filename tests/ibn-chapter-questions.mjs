@@ -15,7 +15,7 @@ for(const n of [1,2]){
  assert(html.includes('data-ibnq-review'));
  const dom=new JSDOM('<main>'+html+'</main>',{url:'https://benji-chronicles.vercel.app'});
  const {window}=dom;
- globalThis.window=window;globalThis.document=window.document;globalThis.navigator=window.navigator;
+ globalThis.window=window;globalThis.document=window.document;
  const root=document.querySelector('[data-ibn-questions]');
  assert.equal(root.querySelectorAll('.ibnq-block').length,10);
  assert.equal(root.querySelectorAll('.ibnq-question').length,100);
