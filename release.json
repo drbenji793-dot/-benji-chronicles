@@ -1,6 +1,6 @@
 {
-  "version": 276,
-  "releasedAt": "2026-11-12T13:08:28.936Z",
+  "version": 277,
+  "releasedAt": "2026-11-12T20:16:25.213Z",
   "timezone": "UTC",
-  "note": "English UI and compact technical details; consistent left aligned disclosure dots with right pointing arrows in both Chronicles language editions"
+  "note": "Single disclosure arrow: right when closed and down when open, with no dots, on Arabic and English Chronicles; compact English technical details"
 }
