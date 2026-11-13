@@ -179,6 +179,39 @@ body:has(.chronicles-workspace)>.book-navigation,body:has(.chronicles-workspace)
 }
 #main .technical-details > summary::before,
 .rules-global-footer .technical-details > summary::before{left:13px}
+</style><style id="compact-ui-c01">
+/* Benji Compact UI C01: approved 13 November 2026. */
+:root{--compact-fill:rgba(33,77,61,.06);--compact-line:rgba(49,69,54,.24)}
+button,.button,a.dsl-btn,input[type=button],input[type=submit]{box-sizing:border-box!important;min-width:0!important;min-height:32px!important;padding:6px 10px!important;border-radius:10px!important;font:500 13px/1.4 Arial,sans-serif!important;white-space:normal!important;overflow-wrap:anywhere;background:var(--compact-fill)!important;color:#29483e!important;border:1px solid var(--compact-line)!important;box-shadow:none!important}
+button[aria-pressed=true],button.active,.button.primary,nav a.active{background:rgba(33,77,61,.16)!important;border-color:rgba(33,77,61,.5)!important}
+details{min-width:0;box-sizing:border-box;margin-top:6px!important;margin-bottom:6px!important}
+details:not([open]){padding:0!important}
+details>summary{box-sizing:border-box!important;min-height:34px!important;padding:7px 10px!important;font:600 13px/1.45 Arial,sans-serif!important;border-radius:10px!important;background:rgba(33,77,61,.055)!important;color:#29483e!important;box-shadow:none!important;letter-spacing:normal!important;text-shadow:none!important}
+details>summary::marker{font-size:11px!important;color:#416653!important}
+#book-style-rule.bsr-root{padding:0!important;border:1px solid var(--compact-line)!important;border-radius:10px!important;background:rgba(33,77,61,.06)!important;box-shadow:none!important;margin:12px 0 8px!important}
+#book-style-rule.bsr-root>summary{padding:7px 10px!important;font:600 13px/1.45 Arial,sans-serif!important;background:transparent!important;color:#29483e!important}
+#builder-reference{margin:8px 0!important;padding:0!important;border-radius:10px!important}
+#builder-toolbar,.actions,.tools,.toolbar-buttons,.writer-buttons,.tc-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;align-items:stretch!important;margin-top:6px!important;margin-bottom:6px!important}
+#builder-toolbar button,.actions>button,.tools>button,.writer-buttons>button{width:100%!important;margin:0!important}
+#chapterList{gap:6px!important;padding:6px 0!important}
+#chapterList button{border-radius:10px!important}
+#builder-chapter-settings,#builder-chapter-questions,#builder-chapter-links{margin:6px 0!important;padding:0!important}
+#tc-blocks>details{margin:6px 0!important;border:1px solid var(--compact-line)!important;border-radius:10px!important;background:rgba(33,77,61,.04)!important;padding:0!important}
+#tc-blocks>details>summary{background:transparent!important}
+#builder-toolbar{width:100%;justify-content:initial!important}
+header nav a{font:500 13px/1.4 Arial,sans-serif!important;padding:7px 9px!important;border-radius:10px!important}
+header>p{margin:4px 0!important}#tc-chapter>h2{font-size:21px!important;margin:10px 0 6px!important}
+#compact-rule{border:1px solid rgba(80,80,80,.2);border-radius:10px;background:rgba(80,80,80,.045);font:12px/1.6 Arial,sans-serif}
+#compact-rule p{font:12px/1.6 Arial,sans-serif;padding:8px 10px;margin:0}
+.author-row{display:flex!important;flex-wrap:wrap!important;gap:6px!important}
+.author-row .writer-buttons{flex:1 1 260px!important}
+[data-writer=Benji]{background:rgba(46,124,173,.10)!important;color:#28648a!important}
+[data-writer=Ahmed]{background:rgba(172,55,68,.10)!important;color:#913a44!important}
+[data-writer="Guest"],[data-writer="Guest 1"]{background:rgba(51,118,76,.10)!important;color:#36694a!important}
+[data-writer="Guest 2"]{background:rgba(120,71,153,.10)!important;color:#76508d!important}
+[data-writer=Default]{background:rgba(175,108,47,.10)!important;color:#85532e!important}
+[data-writer][aria-pressed=true]{outline:1px solid currentColor!important;outline-offset:1px!important}
+@media(max-width:600px){#builder-toolbar,.actions,.tools,.toolbar-buttons,.tc-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}.writer-buttons{grid-template-columns:repeat(3,minmax(0,1fr))!important}.panel{padding:12px!important;margin:8px 0!important}nav{gap:6px!important}footer{padding-top:8px!important}header{padding-bottom:8px!important}}
 </style></head><body><a class="skip" href="#main">Skip to story</a><header class="topbar"><a class="brand" href="#" aria-label="Benji Chronicles home"><img src="/icons/chronicles-ar-gear-v3-192.png" alt="" width="46" height="46"><span><strong>Benji Chronicles</strong><small class="collaboration" lang="en" dir="ltr">A creative collaboration between Benji &amp; Almostasherq</small></span></a></header><section class="author-controls" aria-label="Writer and author colors"><div class="author-row" dir="ltr"><div class="identity writer-buttons" role="group" aria-label="Writer"><button type="button" data-writer="Benji" aria-pressed="true">Benji</button><button type="button" data-writer="Ahmed" aria-pressed="false">Ahmed</button><button type="button" data-writer="Guest" aria-pressed="false">Guest 1</button><button type="button" data-writer="Guest 2" aria-pressed="false">Guest 2</button><button type="button" data-writer="Default" aria-pressed="false">Default</button></div><button type="button" id="author-colors" aria-label="Author colors" title="Author colors" aria-pressed="true">Show author colors</button></div><p class="author-help" lang="en" dir="ltr">Choose your name or write as Default. ON / OFF shows or hides author colors.</p></section><script>
 (function(){var buttons=document.querySelectorAll('[data-color]');function select(theme){document.documentElement.dataset.theme=theme;var colors={coffee:"#d9c4ab",parchment:"#e5d3ae",sage:"#cfd3bf"};document.querySelector('meta[name="theme-color"]')?.setAttribute("content",colors[theme]||colors.coffee);buttons.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.color===theme))});}select(document.documentElement.dataset.theme);buttons.forEach(function(b){b.addEventListener('click',function(){select(b.dataset.color);try{localStorage.setItem('chronicles-theme',b.dataset.color)}catch(e){}})});})();
 </script><main id="main"><div class="loading">Opening the writing workspace…</div></main><footer class="rules-global-footer"><details class="technical-details"><summary>Technical details <span aria-hidden="true">⌄</span></summary><span>Benji Chronicles · Reader v274 · 2026-11-10T18:15:10.544850+00:00 · UTC</span></details></footer><div id="status" class="status" role="status" aria-live="polite"></div><dialog id="modal"><div class="modalhead"><h2 id="modal-title"></h2><button id="close-modal" aria-label="Close">×</button></div><div id="modal-content"></div></dialog><script type="module" src="/app.js?v=274"></script></body></html>
