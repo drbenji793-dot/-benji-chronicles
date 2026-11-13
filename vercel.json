@@ -15,6 +15,6 @@
       ]
     }
   ],
-  "buildCommand": "npm run release:check && npm run build",
+  "buildCommand": "npm run release:check && npm run build && node arrow-pages.mjs public",
   "installCommand": "npm ci --ignore-scripts"
 }
