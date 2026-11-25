@@ -28,7 +28,7 @@ async function fixture(language,hash=''){
  w.localStorage.setItem('chronicles-writer','Default');w.eval(bundle.outputFiles[0].text);await wait();return {dom,w,doc,calls,q:s=>doc.querySelector(s)};
 }
 function assertChapterFooter(f,library){
- const panel=f.q('.chapter-bottom-controls + .chapter-notes + .chapter-secondary-tools + [data-page-technical]');
+ const panel=f.q('.chapter-bottom-controls + .chapter-notes + .chapter-secondary-tools + .uni-footer + [data-page-technical]');
  assert(panel);
  assert.equal(panel.open,false);
  for(const selector of ['.chapter-stamp','#chapter-writing-settings','.chapter-word-count','[data-website-details]']){
@@ -106,12 +106,12 @@ assert.equal(f.q('body > .edition-bridge').hidden,true);
 assert.equal(f.doc.querySelectorAll('.edition-bridge').length,1);
 f.dom.window.close();
 f=await fixture('en','#story=12&lang=en&chapter=1');assert.equal(f.q('#prose').lang,'en');
-assert(f.q('.chapter-bottom-controls + .chapter-notes + .chapter-secondary-tools + [data-page-technical]'));
+assert(f.q('.chapter-bottom-controls + .chapter-notes + .chapter-secondary-tools + .uni-footer + [data-page-technical]'));
 assert.equal(f.q('.chapter-secondary-tools summary').textContent,'Chapter tools');
 assert.equal(f.q('[data-page-technical]').open,false);
 assert(f.q('.chapter-secondary-tools #history'));
 assert(f.q('#bottom-save').disabled);
 f.q('#bottom-edit').click();assert(!f.q('#bottom-save').disabled);f.q('#cancel').click();await wait();
-assert(f.q('.chapter-bottom-controls + .chapter-notes + .chapter-secondary-tools + [data-page-technical]'));
+assert(f.q('.chapter-bottom-controls + .chapter-notes + .chapter-secondary-tools + .uni-footer + [data-page-technical]'));
 assert(f.q('a[href="https://benji-chronicles.vercel.app/#story=12&lang=ar"]'));f.dom.window.close();
 console.log('PASS: isolated homes, existing English books, cross-site links, transfer UI with revision approval, source-change review, English editor/save/history and legacy English reader.');
