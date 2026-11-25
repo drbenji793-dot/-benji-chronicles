@@ -18,13 +18,17 @@ export function mountTechnicalFooter(main,footer){
  const stamp=website.textContent.match(/Reader v(\d+) · (\S+) · UTC/);
  if(stamp)website.textContent='Website version: '+stamp[1]+' · Released: '+formatTime(stamp[2]);
  release.remove();
+ const footerControls=document.createElement('div');
+ footerControls.className='uni-footer';
+ footerControls.innerHTML='<button class="uni-top" type="button" aria-label="Back to top"><svg aria-hidden="true" viewBox="0 0 32 42" width="22" height="29" fill="currentColor"><path d="M2 16 16 0 30 16H21V28H11V16Z"/><rect x="11" y="31" width="10" height="3" rx="1.5"/><rect x="11" y="37" width="10" height="3" rx="1.5"/></svg></button><div class="uni-line" aria-hidden="true"></div>';
+ footerControls.querySelector('button').onclick=()=>window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
  let panel;const entries=[];let metrics;
  const observer=new MutationObserver(refresh);
  function refresh(){
   observer.disconnect();
   if(!panel?.isConnected){
-   panel=document.createElement('details');panel.className='technical-details';panel.dataset.pageTechnical='';panel.dir='ltr';
-   panel.innerHTML='<summary>Technical details <span aria-hidden="true">⌄</span></summary>';
+   panel=document.createElement('details');panel.className='technical-details uni-rec';panel.dataset.pageTechnical='';panel.dir='ltr';
+   panel.innerHTML='<summary><span class="uni-chip">Technicals</span></summary>';
   }
   for(let i=entries.length-1;i>=0;i--)if(!entries[i].anchor.isConnected){entries[i].content.remove();entries.splice(i,1);}
   const host=main.querySelector('.editor-area')||main;
@@ -64,6 +68,7 @@ export function mountTechnicalFooter(main,footer){
   website.className='chapter-detail-group website-details';
   if(!website.querySelector('h3')){const heading=document.createElement('h3');heading.textContent='Website';website.prepend(heading);}
   if(host.lastElementChild!==panel)host.append(panel);
+  if(panel.previousElementSibling!==footerControls)panel.before(footerControls);
   observer.observe(main,{childList:true,subtree:true,characterData:true});
  }
  refresh();return ()=>observer.disconnect();
