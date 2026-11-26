@@ -1,6 +1,6 @@
 {
-  "version": 281,
-  "releasedAt": "2026-11-26T14:46:00.000Z",
+  "version": 282,
+  "releasedAt": "2026-11-26T15:15:00.000Z",
   "timezone": "UTC",
-  "note": "Compact Technicals disclosure in both editions."
+  "note": "Align the Technicals chip and put release details first on every shared chapter footer."
 }

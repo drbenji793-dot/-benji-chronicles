@@ -31,6 +31,7 @@ function assertChapterFooter(f,library){
  const panel=f.q('.chapter-bottom-controls + .chapter-notes + .chapter-secondary-tools + .uni-footer + [data-page-technical]');
  assert(panel);
  assert.equal(panel.open,false);
+ assert.equal(panel.querySelector('summary').nextElementSibling,panel.querySelector('[data-website-details]'));
  for(const selector of ['.chapter-stamp','#chapter-writing-settings','.chapter-word-count','[data-website-details]']){
   assert(panel.contains(f.q(selector)),selector);
  }

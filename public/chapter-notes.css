@@ -60,3 +60,6 @@
 :is(#site-rec,[data-uni-footer])[data-uni-footer] :is(.actions,.actions-line,.row,.chapter-detail-row) {gap:2px 4px!important;padding:0!important}
 :is(#site-rec,[data-uni-footer])[data-uni-footer] button {min-height:14px!important;padding:0 5px!important;margin:0!important}
 :is(#site-rec,[data-uni-footer])[data-uni-footer] details[open] > p:first-of-type {padding-top:4px!important}
+
+/* Keep the Technicals chip on the same edge as its release rows. */
+#main details.technical-details[data-uni-footer] > summary {padding:0!important}
