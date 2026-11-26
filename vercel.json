@@ -2,6 +2,19 @@
   "outputDirectory": "public",
   "headers": [
     {
+      "source": "/latest.html",
+      "headers": [
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=\"Chronicles.html\""
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
@@ -15,6 +28,6 @@
       ]
     }
   ],
-  "buildCommand": "npm run release:check && npm run build && node arrow-pages.mjs public",
+  "buildCommand": "npm run release:check && npm run build && node arrow-pages.mjs public && node scripts/latest-html.mjs public/index.html \"$(node -p \"process.env.SITE_LANGUAGE==='en'?'benji-chronicles-english.vercel.app':'benji-chronicles.vercel.app'\")\"",
   "installCommand": "npm ci --ignore-scripts"
 }

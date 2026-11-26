@@ -257,6 +257,34 @@ body .tc-top{background:rgba(55,105,81,.22)!important;color:#23483b!important;fo
 </style><style>.uni-footer{direction:ltr;text-align:left;padding-top:12px}.uni-top{display:flex;align-items:center;justify-content:flex-start;width:44px;height:44px;background:transparent;border:0;padding:0;color:#527057;box-shadow:none;cursor:pointer}.uni-line{height:2px;margin:3px 0 0;background:linear-gradient(to bottom,rgba(93,75,53,.28) 0 50%,rgba(255,249,235,.8) 50% 100%)}.uni-rec{width:100%;margin:0;background:transparent;border:0;box-shadow:none}.uni-rec>summary{display:flex;align-items:center;justify-content:flex-start;list-style:none;min-height:44px;width:max-content;padding:0;cursor:pointer}.uni-rec>summary::-webkit-details-marker,.uni-rec>summary::before{display:none;content:none}.uni-chip{box-sizing:border-box;display:inline-flex;align-items:center;gap:4px;width:73px;height:14px;border:.5px solid rgba(130,122,109,.25);border-radius:3px;background:rgba(130,130,130,.16);color:#58564f;font:400 8px/1 system-ui,sans-serif;padding:0 5px}.uni-chip::before{content:'▸';color:#527057;font-size:8px}.uni-rec[open] .uni-chip::before{content:'▾'}.uni-body{padding:6px 0 12px;font:12px/1.5 system-ui,sans-serif}
 #main [data-page-technical].uni-rec{box-sizing:border-box;width:100%;max-width:none;margin:0;padding:0;border:0;direction:ltr;text-align:left;background:transparent;box-shadow:none}#main .uni-rec>summary{justify-content:flex-start;margin:0;padding:0;background:transparent;border:none;box-shadow:none}#main .uni-rec>summary::before{display:none}#main .uni-top{background:transparent;border:0;box-shadow:none}</style></head><body><a class="skip" href="#main">Skip to story</a><header class="topbar"><a class="brand" href="#" aria-label="Benji Chronicles home"><img src="/icons/chronicles-ar-gear-v3-192.png" alt="" width="46" height="46"><span><strong>Benji Chronicles</strong><small class="collaboration" lang="en" dir="ltr">A creative collaboration between Benji &amp; Almostasherq</small></span></a></header><section class="author-controls" aria-label="Writer and author colors"><div class="author-row" dir="ltr"><div class="identity writer-buttons" role="group" aria-label="Writer"><button type="button" data-writer="Benji" aria-pressed="true">Benji</button><button type="button" data-writer="Ahmed" aria-pressed="false">Ahmed</button><button type="button" data-writer="Guest" aria-pressed="false">Guest 1</button><button type="button" data-writer="Guest 2" aria-pressed="false">Guest 2</button><button type="button" data-writer="Default" aria-pressed="false">Default</button></div><button type="button" id="author-colors" aria-label="Author colors" title="Author colors" aria-pressed="true">Show author colors</button></div><p class="author-help" lang="en" dir="ltr">Choose your name or write as Default. ON / OFF shows or hides author colors.</p></section><script>
 (function(){var buttons=document.querySelectorAll('[data-color]');function select(theme){document.documentElement.dataset.theme=theme;var colors={coffee:"#d9c4ab",parchment:"#e5d3ae",sage:"#cfd3bf"};document.querySelector('meta[name="theme-color"]')?.setAttribute("content",colors[theme]||colors.coffee);buttons.forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.color===theme))});}select(document.documentElement.dataset.theme);buttons.forEach(function(b){b.addEventListener('click',function(){select(b.dataset.color);try{localStorage.setItem('chronicles-theme',b.dataset.color)}catch(e){}})});})();
-</script><main id="main"><div class="loading">Opening the writing workspace…</div></main><footer class="rules-global-footer"><details class="technical-details"><summary>Technical details <span aria-hidden="true">⌄</span></summary><span>Benji Chronicles · Reader v274 · 2026-11-10T18:15:10.544850+00:00 · UTC</span></details></footer><div id="status" class="status" role="status" aria-live="polite"></div><dialog id="modal"><div class="modalhead"><h2 id="modal-title"></h2><button id="close-modal" aria-label="Close">×</button></div><div id="modal-content"></div></dialog><script type="module" src="/app.js?v=274"></script></body></html>
+</script><main id="main"><div class="loading">Opening the writing workspace…</div></main><footer class="rules-global-footer"><details class="technical-details"><summary>Technical details <span aria-hidden="true">⌄</span></summary><span>Benji Chronicles · Reader v274 · 2026-11-10T18:15:10.544850+00:00 · UTC</span></details></footer><div id="status" class="status" role="status" aria-live="polite"></div><dialog id="modal"><div class="modalhead"><h2 id="modal-title"></h2><button id="close-modal" aria-label="Close">×</button></div><div id="modal-content"></div></dialog><script type="module" src="/app.js?v=274"></script><script>(() => {
+  const services = ['github', 'vercel', 'supabase'];
+  const labels = {connected:'verified',failed:'connection failed',unknown:'unverified'};
+  const colors = {connected:'#397448',failed:'#b24039',unknown:'transparent'};
+  async function check(row) {
+    function paint(states) {
+      for (const name of services) {
+        const label = row.querySelector('[data-service="'+name+'"]');
+        const state = Object.hasOwn(labels,states[name]) ? states[name] : 'unknown';
+        label.firstElementChild.style.backgroundColor = colors[state];
+        label.title = label.textContent.trim() + ' · ' + labels[state];
+        label.setAttribute('aria-label', label.title);
+      }
+    }
+    paint({});
+    try {
+      const url = new URL('/api/uni005', location.protocol === 'file:' ? row.dataset.origin : location.origin);
+      const response = await fetch(url, {cache:'no-store',credentials:'omit',signal:AbortSignal.timeout(8000)});
+      if (response.ok) paint(await response.json());
+    } catch { /* A saved copy can be opened offline. */ }
+  }
+  document.addEventListener('toggle', e => {
+    if (e.target.tagName === 'DETAILS' && e.target.open) {
+      const row = e.target.querySelector('[data-connections]');
+      if (row && row.closest('details') === e.target) check(row);
+    }
+  }, true);
+})();
+</script></body></html>
 
 

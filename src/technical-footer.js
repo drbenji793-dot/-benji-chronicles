@@ -1,5 +1,4 @@
 import {chapterMetrics} from './chapter-details.js';
-import {formatTime} from './revision-stamp.js';
 export function chapterBottomControls({rules=false,previous=false,next=false}={}){
  return `<nav class="chapter-bottom-controls" aria-label="Chapter editing and navigation" dir="ltr">
   ${rules?'':`<button id="bottom-prev" aria-label="Previous chapter" ${previous?'':'disabled'}>‹</button>`}
@@ -16,7 +15,10 @@ export function mountTechnicalFooter(main,footer){
  const website=document.createElement('div');website.dataset.websiteDetails='';
  website.append(...[...release.childNodes].filter(n=>n.nodeName!=='SUMMARY'));
  const stamp=website.textContent.match(/Reader v(\d+) · (\S+) · UTC/);
- if(stamp)website.textContent='Website version: '+stamp[1]+' · Released: '+formatTime(stamp[2]);
+ if(stamp){
+   const english=document.documentElement.lang==='en';
+   website.innerHTML=english ? "<div class=\"uni005-release\" dir=\"ltr\"><p>Version 280 · Released 26 November 2026 · 14:12 UTC</p><p data-connections data-origin=\"https://benji-chronicles-english.vercel.app\" style=\"display:flex;flex-wrap:wrap;gap:4px 12px\"><span role=\"img\" data-service=\"github\" aria-label=\"GitHub · unverified\"><i aria-hidden=\"true\" style=\"display:inline-block;width:7px;height:7px;border:1px solid currentColor;border-radius:100%;margin-right:4px\"></i>GitHub</span><span role=\"img\" data-service=\"vercel\" aria-label=\"Vercel · unverified\"><i aria-hidden=\"true\" style=\"display:inline-block;width:7px;height:7px;border:1px solid currentColor;border-radius:100%;margin-right:4px\"></i>Vercel</span><span role=\"img\" data-service=\"supabase\" aria-label=\"Supabase · unverified\"><i aria-hidden=\"true\" style=\"display:inline-block;width:7px;height:7px;border:1px solid currentColor;border-radius:100%;margin-right:4px\"></i>Supabase</span></p><p><a href=\"https://benji-chronicles-english.vercel.app/latest.html\" download>Download latest HTML · Chronicles English</a></p></div>" : "<div class=\"uni005-release\" dir=\"ltr\"><p>Version 280 · Released 26 November 2026 · 14:12 UTC</p><p data-connections data-origin=\"https://benji-chronicles.vercel.app\" style=\"display:flex;flex-wrap:wrap;gap:4px 12px\"><span role=\"img\" data-service=\"github\" aria-label=\"GitHub · unverified\"><i aria-hidden=\"true\" style=\"display:inline-block;width:7px;height:7px;border:1px solid currentColor;border-radius:100%;margin-right:4px\"></i>GitHub</span><span role=\"img\" data-service=\"vercel\" aria-label=\"Vercel · unverified\"><i aria-hidden=\"true\" style=\"display:inline-block;width:7px;height:7px;border:1px solid currentColor;border-radius:100%;margin-right:4px\"></i>Vercel</span><span role=\"img\" data-service=\"supabase\" aria-label=\"Supabase · unverified\"><i aria-hidden=\"true\" style=\"display:inline-block;width:7px;height:7px;border:1px solid currentColor;border-radius:100%;margin-right:4px\"></i>Supabase</span></p><p><a href=\"https://benji-chronicles.vercel.app/latest.html\" download>Download latest HTML · Chronicles Arabic</a></p></div>";
+ }
  release.remove();
  const footerControls=document.createElement('div');
  footerControls.className='uni-footer';
