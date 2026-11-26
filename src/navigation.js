@@ -71,7 +71,7 @@ export function createNavigation({ render, allowLeave, leave, onError }) {
  let touch=null;
  const blocked=target=>!!target.closest('input,textarea,select,button,a,[contenteditable="true"],dialog,.export-chapters,.goe-board')||!!document.querySelector('dialog[open]')||!!window.getSelection()?.toString();
  document.addEventListener('touchstart',e=>{
-  touch=null;if(e.touches.length!==1||loading||repairing||blocked(e.target))return;
+  touch=null;if(!document.querySelector('#universal-next,#extra-next,#bottom-next,#next,.book-navigation [aria-current=page]')||e.target.closest('[draggable=true],.shelf-book,.shelf-grid,pre,[role=slider]')||[...document.querySelectorAll('[contenteditable=true]')].some(el=>el.getClientRects().length)||e.touches.length!==1||loading||repairing||blocked(e.target))return;
   const p=e.touches[0];if(p.clientX<25||p.clientX>innerWidth-25)return;
   touch={x:p.clientX,y:p.clientY,time:performance.now(),horizontal:false};
  },{passive:true});
@@ -84,7 +84,12 @@ export function createNavigation({ render, allowLeave, leave, onError }) {
  document.addEventListener('touchend',e=>{
   const start=touch;touch=null;if(!start||e.touches.length||!e.changedTouches.length)return;
   const p=e.changedTouches[0],dx=p.clientX-start.x,dy=p.clientY-start.y;
-  if(start.horizontal&&Math.abs(dx)>=85&&Math.abs(dx)>Math.abs(dy)*1.7&&performance.now()-start.time<1000)traverse(dx>0?-1:1);
+  if(start.horizontal&&Math.abs(dx)>=85&&Math.abs(dx)>Math.abs(dy)*1.7&&performance.now()-start.time<1000){
+   const suffix=dx<0?'next':'prev';
+   const step=(document.getElementById('universal-'+suffix)||document.getElementById('extra-'+suffix)||document.getElementById('bottom-'+suffix)||document.getElementById(suffix));
+   if(step){if(!step.disabled)step.click();}
+   else {const links=[...document.querySelectorAll('.book-navigation a')];const index=links.findIndex(a=>a.matches('[aria-current=page]'));if(index>=0)links[index+(dx<0?1:-1)]?.click();}
+  }
  },{passive:true});
  document.addEventListener('touchcancel',()=>touch=null,{passive:true});
  return {navigate,start:()=>display(active)};

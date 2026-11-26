@@ -63,3 +63,5 @@
 
 /* Keep the Technicals chip on the same edge as its release rows. */
 #main details.technical-details[data-uni-footer] > summary {padding:0!important}
+
+@media(pointer:coarse){#main :is(#universal-prev,#universal-next,#bottom-prev,#bottom-next,#extra-prev,#extra-next,#prev,#next){display:none!important}}
