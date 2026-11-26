@@ -41,7 +41,8 @@ function assertReleaseOnlyFooter(f){
  const panel=f.q('[data-page-technical]');
  assert.equal(panel.open,false);
  assert.equal(panel.children.length,2);
- assert.match(panel.lastElementChild.textContent,/^WebsiteVersion \d+ · Released /);
+ assert.equal(panel.lastElementChild.querySelector('h3'),null);
+ assert.match(panel.lastElementChild.textContent,/^Version \d+ · Released /);
  assert.deepEqual([...panel.querySelectorAll('[data-service]')].map(x=>x.dataset.service),['github','vercel','supabase']);
  assert.match(panel.querySelector('a[download]').textContent,/^Download latest HTML · Chronicles /);
 }
