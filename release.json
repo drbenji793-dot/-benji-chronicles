@@ -1,6 +1,6 @@
 {
-  "version": 283,
-  "releasedAt": "2026-11-26T16:42:00.000Z",
+  "version": 284,
+  "releasedAt": "2026-11-27T00:36:00.000Z",
   "timezone": "UTC",
-  "note": "UNI023 finger swipes follow chapter order."
+  "note": "Keep the Technicals footer within tapping reach on phones."
 }

@@ -65,3 +65,10 @@
 #main details.technical-details[data-uni-footer] > summary {padding:0!important}
 
 @media(pointer:coarse){#main :is(#universal-prev,#universal-next,#bottom-prev,#bottom-next,#extra-prev,#extra-next,#prev,#next){display:none!important}}
+
+@media (pointer: coarse) {
+  /* Leave room to tap and scroll above the phone's bottom controls. */
+  #main details.technical-details[data-uni-footer] {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
